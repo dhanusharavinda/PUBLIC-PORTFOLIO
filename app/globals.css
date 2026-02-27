@@ -1,26 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;700&family=Nunito:wght@400;600;700;800&family=Syne:wght@400;500;600;700&family=DM+Mono&display=swap');
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(20 14.3% 4.1%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(20 14.3% 4.1%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(20 14.3% 4.1%);
+  --color-primary: hsl(24 9.8% 10%);
+  --color-primary-foreground: hsl(60 9.1% 97.8%);
+  --color-secondary: hsl(60 4.8% 95.9%);
+  --color-secondary-foreground: hsl(24 9.8% 10%);
+  --color-muted: hsl(60 4.8% 95.9%);
+  --color-muted-foreground: hsl(25 5.3% 44.7%);
+  --color-accent: hsl(60 4.8% 95.9%);
+  --color-accent-foreground: hsl(24 9.8% 10%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(60 9.1% 97.8%);
+  --color-border: hsl(20 5.9% 90%);
+  --color-input: hsl(20 5.9% 90%);
+  --color-ring: hsl(20 14.3% 4.1%);
+  --radius: 0.625rem;
+  --font-sans: 'Nunito', 'DM Sans', system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-mono: 'DM Mono', monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: 'Nunito', 'DM Sans', system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Nunito', 'DM Sans', system-ui, sans-serif;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Utility classes for fonts */
+.font-serif {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.font-mono {
+  font-family: 'DM Mono', monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FF9F68;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF8A4A;
+}
+
+/* Animation utilities */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

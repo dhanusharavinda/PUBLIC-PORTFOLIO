@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# buildfol.io
 
-## Getting Started
+`buildfol.io` is a portfolio builder where users can create and publish portfolio pages and browse other published portfolios in a public Explore directory.
 
-First, run the development server:
+## Core Features
+
+- Multi-step portfolio creation flow (personal info, skills, projects, template)
+- Public portfolio pages with three templates
+- File upload support for profile photos, project images, and resumes
+- Explore directory with search, skill filters, availability filter, sort, and pagination
+- QR/link sharing and view tracking
+- Responsive layouts across key pages and templates
+
+## Tech Stack
+
+- Next.js App Router + TypeScript
+- Tailwind CSS + shadcn/ui
+- Supabase (Postgres + Storage)
+- Zod validation + react-hook-form
+
+## Local Setup
+
+### 1) Install dependencies
+
+```bash
+npm install
+```
+
+### 2) Configure environment variables
+
+Create `.env.local` in the `datafolio` folder:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
+
+### 3) Set up Supabase schema
+
+Run `supabase_schema.sql` in your Supabase SQL editor, then create these Storage buckets:
+
+- `profile-photos` (public)
+- `project-images` (public)
+- `resumes` (private or public based on your preference)
+
+### 4) Start development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production Deployment (buildfol.io)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1) Deploy to Vercel
 
-## Learn More
+1. Import the repository into Vercel.
+2. Set **Root Directory** to `datafolio` if your repo has multiple folders.
+3. Add environment variables from `.env.local`.
+4. Set `NEXT_PUBLIC_BASE_URL=https://buildfol.io` for production.
 
-To learn more about Next.js, take a look at the following resources:
+### 2) Attach custom domain
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+In Vercel Project Settings:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Add domain `buildfol.io`
+2. Add domain `www.buildfol.io`
 
-## Deploy on Vercel
+Then configure DNS at your domain registrar:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `@` A record -> `76.76.21.21`
+- `www` CNAME -> `cname.vercel-dns.com`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Vercel will auto-provision SSL once DNS resolves.
+
+### 3) Optional redirect behavior
+
+- Set `www.buildfol.io` -> redirect to `buildfol.io` (or inverse) in Vercel domains panel.
+- Keep one canonical domain for SEO consistency.
+
+## Production Verification Checklist
+
+- `POST /api/upload` returns JSON on both success and failure
+- `POST /api/portfolio` creates a portfolio successfully
+- Published profile page loads at `https://buildfol.io/<username>`
+- Explore page lists public portfolios and filtering works
+- Uploaded images render correctly from Supabase storage
+- Metadata title/branding shows `buildfol.io`
+
+## Notes
+
+- If `npm install` fails in workspace root, run it in the `datafolio` directory.
+- If dev server reports `.next/dev/lock`, stop older Node processes and restart `npm run dev`.
