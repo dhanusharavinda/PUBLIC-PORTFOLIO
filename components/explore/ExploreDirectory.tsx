@@ -31,9 +31,16 @@ export function ExploreDirectory({ portfolios, allSkills }: ExploreDirectoryProp
 
       const matchesSearch =
         normalizedSearch.length === 0 ||
-        [portfolio.full_name, portfolio.job_title, portfolio.location, portfolio.tagline, portfolio.bio]
+        [
+          portfolio.full_name,
+          (portfolio as { username?: string }).username,
+          portfolio.job_title,
+          portfolio.location,
+          portfolio.tagline,
+          portfolio.bio,
+        ]
           .filter(Boolean)
-          .some((field) => field.toLowerCase().includes(normalizedSearch)) ||
+          .some((field) => String(field).toLowerCase().includes(normalizedSearch)) ||
         skillNames.some((skill) => skill.includes(normalizedSearch));
 
       const matchesSkill =
@@ -104,7 +111,7 @@ export function ExploreDirectory({ portfolios, allSkills }: ExploreDirectoryProp
                 setSearch(event.target.value);
                 setPage(1);
               }}
-              placeholder="Search by name, role, location, or skill..."
+              placeholder="Search by name, username, role, location, or skill..."
               className="block w-full bg-white border-2 border-transparent hover:border-indigo-100 focus:border-indigo-300 rounded-2xl py-4 sm:py-5 pl-12 sm:pl-14 pr-4 sm:pr-6 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-100 transition-all text-base sm:text-lg shadow-sm font-medium"
             />
           </label>

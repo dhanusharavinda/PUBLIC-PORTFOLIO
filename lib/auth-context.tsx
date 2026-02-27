@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, ReactNode, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const hasHandledInitialEvent = useRef(false);
 
   useEffect(() => {
     let mounted = true;
@@ -37,9 +38,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void init();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession ?? null);
       setIsLoaded(true);
+
+      // Ignore the first auth event on app bootstrap to avoid noisy toasts.
+      if (!hasHandledInitialEvent.current) {
+        hasHandledInitialEvent.current = true;
+        return;
+      }
+
+      if (event === 'SIGNED_IN') {
+        toast.success('Logged in successfully.');
+      }
+      if (event === 'SIGNED_OUT') {
+        toast.success('Logged out.');
+      }
     });
 
     return () => {
@@ -89,7 +103,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.error(error.message || 'Logout failed.');
       return;
     }
-    toast.success('Logged out.');
   };
 
   const user = session?.user ?? null;

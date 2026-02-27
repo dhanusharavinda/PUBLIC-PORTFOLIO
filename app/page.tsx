@@ -17,7 +17,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchJson } from '@/lib/fetch-json';
 import { PortfolioWithProjects } from '@/types/portfolio';
-import { AuthControls } from '@/components/auth/AuthControls';
+import { useAuth } from '@/lib/auth-context';
+import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
 
 function FormContent() {
   const { currentStep, setCurrentStep, formData, updateFormData, updateSkills, updateProjects, updateExperiences } = useFormContext();
@@ -27,6 +28,7 @@ function FormContent() {
   const searchParams = useSearchParams();
   const editUsername = searchParams.get('edit');
   const hydratedUsernameRef = useRef<string | null>(null);
+  const { isLoggedIn, userEmail } = useAuth();
 
   useEffect(() => {
     const hydratePortfolio = async () => {
@@ -37,6 +39,20 @@ function FormContent() {
       setIsLoadingPortfolio(true);
       try {
         const portfolio = await fetchJson<PortfolioWithProjects>(`/api/portfolio/${editUsername}`);
+        const ownerEmail = (portfolio.email || '').toLowerCase();
+        const loggedInEmail = (userEmail || '').toLowerCase();
+
+        if (!isLoggedIn || !loggedInEmail) {
+          toast.error('Please log in to edit this portfolio.');
+          router.push('/login');
+          return;
+        }
+
+        if (ownerEmail !== loggedInEmail) {
+          toast.error('You can only edit your own portfolio.');
+          router.push(`/${editUsername}`);
+          return;
+        }
 
         updateFormData({
           full_name: portfolio.full_name || '',
@@ -52,6 +68,7 @@ function FormContent() {
           availability_status: portfolio.availability_status,
           open_to_work: portfolio.open_to_work,
           template: (portfolio as { template?: string }).template === 'pastel' ? 'professional' : portfolio.template,
+          is_public: portfolio.is_public ?? true,
         });
 
         updateSkills(Array.isArray(portfolio.skills) ? portfolio.skills : []);
@@ -92,7 +109,7 @@ function FormContent() {
     };
 
     void hydratePortfolio();
-  }, [editUsername, setCurrentStep, updateFormData, updateProjects, updateSkills]);
+  }, [editUsername, isLoggedIn, router, setCurrentStep, updateFormData, updateProjects, updateSkills, updateExperiences, userEmail]);
 
   const steps = [
     { component: StepPersonal, validate: () => {
@@ -265,6 +282,7 @@ function FormContent() {
         open_to_work: formData.open_to_work,
         skills: formData.skills,
         template: formData.template,
+        is_public: formData.is_public ?? true,
         experiences: experiencesData,
         projects: projectsWithUrls,
       };
@@ -392,7 +410,7 @@ export default function Home() {
               <Link href="/explore" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
                 Explore
               </Link>
-              <AuthControls />
+              <AuthHeaderActions />
             </nav>
           </div>
         </div>

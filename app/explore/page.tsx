@@ -1,9 +1,9 @@
 import { getSupabasePublicServerClient } from '@/lib/supabase-server';
 import { Portfolio } from '@/types/portfolio';
 import { ExploreDirectory } from '@/components/explore/ExploreDirectory';
-import { AuthControls } from '@/components/auth/AuthControls';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
 
 async function getPortfolios(): Promise<Portfolio[]> {
   try {
@@ -58,7 +58,7 @@ export default async function ExplorePage() {
             >
               Create
             </Link>
-            <AuthControls />
+            <AuthHeaderActions />
           </div>
         </div>
       </header>

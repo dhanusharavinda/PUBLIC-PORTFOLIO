@@ -29,7 +29,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .from('portfolios')
       .select('*')
       .eq('username', username)
-      .eq('is_public', true)
       .single();
 
     if (portfolioError || !portfolio) {

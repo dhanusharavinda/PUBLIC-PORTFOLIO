@@ -40,6 +40,7 @@ const defaultFormData: FormData = {
   experiences: [],
   projects: [],
   template: 'minimal',
+  is_public: true,
 };
 
 const FormContext = createContext<FormContextType | undefined>(undefined);

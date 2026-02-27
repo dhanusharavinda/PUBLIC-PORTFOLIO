@@ -84,6 +84,7 @@ export const formDataSchema = z.object({
 
   // Step 5: Template
   template: z.enum(['minimal', 'professional']),
+  is_public: z.boolean().default(true),
 });
 
 export type PortfolioFormData = z.infer<typeof formDataSchema>;

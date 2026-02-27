@@ -60,7 +60,7 @@ export function LivePreview() {
       { name: 'Tableau', category: 'Tools' },
     ],
     template: formData.template,
-    is_public: true,
+    is_public: formData.is_public ?? true,
     view_count: 42,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

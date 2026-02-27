@@ -3,7 +3,7 @@
 import { useFormContext } from './FormContext';
 import { TemplateType } from '@/types/portfolio';
 import { cn } from '@/lib/utils';
-import { Check, Sparkles, Briefcase } from 'lucide-react';
+import { Check, Sparkles, Briefcase, Globe } from 'lucide-react';
 
 const templates: {
   id: TemplateType;
@@ -110,6 +110,37 @@ export function StepTemplate() {
             You can switch anytime after generating.
           </p>
         </div>
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-stone-200">
+        <label className="flex items-start gap-4 p-4 rounded-2xl border-2 border-stone-200 hover:border-stone-300 bg-white cursor-pointer transition-all">
+          <div
+            className={cn(
+              'w-12 h-12 rounded-xl flex items-center justify-center shrink-0',
+              formData.is_public ? 'bg-emerald-500 text-white' : 'bg-stone-100 text-stone-600'
+            )}
+          >
+            <Globe className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <p className="font-bold text-stone-800">Let others explore my portfolio</p>
+            <p className="text-sm text-stone-500 mt-0.5">
+              When enabled, your portfolio appears in the Explore directory so others can discover you. You can always change this later.
+            </p>
+            <button
+              type="button"
+              onClick={() => updateFormData({ is_public: !formData.is_public })}
+              className={cn(
+                'mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all',
+                formData.is_public
+                  ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+              )}
+            >
+              {formData.is_public ? 'Enabled – visible in Explore' : 'Disabled – only viewable by link'}
+            </button>
+          </div>
+        </label>
       </div>
     </div>
   );

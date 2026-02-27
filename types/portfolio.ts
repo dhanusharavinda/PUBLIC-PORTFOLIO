@@ -108,6 +108,7 @@ export interface FormData {
 
   // Step 5: Template
   template: TemplateType;
+  is_public: boolean;
 }
 
 export interface FormProject {

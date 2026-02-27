@@ -1,4 +1,4 @@
-import { getSupabasePublicServerClient } from '@/lib/supabase-server';
+import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { PortfolioWithProjects } from '@/types/portfolio';
 import { MinimalTemplate } from '@/components/templates/MinimalTemplate';
 import { PastelTemplate } from '@/components/templates/PastelTemplate';
@@ -11,12 +11,11 @@ interface PortfolioPageProps {
 
 async function getPortfolio(username: string): Promise<PortfolioWithProjects | null> {
   try {
-    const supabase = getSupabasePublicServerClient();
+    const supabase = getSupabaseAdmin();
     const { data: portfolio, error: portfolioError } = await supabase
       .from('portfolios')
       .select('*')
       .eq('username', username)
-      .eq('is_public', true)
       .single();
 
     if (portfolioError || !portfolio) {
