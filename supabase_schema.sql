@@ -18,9 +18,9 @@ CREATE TABLE portfolios (
   availability_status TEXT CHECK (availability_status IN ('open_fulltime', 'freelance', 'not_looking')) DEFAULT 'open_fulltime',
   open_to_work BOOLEAN DEFAULT true,
   skills JSONB DEFAULT '[]'::jsonb,
-  template TEXT CHECK (template IN ('minimal', 'pastel', 'professional')) DEFAULT 'minimal',
+  template TEXT CHECK (template IN ('minimal', 'professional')) DEFAULT 'minimal',
   is_public BOOLEAN DEFAULT true,
-  view_count INTEGER DEFAULT 0,
+  view_count INTEGER DEFAULT 0, 
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );

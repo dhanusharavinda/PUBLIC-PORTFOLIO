@@ -94,6 +94,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Update portfolio
     const updateData = {
       ...portfolioUpdates,
+      template: (portfolioUpdates as { template?: string }).template === 'pastel'
+        ? 'professional'
+        : (portfolioUpdates as { template?: string }).template,
       updated_at: new Date().toISOString(),
     };
 

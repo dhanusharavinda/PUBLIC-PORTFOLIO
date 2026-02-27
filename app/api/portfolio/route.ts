@@ -20,9 +20,13 @@ export async function POST(request: NextRequest) {
   try {
     const supabaseAdmin = getSupabaseAdmin();
     const body = await request.json();
+    const normalizedBody = {
+      ...body,
+      template: body?.template === 'pastel' ? 'professional' : body?.template,
+    };
 
     // Validate the portfolio data
-    const validatedPortfolio = portfolioSchema.parse(body);
+    const validatedPortfolio = portfolioSchema.parse(normalizedBody);
 
     // Check if username is unique, if not generate a new one
     const { data: existingUsers } = await supabaseAdmin
@@ -56,8 +60,8 @@ export async function POST(request: NextRequest) {
     const portfolioId = (portfolio as { id: string }).id;
 
     // Insert experiences if any (filter out empty entries)
-    if (body.experiences && body.experiences.length > 0) {
-      const nonEmptyExperiences = (body.experiences as Record<string, unknown>[]).filter((exp) => {
+    if (normalizedBody.experiences && normalizedBody.experiences.length > 0) {
+      const nonEmptyExperiences = (normalizedBody.experiences as Record<string, unknown>[]).filter((exp) => {
         const hasCompany = typeof exp.company === 'string' && exp.company.trim() !== '';
         const hasRole = typeof exp.role === 'string' && exp.role.trim() !== '';
         const hasDescription = typeof exp.description === 'string' && exp.description.trim() !== '';
@@ -105,8 +109,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert projects if any (filter out empty entries)
-    if (body.projects && body.projects.length > 0) {
-      const nonEmptyProjects = (body.projects as Record<string, unknown>[]).filter((project) => {
+    if (normalizedBody.projects && normalizedBody.projects.length > 0) {
+      const nonEmptyProjects = (normalizedBody.projects as Record<string, unknown>[]).filter((project) => {
         const hasName = typeof project.name === 'string' && project.name.trim() !== '';
         const hasDescription = typeof project.description === 'string' && project.description.trim() !== '';
         const hasUrl = typeof project.github_url === 'string' && project.github_url.trim() !== '';

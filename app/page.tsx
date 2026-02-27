@@ -51,7 +51,7 @@ function FormContent() {
           resume_url: portfolio.resume_url || '',
           availability_status: portfolio.availability_status,
           open_to_work: portfolio.open_to_work,
-          template: portfolio.template,
+          template: (portfolio as { template?: string }).template === 'pastel' ? 'professional' : portfolio.template,
         });
 
         updateSkills(Array.isArray(portfolio.skills) ? portfolio.skills : []);

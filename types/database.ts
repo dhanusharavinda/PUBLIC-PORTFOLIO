@@ -26,7 +26,7 @@ export interface Database {
           availability_status: 'open_fulltime' | 'freelance' | 'not_looking';
           open_to_work: boolean;
           skills: Json;
-          template: 'minimal' | 'pastel' | 'professional';
+          template: 'minimal' | 'professional';
           is_public: boolean;
           view_count: number;
           created_at: string;
@@ -48,7 +48,7 @@ export interface Database {
           availability_status?: 'open_fulltime' | 'freelance' | 'not_looking';
           open_to_work?: boolean;
           skills?: Json;
-          template?: 'minimal' | 'pastel' | 'professional';
+          template?: 'minimal' | 'professional';
           is_public?: boolean;
           view_count?: number;
           created_at?: string;
@@ -70,7 +70,7 @@ export interface Database {
           availability_status?: 'open_fulltime' | 'freelance' | 'not_looking';
           open_to_work?: boolean;
           skills?: Json;
-          template?: 'minimal' | 'pastel' | 'professional';
+          template?: 'minimal' | 'professional';
           is_public?: boolean;
           view_count?: number;
           created_at?: string;
@@ -133,7 +133,7 @@ export interface Database {
     };
     Enums: {
       availability_status: 'open_fulltime' | 'freelance' | 'not_looking';
-      template_type: 'minimal' | 'pastel' | 'professional';
+      template_type: 'minimal' | 'professional';
     };
   };
 }

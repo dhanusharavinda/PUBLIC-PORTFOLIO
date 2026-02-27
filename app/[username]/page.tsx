@@ -85,8 +85,13 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
     notFound();
   }
 
+  // Backward compatibility: old "pastel" values are now treated as "professional"
+  const template = (portfolio as { template?: string }).template === 'pastel'
+    ? 'professional'
+    : portfolio.template;
+
   // Render the appropriate template
-  switch (portfolio.template) {
+  switch (template) {
     case 'minimal':
       return <MinimalTemplate portfolio={portfolio} />;
     case 'professional':
