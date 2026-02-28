@@ -29,10 +29,10 @@ export async function POST(request: NextRequest) {
 
     // Check if user already has a portfolio (one portfolio per email policy)
     const { data: existingPortfolioByEmail } = await supabaseAdmin
-      .from('portfolios')
-      .select('username')
-      .eq('email', validatedPortfolio.email)
-      .maybeSingle();
+  .from('portfolios')
+  .select('username')
+  .eq('email', validatedPortfolio.email)
+  .maybeSingle() as { data: { username: string } | null };
 
     if (existingPortfolioByEmail) {
       return apiError(
