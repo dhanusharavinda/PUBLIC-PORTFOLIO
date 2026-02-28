@@ -35,10 +35,34 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
   const featuredProject = sortedProjects.find((project) => project.is_featured) || sortedProjects[0] || null;
   const remainingProjects = sortedProjects.filter((project) => project.id !== featuredProject?.id);
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success('Message sent! We will get back to you soon.');
-    (e.target as HTMLFormElement).reset();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.get('name'),
+          email: formData.get('email'),
+          message: formData.get('message'),
+          portfolio_username: portfolio.username,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Message sent successfully!');
+        form.reset();
+      } else {
+        toast.error(result.error || 'Failed to send message');
+      }
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.');
+    }
   };
 
   const handleShare = async () => {
@@ -53,12 +77,12 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
 
   return (
     <div className="min-h-screen bg-[#fdf0d5] text-slate-800 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 xl:p-12">
-        <div className="bg-white/90 border border-[#e8ebf5] rounded-3xl shadow-[0_8px_40px_rgba(55,84,170,0.08)] p-6 sm:p-8 lg:p-12">
-          <div className="flex items-start justify-between gap-4 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="size-16 sm:size-20 rounded-2xl overflow-hidden bg-gradient-to-br from-[#dbe7ff] to-[#f1e0ff]">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-8 xl:p-12">
+        <div className="bg-white/90 border border-[#e8ebf5] rounded-2xl sm:rounded-3xl shadow-[0_8px_40px_rgba(55,84,170,0.08)] p-4 sm:p-6 lg:p-12">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6 sm:mb-8">
+            <div className="flex items-center gap-3 sm:gap-4 w-full">
+              <div className="relative flex-shrink-0">
+                <div className="size-14 sm:size-16 lg:size-20 rounded-2xl overflow-hidden bg-gradient-to-br from-[#dbe7ff] to-[#f1e0ff]">
                   {portfolio.profile_photo_url ? (
                     <Image
                       src={portfolio.profile_photo_url}
@@ -68,39 +92,39 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-indigo-500">
+                    <div className="w-full h-full flex items-center justify-center text-xl sm:text-2xl font-bold text-indigo-500">
                       {portfolio.full_name.charAt(0)}
                     </div>
                   )}
                 </div>
               </div>
-              <div>
-                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">{portfolio.full_name}</h1>
-                <p className="text-base sm:text-xl text-indigo-500 mt-1">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold tracking-tight truncate">{portfolio.full_name}</h1>
+                <p className="text-sm sm:text-base lg:text-xl text-indigo-500 mt-0.5 sm:mt-1 truncate">
                   {portfolio.job_title}
                   {portfolio.tagline ? ` | ${portfolio.tagline}` : ''}
                 </p>
-                <p className="text-slate-500 mt-1 flex items-center gap-2 text-sm sm:text-base">
-                  <MapPin className="w-4 h-4" />
-                  {portfolio.location || 'Location not specified'}
+                <p className="text-slate-500 mt-0.5 sm:mt-1 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm lg:text-base">
+                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="truncate">{portfolio.location || 'Location not specified'}</span>
                 </p>
-            {portfolio.open_to_work && (
-              <span className="inline-flex mt-2 rounded-full bg-emerald-500 text-white text-xs px-3 py-1 font-semibold">
-                Open to Work
-              </span>
-            )}
+                {portfolio.open_to_work && (
+                  <span className="inline-flex mt-1.5 sm:mt-2 rounded-full bg-emerald-500 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 font-semibold">
+                    Open to Work
+                  </span>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500 text-white rounded-full text-xs font-semibold hover:bg-indigo-600 transition-colors"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-indigo-500 text-white rounded-full text-xs font-semibold hover:bg-indigo-600 transition-colors"
               >
-                <Share2 className="w-3.5 h-3.5" />
-                Share
+                <Share2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span className="hidden sm:inline">Share</span>
               </button>
-              <span className="text-xs font-semibold text-indigo-500 bg-indigo-50 px-3 py-1.5 rounded-full">
+              <span className="text-xs font-semibold text-indigo-500 bg-indigo-50 px-2 sm:px-3 py-1.5 rounded-full hidden sm:block">
                 portoo.io
               </span>
               {!isPreview && <ViewCounter username={portfolio.username} initialCount={portfolio.view_count} />}
@@ -294,42 +318,45 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
               <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-slate-800">Get In Touch</h2>
               <p className="text-slate-500 text-base">Have a question or want to work together? Feel free to reach out!</p>
             </div>
-            <form onSubmit={handleContactSubmit} className="bg-white rounded-2xl p-8 sm:p-10 shadow-[0_4px_30px_rgba(55,84,170,0.12)] border border-[#e8ebf5] max-w-3xl mx-auto">
-              <div className="grid sm:grid-cols-2 gap-5 mb-5">
+            <form onSubmit={handleContactSubmit} className="bg-white rounded-2xl p-6 sm:p-8 lg:p-10 shadow-[0_4px_30px_rgba(55,84,170,0.12)] border border-[#e8ebf5] max-w-3xl mx-auto">
+              <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-5">
                 <div>
                   <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Name</label>
                   <input
                     type="text"
+                    name="name"
                     placeholder="Your name"
                     required
-                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base"
+                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 sm:py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base"
                   />
                 </div>
                 <div>
                   <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Email</label>
                   <input
                     type="email"
+                    name="email"
                     placeholder="your.email@example.com"
                     required
-                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base"
+                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 sm:py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base"
                   />
                 </div>
               </div>
-              <div className="mb-5">
+              <div className="mb-4 sm:mb-5">
                 <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Message</label>
                 <textarea
+                  name="message"
                   placeholder="Your message here..."
                   required
-                  rows={5}
+                  rows={4}
                   maxLength={1000}
-                  className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base resize-none"
+                  className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 sm:py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base resize-none"
                 />
                 <p className="text-xs text-slate-400 text-right mt-1">Max 1000 characters</p>
               </div>
               <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-3 rounded-full font-semibold text-base transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+                  className="bg-indigo-500 hover:bg-indigo-600 text-white px-8 sm:px-10 py-3 rounded-full font-semibold text-base transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <Send className="w-5 h-5" />
                   Send Message

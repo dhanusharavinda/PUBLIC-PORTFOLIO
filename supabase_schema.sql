@@ -136,3 +136,33 @@ CREATE POLICY "Allow public access to profile-photos"
 CREATE POLICY "Allow public access to project-images" 
   ON storage.objects FOR SELECT 
   USING (bucket_id = 'project-images');
+
+-- Create contact_messages table
+CREATE TABLE contact_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  portfolio_id UUID NOT NULL REFERENCES portfolios(id) ON DELETE CASCADE,
+  sender_name TEXT NOT NULL,
+  sender_email TEXT NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Index for faster queries
+CREATE INDEX idx_contact_messages_portfolio_id ON contact_messages(portfolio_id);
+CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at);
+
+-- Enable RLS on contact_messages
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+-- Allow portfolio owner to view their messages
+CREATE POLICY "Allow portfolio owner to view their messages" 
+  ON contact_messages FOR SELECT 
+  USING (portfolio_id IN (
+    SELECT id FROM portfolios WHERE email = auth.jwt()->>'email'
+  ));
+
+-- Allow anyone to insert messages (for contact form)
+CREATE POLICY "Allow anyone to send messages" 
+  ON contact_messages FOR INSERT 
+  WITH CHECK (true);
