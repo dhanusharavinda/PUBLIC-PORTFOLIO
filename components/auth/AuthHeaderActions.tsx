@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { fetchJson } from '@/lib/fetch-json';
-import { toast } from 'sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, FolderOpen } from 'lucide-react';
+import { ChevronDown, FolderOpen, User } from 'lucide-react';
 
 interface MyPortfolioItem {
   id: string;
@@ -28,13 +27,13 @@ interface MyPortfolioItem {
 
 export function AuthHeaderActions() {
   const { isLoggedIn, userEmail, logout } = useAuth();
-  const [portfolios, setPortfolios] = useState<MyPortfolioItem[]>([]);
+  const [portfolio, setPortfolio] = useState<MyPortfolioItem | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const loadMyPortfolios = async () => {
+    const loadMyPortfolio = async () => {
       if (!isLoggedIn) {
-        setPortfolios([]);
+        setPortfolio(null);
         return;
       }
 
@@ -43,7 +42,7 @@ export function AuthHeaderActions() {
         const { data } = await supabase.auth.getSession();
         const token = data.session?.access_token;
         if (!token) {
-          setPortfolios([]);
+          setPortfolio(null);
           return;
         }
 
@@ -54,7 +53,9 @@ export function AuthHeaderActions() {
           },
         });
 
-        setPortfolios(Array.isArray(result.portfolios) ? result.portfolios : []);
+        // Take only the first portfolio (enforced one per user)
+        const portfolios = Array.isArray(result.portfolios) ? result.portfolios : [];
+        setPortfolio(portfolios[0] || null);
       } catch (error) {
         console.error('Header my portfolio fetch failed:', error);
       } finally {
@@ -62,23 +63,8 @@ export function AuthHeaderActions() {
       }
     };
 
-    void loadMyPortfolios();
+    void loadMyPortfolio();
   }, [isLoggedIn]);
-
-  const baseUrl = useMemo(() => {
-    if (typeof window === 'undefined') return '';
-    return window.location.origin;
-  }, []);
-
-  const handleShare = async (username: string) => {
-    const link = `${baseUrl}/${username}`;
-    try {
-      await navigator.clipboard.writeText(link);
-      toast.success('Portfolio link copied.');
-    } catch {
-      toast.error('Could not copy link. Please copy manually.');
-    }
-  };
 
   if (isLoggedIn) {
     return (
@@ -94,50 +80,42 @@ export function AuthHeaderActions() {
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuLabel>My Portfolios</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-64">
+            <DropdownMenuLabel>My Portfolio</DropdownMenuLabel>
             <DropdownMenuSeparator />
 
             {isLoading ? (
-              <DropdownMenuItem disabled>Loading portfolios...</DropdownMenuItem>
-            ) : portfolios.length === 0 ? (
-              <DropdownMenuItem asChild>
-                <Link href="/" className="w-full">
-                  No portfolio yet - Create one
-                </Link>
-              </DropdownMenuItem>
-            ) : (
-              portfolios.map((portfolio) => (
-                <div key={portfolio.id}>
-                  <DropdownMenuItem className="cursor-default">
+              <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+            ) : portfolio ? (
+              <>
+                <DropdownMenuItem className="cursor-default">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-stone-400" />
                     <div className="flex flex-col">
                       <span className="font-semibold text-sm">{portfolio.full_name}</span>
-                      <span className="text-xs text-stone-500">@{portfolio.username} - {portfolio.job_title}</span>
+                      <span className="text-xs text-stone-500">@{portfolio.username}</span>
                     </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href={`/${portfolio.username}`} className="w-full">
-                      View
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href={`/?edit=${portfolio.username}`} className="w-full">
-                      Edit
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleShare(portfolio.username)}>
-                    Share
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </div>
-              ))
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={`/${portfolio.username}`} className="w-full">
+                    View Portfolio
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/?edit=${portfolio.username}`} className="w-full">
+                    Edit Portfolio
+                  </Link>
+                </DropdownMenuItem>
+              </>
+            ) : (
+              <DropdownMenuItem asChild>
+                <Link href="/" className="w-full">
+                  Create Your Portfolio
+                </Link>
+              </DropdownMenuItem>
             )}
-
-            <DropdownMenuItem asChild>
-              <Link href="/" className="w-full">
-                Create New Portfolio
-              </Link>
-            </DropdownMenuItem>
 
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>

@@ -10,7 +10,9 @@ interface AuthContextType {
   user: User | null;
   userEmail: string | null;
   signInWithGoogle: () => Promise<void>;
-  signInWithEmail: (email: string) => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   logout: () => void;
   canEditPortfolio: (portfolioEmail: string) => boolean;
 }
@@ -75,26 +77,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithEmail = async (email: string) => {
-    const trimmed = email.trim();
-    if (!trimmed) {
-      toast.error('Please enter a valid email.');
+  const signInWithEmail = async (email: string, password: string) => {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
+      toast.error('Please enter both email and password.');
       return;
     }
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: trimmed,
+    const { error } = await supabase.auth.signInWithPassword({
+      email: trimmedEmail,
+      password: password,
+    });
+
+    if (error) {
+      toast.error(error.message || 'Login failed. Please check your credentials.');
+      throw error;
+    }
+
+    toast.success('Welcome back!');
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password || password.length < 6) {
+      toast.error('Please enter a valid email and password (min 6 characters).');
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email: trimmedEmail,
+      password: password,
       options: {
         emailRedirectTo: window.location.origin,
       },
     });
 
     if (error) {
-      toast.error(error.message || 'Email sign-in failed.');
+      toast.error(error.message || 'Sign up failed.');
       throw error;
     }
 
-    toast.success('Magic link sent. Check your email to sign in.');
+    toast.success('Account created successfully! You are now logged in.');
+  };
+
+  const resetPassword = async (email: string) => {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      toast.error('Please enter your email address.');
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      toast.error(error.message || 'Failed to send reset email.');
+      throw error;
+    }
+
+    toast.success('Password reset link sent! Check your email.');
   };
 
   const logout = async () => {
@@ -121,6 +163,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       userEmail,
       signInWithGoogle,
       signInWithEmail,
+      signUpWithEmail,
+      resetPassword,
       logout,
       canEditPortfolio,
     }),

@@ -1,4 +1,4 @@
--- buildfol.io Supabase Schema
+-- portoo.io Supabase Schema
 -- Run this in your Supabase SQL Editor
 
 -- Create portfolios table
@@ -10,7 +10,7 @@ CREATE TABLE portfolios (
   job_title TEXT NOT NULL,
   location TEXT,
   bio TEXT,
-  email TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,  -- One portfolio per email enforced
   profile_photo_url TEXT,
   linkedin_url TEXT,
   github_username TEXT,
@@ -20,7 +20,7 @@ CREATE TABLE portfolios (
   skills JSONB DEFAULT '[]'::jsonb,
   template TEXT CHECK (template IN ('minimal', 'professional')) DEFAULT 'minimal',
   is_public BOOLEAN DEFAULT true,
-  view_count INTEGER DEFAULT 0, 
+  view_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );

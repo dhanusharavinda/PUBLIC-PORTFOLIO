@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "buildfol.io - Your Portfolio. Your Story.",
-  description: "Create a stunning portfolio in minutes on buildfol.io and showcase your projects with beautiful templates.",
+  title: "portoo.io - Your Portfolio. Your Story.",
+  description: "Create a stunning portfolio in minutes on portoo.io and showcase your projects with beautiful templates.",
 };
 
 export default function RootLayout({

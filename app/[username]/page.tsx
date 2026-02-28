@@ -61,12 +61,12 @@ export async function generateMetadata({ params }: PortfolioPageProps): Promise<
 
   if (!portfolio) {
     return {
-      title: 'Portfolio Not Found - buildfol.io',
+      title: 'Portfolio Not Found - portoo.io',
     };
   }
 
   return {
-    title: `${portfolio.full_name} - ${portfolio.job_title} | buildfol.io`,
+    title: `${portfolio.full_name} - ${portfolio.job_title} | portoo.io`,
     description: portfolio.bio,
     openGraph: {
       title: `${portfolio.full_name} - ${portfolio.job_title}`,

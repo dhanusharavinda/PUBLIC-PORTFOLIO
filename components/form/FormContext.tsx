@@ -41,6 +41,7 @@ const defaultFormData: FormData = {
   projects: [],
   template: 'minimal',
   is_public: true,
+  username: '',
 };
 
 const FormContext = createContext<FormContextType | undefined>(undefined);

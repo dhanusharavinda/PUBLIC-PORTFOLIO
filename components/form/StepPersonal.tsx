@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { useFormContext } from './FormContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,35 +14,59 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Upload, FileText, Linkedin, Github, Briefcase, MapPin, Mail, User } from 'lucide-react';
+import { Upload, FileText, Linkedin, Github, Briefcase, MapPin, Mail, User, Crop } from 'lucide-react';
 import { cropAndResizeImage } from '@/lib/image-processing';
+import { ImageCropper } from '@/components/ui/image-cropper';
 import { toast } from 'sonner';
 
 export function StepPersonal() {
   const { formData, updateFormData } = useFormContext();
-  const bioWordCount = formData.bio.trim().split(/\s+/).filter(Boolean).length;
+  const bioWordCount = useMemo(() => {
+    return formData.bio.trim().split(/\s+/).filter(Boolean).length;
+  }, [formData.bio]);
+
+  // Image cropper state
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperFile, setCropperFile] = useState<File | null>(null);
+  const [cropperType, setCropperType] = useState<'profile' | 'cover'>('profile');
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'profile' | 'resume'
   ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      try {
-        if (type === 'profile') {
-          const optimized = await cropAndResizeImage(file, {
-            aspectRatio: 1,
-            width: 800,
-            height: 800,
-          });
-          // Clear the URL when new file is selected
-          updateFormData({ profile_photo: optimized, profile_photo_url: '' });
-        } else {
-          updateFormData({ resume: file, resume_url: '' });
-        }
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Unable to process the selected file.');
-      }
+    if (!file) return;
+
+    if (type === 'profile') {
+      // Open cropper for profile photo
+      setCropperFile(file);
+      setCropperType('profile');
+      setCropperOpen(true);
+    } else {
+      updateFormData({ resume: file, resume_url: '' });
+    }
+  };
+
+  const handleCrop = (croppedFile: File) => {
+    if (cropperType === 'profile') {
+      updateFormData({ profile_photo: croppedFile, profile_photo_url: '' });
+    }
+    setCropperFile(null);
+  };
+
+  const handleAutoCrop = async () => {
+    if (!cropperFile) return;
+    try {
+      const optimized = await cropAndResizeImage(cropperFile, {
+        aspectRatio: 1,
+        width: 800,
+        height: 800,
+      });
+      updateFormData({ profile_photo: optimized, profile_photo_url: '' });
+      setCropperOpen(false);
+      setCropperFile(null);
+    } catch (error) {
+      toast.error('Auto-crop failed. Please try manual crop.');
     }
   };
 
@@ -145,8 +170,8 @@ export function StepPersonal() {
             <Upload className="w-4 h-4" />
             Profile Photo
           </Label>
-          <label className="flex items-center gap-4 p-2 bg-stone-50 rounded-2xl border border-dashed border-stone-300 hover:border-orange-500/50 transition-colors cursor-pointer group">
-            <div className="size-14 rounded-xl bg-white flex items-center justify-center border border-stone-200 shadow-sm group-hover:scale-105 transition-transform overflow-hidden">
+          <div className="flex items-center gap-4 p-2 bg-stone-50 rounded-2xl border border-dashed border-stone-300">
+            <div className="size-14 rounded-xl bg-white flex items-center justify-center border border-stone-200 shadow-sm overflow-hidden">
               {formData.profile_photo ? (
                 <img
                   src={URL.createObjectURL(formData.profile_photo)}
@@ -160,19 +185,52 @@ export function StepPersonal() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <Upload className="w-5 h-5 text-stone-400 group-hover:text-orange-500" />
+                <Upload className="w-5 h-5 text-stone-400" />
               )}
             </div>
-            <span className="text-sm font-bold text-stone-500 group-hover:text-orange-500">
-              {formData.profile_photo ? 'Change Image' : formData.profile_photo_url ? 'Change Current Image' : 'Upload Image'}
-            </span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFileChange(e, 'profile')}
-              className="hidden"
-            />
-          </label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-bold text-stone-500 hover:text-orange-500 transition-colors cursor-pointer">
+                {formData.profile_photo ? 'Change Image' : formData.profile_photo_url ? 'Change Image' : 'Upload Image'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, 'profile')}
+                  className="hidden"
+                />
+              </label>
+              {cropperFile && (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCropperOpen(true)}
+                    className="text-xs flex items-center gap-1 text-orange-500 hover:text-orange-600 font-medium"
+                  >
+                    <Crop className="w-3 h-3" />
+                    Manual Crop
+                  </button>
+                  <span className="text-xs text-stone-300">|</span>
+                  <button
+                    type="button"
+                    onClick={handleAutoCrop}
+                    className="text-xs text-stone-500 hover:text-orange-500"
+                  >
+                    Auto-crop
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Image Cropper Modal */}
+          <ImageCropper
+            imageFile={cropperFile}
+            isOpen={cropperOpen}
+            onClose={() => {
+              setCropperOpen(false);
+              setCropperFile(null);
+            }}
+            onCrop={handleCrop}
+            aspectRatio={1}
+          />
         </div>
 
         <div className="space-y-2">

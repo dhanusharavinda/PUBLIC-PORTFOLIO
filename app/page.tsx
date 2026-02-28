@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ArrowRight, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { slugify } from '@/lib/slugify';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchJson } from '@/lib/fetch-json';
@@ -123,7 +122,19 @@ function FormContent() {
     { component: StepSkills, validate: () => null },
     { component: StepExperience, validate: () => null },
     { component: StepProjects, validate: () => null },
-    { component: StepTemplate, validate: () => null },
+    { component: StepTemplate, validate: () => {
+      // Only validate username for new portfolios (not edit mode)
+      if (!editUsername) {
+        if (!formData.username || formData.username.length < 3) {
+          return 'Please enter a username (at least 3 characters)';
+        }
+        const usernameRegex = /^[a-z0-9-]+$/;
+        if (!usernameRegex.test(formData.username)) {
+          return 'Username can only contain lowercase letters, numbers, and hyphens';
+        }
+      }
+      return null;
+    }},
   ];
 
   const CurrentStepComponent = steps[currentStep - 1].component;
@@ -264,8 +275,19 @@ function FormContent() {
         order_index: index,
       }));
 
+      // Validate username for new portfolios
+      if (!editUsername) {
+        if (!formData.username || formData.username.length < 3) {
+          throw new Error('Please enter a username (at least 3 characters) in the Template step');
+        }
+        const usernameRegex = /^[a-z0-9-]+$/;
+        if (!usernameRegex.test(formData.username)) {
+          throw new Error('Username can only contain lowercase letters, numbers, and hyphens');
+        }
+      }
+
       // Create portfolio
-      const username = editUsername || slugify(formData.full_name);
+      const username = editUsername || formData.username;
       const portfolioData = {
         username,
         full_name: formData.full_name,
@@ -343,13 +365,13 @@ function FormContent() {
               <div />
             )}
 
-            {currentStep < 4 ? (
+            {currentStep < 5 ? (
               <Button
                 onClick={handleNext}
                 disabled={isSubmitting || isLoadingPortfolio}
                 className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
               >
-                Next
+                {currentStep === 4 ? 'Next: Choose Theme' : 'Next'}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             ) : (
@@ -400,7 +422,7 @@ export default function Home() {
                 <Sparkles className="w-5 h-5" />
               </div>
               <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-stone-800">
-                buildfol.io
+                portoo.io
               </h2>
             </div>
             <nav className="flex items-center gap-3 sm:gap-8">
@@ -417,61 +439,37 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="w-full px-4 sm:px-6 lg:px-10 py-16 lg:py-24">
-        <div className="flex flex-col lg:flex-row items-center gap-16 mb-16">
-          <div className="w-full lg:w-1/2 flex flex-col gap-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-sm border border-white text-orange-500 text-xs font-bold uppercase tracking-wider w-fit mx-auto lg:mx-0 shadow-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-              </span>
-              Free Portfolio Generator
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-tight tracking-tight text-stone-800">
-              Your Portfolio. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500">
-                Your Story.
-              </span>
-            </h1>
-            <p className="text-lg sm:text-xl text-stone-500 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed">
-              Fill in your details. Pick a theme. Share your link. The professional way to showcase your data projects with style.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a
-                href="#form"
-                className="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-orange-500/20 hover:bg-orange-600 transition-all transform hover:-translate-y-1 text-center"
-              >
-                Create Now
-              </a>
-              <Link
-                href="/explore"
-                className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
-              >
-                View Examples
-              </Link>
-            </div>
+      <section className="w-full px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
+        <div className="max-w-4xl mx-auto text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-sm border border-white text-orange-500 text-xs font-bold uppercase tracking-wider mx-auto shadow-sm mb-6">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+            </span>
+            Free Portfolio Generator
           </div>
-          <div className="w-full lg:w-1/2">
-            <div className="relative rounded-[2rem] overflow-hidden border-4 border-white shadow-2xl shadow-orange-500/10 rotate-1 hover:rotate-0 transition-transform duration-500 ease-out">
-              <div className="h-[400px] w-full bg-gradient-to-br from-purple-100 via-white to-orange-100 p-8">
-                <div className="w-full h-full rounded-3xl bg-white/60 backdrop-blur-md border border-white/60 p-6 shadow-xl">
-                  <div className="flex gap-3 mb-6">
-                    <div className="size-4 rounded-full bg-red-300"></div>
-                    <div className="size-4 rounded-full bg-amber-300"></div>
-                    <div className="size-4 rounded-full bg-emerald-300"></div>
-                  </div>
-                  <div className="space-y-5">
-                    <div className="h-10 w-1/3 bg-white/60 rounded-xl shadow-sm"></div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="h-28 bg-orange-200/50 rounded-2xl border border-white/50"></div>
-                      <div className="h-28 bg-purple-200/50 rounded-2xl border border-white/50"></div>
-                      <div className="h-28 bg-green-200/50 rounded-2xl border border-white/50"></div>
-                    </div>
-                    <div className="h-40 bg-stone-200/50 rounded-2xl border border-white/50"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-stone-800 mb-4">
+            Your Portfolio.{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500">
+              Your Story.
+            </span>
+          </h1>
+          <p className="text-lg text-stone-500 max-w-2xl mx-auto font-medium leading-relaxed mb-8">
+            Fill in your details. Pick a theme. Share your link. The professional way to showcase your projects.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="#form"
+              className="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-orange-500/20 hover:bg-orange-600 transition-all transform hover:-translate-y-1 text-center"
+            >
+              Create Now
+            </a>
+            <Link
+              href="/explore"
+              className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
+            >
+              View Examples
+            </Link>
           </div>
         </div>
 
@@ -490,13 +488,13 @@ export default function Home() {
             <div className="flex items-center justify-center size-8 bg-orange-500 rounded-lg text-white shadow-sm">
               <Sparkles className="w-4 h-4" />
             </div>
-            <h2 className="text-xl font-bold text-stone-800">buildfol.io</h2>
+            <h2 className="text-xl font-bold text-stone-800">portoo.io</h2>
           </div>
           <div className="flex gap-8 text-sm font-semibold text-stone-500">
             <Link href="/explore" className="hover:text-orange-500 transition-colors">Explore</Link>
           </div>
           <div className="text-sm text-stone-500 font-medium">
-            &copy; {new Date().getFullYear()} buildfol.io. All rights reserved.
+            &copy; {new Date().getFullYear()} portoo.io. All rights reserved.
           </div>
         </div>
       </footer>

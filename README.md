@@ -1,6 +1,6 @@
-# buildfol.io
+# portoo.io
 
-`buildfol.io` is a portfolio builder where users can create and publish portfolio pages and browse other published portfolios in a public Explore directory.
+`portoo.io` is a portfolio builder where users can create and publish portfolio pages and browse other published portfolios in a public Explore directory.
 
 ## Core Features
 
@@ -60,14 +60,14 @@ Open `http://localhost:3000`.
 1. Import the repository into Vercel.
 2. Set **Root Directory** to `datafolio` if your repo has multiple folders.
 3. Add environment variables from `.env.local`.
-4. Set `NEXT_PUBLIC_BASE_URL=https://buildfol.io` for production.
+4. Set `NEXT_PUBLIC_BASE_URL=https://portoo.io` for production.
 
 ### 2) Attach custom domain
 
 In Vercel Project Settings:
 
-1. Add domain `buildfol.io`
-2. Add domain `www.buildfol.io`
+1. Add domain `portoo.io`
+2. Add domain `www.portoo.io`
 
 Then configure DNS at your domain registrar:
 
@@ -78,17 +78,17 @@ Vercel will auto-provision SSL once DNS resolves.
 
 ### 3) Optional redirect behavior
 
-- Set `www.buildfol.io` -> redirect to `buildfol.io` (or inverse) in Vercel domains panel.
+- Set `www.portoo.io` -> redirect to `portoo.io` (or inverse) in Vercel domains panel.
 - Keep one canonical domain for SEO consistency.
 
 ## Production Verification Checklist
 
 - `POST /api/upload` returns JSON on both success and failure
 - `POST /api/portfolio` creates a portfolio successfully
-- Published profile page loads at `https://buildfol.io/<username>`
+- Published profile page loads at `https://portoo.io/<username>`
 - Explore page lists public portfolios and filtering works
 - Uploaded images render correctly from Supabase storage
-- Metadata title/branding shows `buildfol.io`
+- Metadata title/branding shows `portoo.io`
 
 ## Notes
 

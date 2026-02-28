@@ -11,7 +11,7 @@ export default function NotFound() {
             <div className="text-[#FF9AA2]">
               <Database className="w-8 h-8" />
             </div>
-            <h1 className="text-xl font-extrabold tracking-tight text-slate-700">buildfol.io</h1>
+            <h1 className="text-xl font-extrabold tracking-tight text-slate-700">portoo.io</h1>
           </Link>
           <nav className="flex items-center gap-4 sm:gap-8 text-sm font-medium text-slate-600">
             <Link href="/explore" className="hover:text-[#FF9AA2] transition-colors">Explore</Link>
@@ -126,7 +126,7 @@ export default function NotFound() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 opacity-50">
             <Database className="w-5 h-5 text-slate-600" />
-            <span className="text-sm font-bold text-slate-600">buildfol.io &copy; {new Date().getFullYear()}</span>
+            <span className="text-sm font-bold text-slate-600">portoo.io &copy; {new Date().getFullYear()}</span>
           </div>
           <div className="flex gap-6 text-sm text-slate-400 font-medium">
             <Link href="/" className="hover:text-[#FF9AA2] transition-colors">Create</Link>

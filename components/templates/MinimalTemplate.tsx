@@ -6,7 +6,7 @@ import { ViewCounter } from '@/components/portfolio/ViewCounter';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
 import { formatDate, truncate } from '@/lib/utils';
 import { useMemo, useState } from 'react';
-import { Linkedin, Github, FileText, MapPin, Eye, Send } from 'lucide-react';
+import { Linkedin, Github, FileText, MapPin, Eye, Send, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -41,10 +41,20 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
     (e.target as HTMLFormElement).reset();
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Portfolio link copied to clipboard!');
+    } catch {
+      toast.error('Failed to copy link');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#fdf0d5] text-slate-800 transition-colors duration-300">
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="bg-white/90 border border-[#e8ebf5] rounded-3xl shadow-[0_8px_40px_rgba(55,84,170,0.08)] p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 xl:p-12">
+        <div className="bg-white/90 border border-[#e8ebf5] rounded-3xl shadow-[0_8px_40px_rgba(55,84,170,0.08)] p-6 sm:p-8 lg:p-12">
           <div className="flex items-start justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
               <div className="relative">
@@ -83,8 +93,15 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500 text-white rounded-full text-xs font-semibold hover:bg-indigo-600 transition-colors"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                Share
+              </button>
               <span className="text-xs font-semibold text-indigo-500 bg-indigo-50 px-3 py-1.5 rounded-full">
-                buildfol.io
+                portoo.io
               </span>
               {!isPreview && <ViewCounter username={portfolio.username} initialCount={portfolio.view_count} />}
               {isPreview && (
@@ -114,19 +131,33 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
             <CopyEmailButton email={portfolio.email} variant="minimal" iconSize="md" />
           </div>
 
-          <section className="mb-6">
-            <h2 className="text-xs tracking-[0.2em] text-slate-500 font-semibold mb-2">ABOUT</h2>
-            <p className="text-base leading-relaxed text-slate-700">{portfolio.bio || 'No bio added yet.'}</p>
+          {/* About Section - Expanded */}
+          <section className="mb-10">
+            <div className="bg-gradient-to-br from-indigo-50/50 to-purple-50/50 rounded-2xl p-6 border border-indigo-100">
+              <h2 className="text-sm font-bold text-indigo-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span className="w-8 h-px bg-indigo-400"></span>
+                About Me
+                <span className="w-8 h-px bg-indigo-400"></span>
+              </h2>
+              <p className="text-lg leading-relaxed text-slate-700 whitespace-pre-wrap">
+                {portfolio.bio || 'No bio added yet.'}
+              </p>
+            </div>
           </section>
 
-          <section className="mb-6">
-            <h2 className="text-xs tracking-[0.2em] text-slate-500 font-semibold mb-2">SKILLS</h2>
-            <div className="flex flex-wrap gap-2">
+          {/* Skills Section - Expanded */}
+          <section className="mb-10">
+            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <span className="w-8 h-px bg-slate-400"></span>
+              Skills
+              <span className="w-8 h-px bg-slate-400"></span>
+            </h2>
+            <div className="flex flex-wrap gap-3">
               {portfolio.skills.length > 0 ? (
                 portfolio.skills.map((skill) => (
                   <span
                     key={`${skill.category}-${skill.name}`}
-                    className="px-3 py-1 rounded-full bg-[#eef2ff] text-indigo-700 border border-[#dde5ff] text-sm font-medium"
+                    className="px-4 py-2 rounded-full bg-[#eef2ff] text-indigo-700 border border-[#dde5ff] text-base font-medium hover:shadow-md transition-shadow"
                   >
                     {skill.name}
                   </span>
@@ -137,29 +168,34 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
             </div>
           </section>
 
+          {/* Experience Section - Expanded */}
           {sortedExperiences.length > 0 && (
-            <section className="mb-6">
-              <h2 className="text-xs tracking-[0.2em] text-slate-500 font-semibold mb-3">EXPERIENCE</h2>
-              <div className="space-y-3">
+            <section className="mb-10">
+              <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span className="w-8 h-px bg-slate-400"></span>
+                Experience
+                <span className="w-8 h-px bg-slate-400"></span>
+              </h2>
+              <div className="space-y-4">
                 {sortedExperiences.map((exp) => (
-                  <div key={exp.id} className="flex gap-4 p-3 bg-[#fbfcff] rounded-xl border border-[#e8ebf5]">
-                    <div className="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                  <div key={exp.id} className="flex gap-4 p-5 bg-[#fbfcff] rounded-xl border border-[#e8ebf5] hover:shadow-md transition-shadow">
+                    <div className="w-3 h-3 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-slate-800">{exp.role}</h3>
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-lg text-slate-800">{exp.role}</h3>
                         <span className="text-slate-400">@</span>
-                        <span className="font-medium text-indigo-600">{exp.company}</span>
+                        <span className="font-medium text-lg text-indigo-600">{exp.company}</span>
                         {exp.is_current && (
-                          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+                          <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
                             Current
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 mb-1">
+                      <p className="text-sm text-slate-500 mb-2">
                         {exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}
                         {exp.location && ` · ${exp.location}`}
                       </p>
-                      <p className="text-sm text-slate-600 line-clamp-2">{exp.description}</p>
+                      <p className="text-base text-slate-600">{exp.description}</p>
                     </div>
                   </div>
                 ))}
@@ -167,20 +203,26 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
             </section>
           )}
 
-          <section className="mb-6">
-            <h2 className="text-xs tracking-[0.2em] text-slate-500 font-semibold mb-3">PROJECTS</h2>
+          {/* Projects Section - Expanded */}
+          <section className="mb-10">
+            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <span className="w-8 h-px bg-slate-400"></span>
+              Projects
+              <span className="w-8 h-px bg-slate-400"></span>
+            </h2>
 
             {featuredProject ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
+                {/* Featured Project */}
                 <div
                   onClick={() => {
                     setSelectedProject(featuredProject);
                     setIsModalOpen(true);
                   }}
-                  className="cursor-pointer rounded-2xl border border-[#e5eaf9] bg-[#fbfcff] hover:border-indigo-300 transition-colors p-4 sm:p-5"
+                  className="cursor-pointer rounded-2xl border border-[#e5eaf9] bg-[#fbfcff] hover:border-indigo-300 hover:shadow-lg transition-all p-6"
                 >
                   {featuredProject.cover_image_url && (
-                    <div className="relative rounded-xl overflow-hidden mb-4 aspect-video">
+                    <div className="relative rounded-xl overflow-hidden mb-5 aspect-video">
                       <Image
                         src={featuredProject.cover_image_url}
                         alt={featuredProject.name}
@@ -191,22 +233,23 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                   )}
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-xs font-semibold text-indigo-500 mb-1">FEATURED</p>
-                      <h3 className="text-xl font-semibold">{featuredProject.name}</h3>
+                      <p className="text-sm font-semibold text-indigo-500 mb-2">FEATURED PROJECT</p>
+                      <h3 className="text-2xl font-semibold">{featuredProject.name}</h3>
                     </div>
                   </div>
-                  <p className="text-slate-600 mt-3">{truncate(featuredProject.description, 180)}</p>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {featuredProject.tech_stack.slice(0, 5).map((tech) => (
-                      <span key={tech} className="px-3 py-1 rounded-full bg-[#f1f4ff] text-indigo-700 text-xs">
+                  <p className="text-slate-600 mt-4 text-base leading-relaxed">{truncate(featuredProject.description, 250)}</p>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {featuredProject.tech_stack.slice(0, 6).map((tech) => (
+                      <span key={tech} className="px-3 py-1.5 rounded-full bg-[#f1f4ff] text-indigo-700 text-sm font-medium">
                         {tech}
                       </span>
                     ))}
                   </div>
                 </div>
 
+                {/* Other Projects */}
                 {remainingProjects.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {remainingProjects.map((project) => (
                       <button
                         key={project.id}
@@ -214,10 +257,10 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                           setSelectedProject(project);
                           setIsModalOpen(true);
                         }}
-                        className="text-left rounded-xl border border-[#e8ebf5] p-4 bg-white hover:border-indigo-300 transition-colors"
+                        className="text-left rounded-xl border border-[#e8ebf5] p-5 bg-white hover:border-indigo-300 hover:shadow-md transition-all"
                       >
                         {project.cover_image_url && (
-                          <div className="relative rounded-lg overflow-hidden mb-3 aspect-video">
+                          <div className="relative rounded-lg overflow-hidden mb-4 aspect-video">
                             <Image
                               src={project.cover_image_url}
                               alt={project.name}
@@ -226,62 +269,69 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                             />
                           </div>
                         )}
-                        <p className="font-semibold text-slate-800">{project.name}</p>
-                        <p className="text-sm text-slate-600 mt-1">{truncate(project.description, 90)}</p>
+                        <p className="font-semibold text-lg text-slate-800">{project.name}</p>
+                        <p className="text-base text-slate-600 mt-2 leading-relaxed">{truncate(project.description, 120)}</p>
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {project.tech_stack.slice(0, 3).map((tech) => (
+                            <span key={tech} className="px-2 py-1 rounded-full bg-[#f1f4ff] text-indigo-700 text-xs">
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
                       </button>
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <p className="text-slate-500">No projects added yet.</p>
+              <p className="text-slate-500 text-lg">No projects added yet.</p>
             )}
           </section>
 
-          {/* Contact Section */}
-          <section className="mt-6 pt-6 border-t border-[#eceffd]">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-slate-800">Contact</h2>
-              <p className="text-slate-500 text-sm">Have a question or want to work together? Feel free to reach out!</p>
+          {/* Contact Section - Expanded */}
+          <section className="mt-10 pt-8 border-t border-[#eceffd]">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-slate-800">Get In Touch</h2>
+              <p className="text-slate-500 text-base">Have a question or want to work together? Feel free to reach out!</p>
             </div>
-            <form onSubmit={handleContactSubmit} className="bg-white rounded-2xl p-5 sm:p-6 shadow-[0_4px_20px_rgba(55,84,170,0.1)] border border-[#e8ebf5]">
-              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <form onSubmit={handleContactSubmit} className="bg-white rounded-2xl p-8 sm:p-10 shadow-[0_4px_30px_rgba(55,84,170,0.12)] border border-[#e8ebf5] max-w-3xl mx-auto">
+              <div className="grid sm:grid-cols-2 gap-5 mb-5">
                 <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Name</label>
+                  <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Name</label>
                   <input
                     type="text"
                     placeholder="Your name"
                     required
-                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 text-sm"
+                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Email</label>
+                  <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Email</label>
                   <input
                     type="email"
                     placeholder="your.email@example.com"
                     required
-                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 text-sm"
+                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base"
                   />
                 </div>
               </div>
-              <div className="mb-4">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Message</label>
+              <div className="mb-5">
+                <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Message</label>
                 <textarea
                   placeholder="Your message here..."
                   required
-                  rows={4}
+                  rows={5}
                   maxLength={1000}
-                  className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 text-sm resize-none"
+                  className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base resize-none"
                 />
                 <p className="text-xs text-slate-400 text-right mt-1">Max 1000 characters</p>
               </div>
               <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-2.5 rounded-full font-semibold text-sm transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+                  className="bg-indigo-500 hover:bg-indigo-600 text-white px-10 py-3 rounded-full font-semibold text-base transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-5 h-5" />
                   Send Message
                 </button>
               </div>
@@ -296,7 +346,7 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                   Edit Portfolio
                 </Link>
               )}
-              <span>Built with buildfol.io</span>
+              <span>Built with portoo.io</span>
             </div>
           </div>
         </div>

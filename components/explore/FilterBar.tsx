@@ -9,32 +9,34 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
+export type AvailabilityStatus = 'all' | 'open_to_work' | 'freelance' | 'available';
+
 interface FilterBarProps {
-  allSkills: string[];
-  activeSkill: string;
-  onSkillChange: (skill: string) => void;
-  availabilityFilter: 'all' | 'available';
-  onAvailabilityFilterChange: (filter: 'all' | 'available') => void;
+  availabilityFilter: AvailabilityStatus;
+  onAvailabilityFilterChange: (filter: AvailabilityStatus) => void;
   sort: 'newest' | 'most_viewed' | 'alphabetical';
   onSortChange: (sort: 'newest' | 'most_viewed' | 'alphabetical') => void;
 }
 
 export function FilterBar({
-  allSkills,
-  activeSkill,
-  onSkillChange,
   availabilityFilter,
   onAvailabilityFilterChange,
   sort,
   onSortChange,
 }: FilterBarProps) {
+  const handleAvailabilityClick = (filter: AvailabilityStatus) => {
+    // Toggle: if already selected, go back to 'all'
+    onAvailabilityFilterChange(availabilityFilter === filter ? 'all' : filter);
+  };
+
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 w-full">
+      {/* All Filter */}
       <button
-        onClick={() => onSkillChange('all')}
+        onClick={() => onAvailabilityFilterChange('all')}
         className={cn(
           'flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm',
-          activeSkill === 'all'
+          availabilityFilter === 'all'
             ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
             : 'bg-white text-slate-700 border border-stone-100 hover:border-indigo-200 hover:bg-indigo-50'
         )}
@@ -42,49 +44,58 @@ export function FilterBar({
         All
       </button>
 
+      {/* Open to Work Filter */}
       <button
-        onClick={() => onAvailabilityFilterChange(availabilityFilter === 'available' ? 'all' : 'available')}
+        onClick={() => handleAvailabilityClick('open_to_work')}
+        className={cn(
+          'flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm',
+          availabilityFilter === 'open_to_work'
+            ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200'
+            : 'bg-white text-slate-700 border border-stone-100 hover:border-emerald-200 hover:bg-emerald-50'
+        )}
+      >
+        <span className={cn(
+          'w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]',
+          availabilityFilter === 'open_to_work' ? 'bg-white' : 'bg-emerald-400'
+        )} />
+        Open to Work
+      </button>
+
+      {/* Freelance Filter */}
+      <button
+        onClick={() => handleAvailabilityClick('freelance')}
+        className={cn(
+          'flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm',
+          availabilityFilter === 'freelance'
+            ? 'bg-purple-500 text-white shadow-lg shadow-purple-200'
+            : 'bg-white text-slate-700 border border-stone-100 hover:border-purple-200 hover:bg-purple-50'
+        )}
+      >
+        <span className={cn(
+          'w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.6)]',
+          availabilityFilter === 'freelance' ? 'bg-white' : 'bg-purple-400'
+        )} />
+        Freelance
+      </button>
+
+      {/* Available Now (Any availability) */}
+      <button
+        onClick={() => handleAvailabilityClick('available')}
         className={cn(
           'flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm',
           availabilityFilter === 'available'
-            ? 'bg-green-500 text-white shadow-lg shadow-green-200'
-            : 'bg-white text-slate-700 border border-stone-100 hover:border-green-200 hover:bg-green-50'
+            ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+            : 'bg-white text-slate-700 border border-stone-100 hover:border-blue-200 hover:bg-blue-50'
         )}
       >
-        <span className="w-2.5 h-2.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]" />
+        <span className={cn(
+          'w-2.5 h-2.5 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.6)]',
+          availabilityFilter === 'available' ? 'bg-white' : 'bg-blue-400'
+        )} />
         Available Now
       </button>
 
-      {allSkills.slice(0, 3).map((skill) => (
-        <button
-          key={skill}
-          onClick={() => onSkillChange(skill)}
-          className={cn(
-            'flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm',
-            activeSkill === skill
-              ? 'bg-purple-500 text-white shadow-lg shadow-purple-200'
-              : 'bg-white text-slate-700 border border-stone-100 hover:border-purple-200 hover:bg-purple-50'
-          )}
-        >
-          {skill}
-        </button>
-      ))}
-
       <div className="w-px h-8 bg-stone-200 mx-2 hidden md:block" />
-
-      <Select value={activeSkill} onValueChange={onSkillChange}>
-        <SelectTrigger className="w-full sm:w-[180px] bg-white border-stone-200">
-          <SelectValue placeholder="Filter by skill" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All skills</SelectItem>
-          {allSkills.map((skill) => (
-            <SelectItem key={skill} value={skill}>
-              {skill}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
 
       <Select value={sort} onValueChange={(value) => onSortChange(value as 'newest' | 'most_viewed' | 'alphabetical')}>
         <SelectTrigger className="w-full sm:w-[160px] bg-white border-stone-200">

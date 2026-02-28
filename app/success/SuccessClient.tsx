@@ -11,13 +11,9 @@ import {
   Check,
   ExternalLink,
   Linkedin,
-  QrCode,
-  Palette,
   Edit3,
   Sparkles,
 } from 'lucide-react';
-import { TemplateType } from '@/types/portfolio';
-import { fetchJson } from '@/lib/fetch-json';
 
 export function SuccessClient() {
   const searchParams = useSearchParams();
@@ -26,8 +22,6 @@ export function SuccessClient() {
   const portfolioUrl = `${baseUrl}/${username}`;
 
   const [copied, setCopied] = useState(false);
-  const [currentTemplate, setCurrentTemplate] = useState<TemplateType>('minimal');
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -45,31 +39,6 @@ export function SuccessClient() {
     window.open(url, '_blank');
   };
 
-  const handleTemplateSwitch = async (template: TemplateType) => {
-    if (template === currentTemplate) return;
-
-    setIsUpdating(true);
-    try {
-      await fetchJson<{ success: boolean }>(`/api/portfolio/${username}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ template }),
-      });
-
-      setCurrentTemplate(template);
-      toast.success(`Switched to ${template} template!`);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Something went wrong');
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const templates = [
-    { id: 'minimal' as TemplateType, name: 'Minimal', color: 'bg-[#fdf0d5]' },
-    { id: 'professional' as TemplateType, name: 'Professional', color: 'bg-[#001514]' },
-  ];
-
   return (
     <div className="min-h-screen bg-[#FFF8F5] text-stone-800 font-sans">
       <header className="flex items-center justify-between px-6 md:px-10 py-6 sticky top-0 z-50 bg-white/80 backdrop-blur-sm">
@@ -77,7 +46,7 @@ export function SuccessClient() {
           <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-orange-500">
             <Sparkles className="w-5 h-5" />
           </div>
-          <span className="text-xl font-bold">buildfol.io</span>
+          <span className="text-xl font-bold">portoo.io</span>
         </Link>
         <Link href="/explore" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
           Explore
@@ -150,44 +119,8 @@ export function SuccessClient() {
             </Button>
           </div>
 
-          <div className="space-y-4">
-            <p className="text-sm font-bold text-stone-500 uppercase tracking-wider">Switch Template</p>
-            <div className="grid grid-cols-2 gap-4">
-              {templates.map((template) => (
-                <button
-                  key={template.id}
-                  onClick={() => handleTemplateSwitch(template.id)}
-                  disabled={isUpdating}
-                  className={`p-4 rounded-2xl border-2 transition-all ${
-                    currentTemplate === template.id
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-stone-200 bg-white hover:border-stone-300'
-                  }`}
-                >
-                  <div className={`w-8 h-8 ${template.color} rounded-lg mx-auto mb-2`} />
-                  <p className="text-sm font-bold">{template.name}</p>
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-stone-400">You can switch this anytime</p>
-          </div>
-
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <div className="group flex items-center gap-2 text-stone-500 font-medium px-3 py-2 rounded-lg bg-white/40">
-              <div className="p-1.5 bg-stone-100 rounded-lg">
-                <QrCode className="w-5 h-5" />
-              </div>
-              <QRCodeComponent url={portfolioUrl} />
-            </div>
-            <Link
-              href={`/${username}`}
-              className="group flex items-center gap-2 text-stone-500 hover:text-orange-500 transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/60"
-            >
-              <div className="p-1.5 bg-stone-100 rounded-lg group-hover:bg-orange-100 transition-colors">
-                <Palette className="w-5 h-5" />
-              </div>
-              Switch Template
-            </Link>
+            <QRCodeComponent url={portfolioUrl} />
             <Link
               href={`/?edit=${username}`}
               className="group flex items-center gap-2 text-stone-500 hover:text-orange-500 transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/60"
@@ -210,7 +143,7 @@ export function SuccessClient() {
             <div>
               <p className="font-bold text-stone-800 text-lg">Pro Tip</p>
               <p className="text-stone-600 text-sm">
-                Add your buildfol.io link to your resume and email signature to increase visibility.
+                Add your portoo.io link to your resume and email signature to increase visibility.
               </p>
             </div>
           </div>

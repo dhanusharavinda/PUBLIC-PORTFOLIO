@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { cropAndResizeImage } from '@/lib/image-processing';
+import { ImageCropper } from '@/components/ui/image-cropper';
 import {
   Plus,
   Trash2,
@@ -20,6 +21,7 @@ import {
   ExternalLink,
   X,
   FolderGit2,
+  Crop,
 } from 'lucide-react';
 import { useState, KeyboardEvent } from 'react';
 import { toast } from 'sonner';
@@ -29,6 +31,11 @@ export function StepProjects() {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [techInput, setTechInput] = useState<Record<string, string>>({});
 
+  // Image cropper state
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperFile, setCropperFile] = useState<File | null>(null);
+  const [cropperProjectId, setCropperProjectId] = useState<string | null>(null);
+
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     projectId: string
@@ -36,16 +43,34 @@ export function StepProjects() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Open cropper for cover image
+    setCropperFile(file);
+    setCropperProjectId(projectId);
+    setCropperOpen(true);
+  };
+
+  const handleCrop = (croppedFile: File) => {
+    if (cropperProjectId) {
+      updateProject(cropperProjectId, { cover_image: croppedFile, cover_image_url: '' });
+    }
+    setCropperFile(null);
+    setCropperProjectId(null);
+  };
+
+  const handleAutoCrop = async () => {
+    if (!cropperFile || !cropperProjectId) return;
     try {
-      const optimized = await cropAndResizeImage(file, {
+      const optimized = await cropAndResizeImage(cropperFile, {
         aspectRatio: 16 / 9,
         width: 1600,
         height: 900,
       });
-      // Clear the URL when new file is selected so it shows the new preview
-      updateProject(projectId, { cover_image: optimized, cover_image_url: '' });
+      updateProject(cropperProjectId, { cover_image: optimized, cover_image_url: '' });
+      setCropperOpen(false);
+      setCropperFile(null);
+      setCropperProjectId(null);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to process image.');
+      toast.error('Auto-crop failed. Please try manual crop.');
     }
   };
 
@@ -197,7 +222,7 @@ export function StepProjects() {
                 {/* Cover Image */}
                 <div className="mb-4">
                   <Label className="mb-2 block">Cover Image</Label>
-                  <label className="flex items-center gap-4 p-4 bg-stone-50 rounded-xl border border-dashed border-stone-300 hover:border-orange-500/50 cursor-pointer group">
+                  <div className="flex items-center gap-4 p-4 bg-stone-50 rounded-xl border border-dashed border-stone-300">
                     <div className="size-20 rounded-lg bg-white flex items-center justify-center border border-stone-200 overflow-hidden">
                       {project.cover_image ? (
                         <img
@@ -212,22 +237,41 @@ export function StepProjects() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <Upload className="w-6 h-6 text-stone-400 group-hover:text-orange-500" />
+                        <Upload className="w-6 h-6 text-stone-400" />
                       )}
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-stone-600">
-                        {project.cover_image ? 'Change Cover Image' : project.cover_image_url ? 'Change Current Cover' : 'Upload Cover Image'}
-                      </p>
-                      <p className="text-xs text-stone-400">Auto-cropped to 16:9 and resized</p>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-bold text-stone-600 hover:text-orange-500 transition-colors cursor-pointer">
+                        {project.cover_image ? 'Change Cover Image' : project.cover_image_url ? 'Change Cover' : 'Upload Cover Image'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e, project.id)}
+                          className="hidden"
+                        />
+                      </label>
+                      {cropperFile && cropperProjectId === project.id && (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setCropperOpen(true)}
+                            className="text-xs flex items-center gap-1 text-orange-500 hover:text-orange-600 font-medium"
+                          >
+                            <Crop className="w-3 h-3" />
+                            Manual Crop
+                          </button>
+                          <span className="text-xs text-stone-300">|</span>
+                          <button
+                            type="button"
+                            onClick={handleAutoCrop}
+                            className="text-xs text-stone-500 hover:text-orange-500"
+                          >
+                            Auto-crop
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, project.id)}
-                      className="hidden"
-                    />
-                  </label>
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -313,6 +357,19 @@ export function StepProjects() {
           </div>
         </ScrollArea>
       )}
+
+      {/* Image Cropper Modal */}
+      <ImageCropper
+        imageFile={cropperFile}
+        isOpen={cropperOpen}
+        onClose={() => {
+          setCropperOpen(false);
+          setCropperFile(null);
+          setCropperProjectId(null);
+        }}
+        onCrop={handleCrop}
+        aspectRatio={16 / 9}
+      />
     </div>
   );
 }

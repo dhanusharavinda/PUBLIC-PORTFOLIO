@@ -7,7 +7,7 @@ import { ViewCounter } from '@/components/portfolio/ViewCounter';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
 import { cn, formatDate, truncate } from '@/lib/utils';
 import { useMemo, useState } from 'react';
-import { Linkedin, Github, FileText, MapPin, Sparkles, Eye, Send } from 'lucide-react';
+import { Linkedin, Github, FileText, MapPin, Sparkles, Eye, Send, Link2, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -59,17 +59,27 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
     (e.target as HTMLFormElement).reset();
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Portfolio link copied to clipboard!');
+    } catch {
+      toast.error('Failed to copy link');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#001514] text-slate-100 transition-colors duration-300 font-sans">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-[#001514]/90 backdrop-blur-md border-b border-[#0f2b2a]">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 overflow-x-auto max-w-[60vw] sm:max-w-none">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 overflow-x-auto max-w-[60vw] sm:max-w-none cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-10 h-10 bg-[#0f2b2a] rounded-xl flex items-center justify-center text-[#4fd1c5]">
               <Sparkles className="w-5 h-5" />
             </div>
-            <span className="text-xl font-black tracking-tight">buildfol.io</span>
-          </div>
+            <span className="text-xl font-black tracking-tight">portoo.io</span>
+          </Link>
           <div className="flex items-center gap-1 sm:gap-2">
             {['Bio', 'Skills', 'Experience', 'Projects', 'Contact'].map((item) => (
               <button
@@ -81,18 +91,27 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
               </button>
             ))}
           </div>
-          <span className="text-xs font-semibold text-[#4fd1c5] bg-[#0f2b2a] px-3 py-1.5 rounded-full">
-            buildfol.io
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4fd1c5] text-[#001514] rounded-full text-xs font-bold hover:bg-[#3fc1b5] transition-colors"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              Share
+            </button>
+            <span className="text-xs font-semibold text-[#4fd1c5] bg-[#0f2b2a] px-3 py-1.5 rounded-full">
+              portoo.io
+            </span>
+          </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+      <section className="py-20 md:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
           {/* Profile Photo */}
-          <div className="relative inline-block mb-8">
-            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-white shadow-2xl shadow-purple-200 dark:shadow-none">
+          <div className="relative inline-block mb-10">
+            <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden border-4 border-white shadow-2xl shadow-purple-200 dark:shadow-none">
               {portfolio.profile_photo_url ? (
                 <Image
                   src={portfolio.profile_photo_url}
@@ -193,28 +212,25 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
         </div>
       </section>
 
-      {/* Bio Section */}
-      <section id="bio" className="py-16 border-t border-purple-100 dark:border-purple-900/30">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-12">
-            <div>
-              <h2 className="text-2xl font-bold text-purple-500">About</h2>
-            </div>
-            <div className="md:col-span-2">
-              <div className="bg-white/60 dark:bg-white/5 p-8 rounded-2xl border border-white/50 dark:border-white/10 shadow-sm">
-                <p className="text-lg leading-relaxed text-slate-700 dark:text-slate-300">
-                  {portfolio.bio}
-                </p>
-              </div>
-            </div>
+      {/* Bio Section - Expanded */}
+      <section id="bio" className="py-24 border-t border-purple-100 dark:border-purple-900/30">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-purple-500 mb-4">About Me</h2>
+            <div className="w-32 h-1.5 bg-gradient-to-r from-purple-400 to-pink-400 mx-auto rounded-full"></div>
+          </div>
+          <div className="bg-white/60 dark:bg-white/5 p-12 md:p-16 rounded-3xl border border-white/50 dark:border-white/10 shadow-lg">
+            <p className="text-xl md:text-2xl leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+              {portfolio.bio}
+            </p>
           </div>
         </div>
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="py-10 border-t border-purple-100 dark:border-purple-900/30">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-2xl font-bold mb-6 text-purple-500">Skills</h2>
+      <section id="skills" className="py-16 border-t border-purple-100 dark:border-purple-900/30">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <h2 className="text-3xl font-bold mb-8 text-purple-500">Skills</h2>
           <div className="flex flex-wrap gap-2">
             {portfolio.skills.map((skill) => (
               <span
@@ -233,9 +249,9 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
 
       {/* Experience Section */}
       {sortedExperiences.length > 0 && (
-        <section id="experience" className="py-10 border-t border-purple-100 dark:border-purple-900/30">
-          <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-2xl font-bold mb-6 text-purple-500">Experience</h2>
+        <section id="experience" className="py-16 border-t border-purple-100 dark:border-purple-900/30">
+          <div className="max-w-7xl mx-auto px-6 lg:px-10">
+            <h2 className="text-3xl font-bold mb-8 text-purple-500">Experience</h2>
             <div className="space-y-4">
               {sortedExperiences.map((exp) => (
                 <div key={exp.id} className="bg-white/60 dark:bg-white/5 p-4 rounded-2xl border border-white/50 dark:border-white/10">
@@ -262,9 +278,9 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
       )}
 
       {/* Projects Section */}
-      <section id="projects" className="py-10 border-t border-purple-100 dark:border-purple-900/30">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-2xl font-bold mb-6 text-purple-500">Projects</h2>
+      <section id="projects" className="py-16 border-t border-purple-100 dark:border-purple-900/30">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
+          <h2 className="text-3xl font-bold mb-8 text-purple-500">Projects</h2>
 
           {/* Featured Project */}
           {featuredProject && (
@@ -365,8 +381,8 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
       </section>
 
       {/* Footer / Contact */}
-      <footer id="contact" className="py-10 border-t border-purple-200 dark:border-purple-900/30">
-        <div className="max-w-4xl mx-auto px-6">
+      <footer id="contact" className="py-16 border-t border-purple-200 dark:border-purple-900/30">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-slate-800 dark:text-white">Contact</h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Have a question or want to work together? Feel free to reach out!</p>
@@ -422,7 +438,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
                 </Link>
               )}
               <a href="/" className="hover:text-purple-500 transition-colors">
-                Built with buildfol.io
+                Built with portoo.io
               </a>
             </div>
           </div>

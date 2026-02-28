@@ -106,9 +106,10 @@ export interface FormData {
   // Step 4: Projects
   projects: FormProject[];
 
-  // Step 5: Template
+  // Step 5: Template & URL
   template: TemplateType;
   is_public: boolean;
+  username: string;
 }
 
 export interface FormProject {
