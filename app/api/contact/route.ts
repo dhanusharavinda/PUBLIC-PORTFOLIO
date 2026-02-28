@@ -39,15 +39,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert the contact message
-    const { error: insertError } = await supabase
-      .from('contact_messages')
+    // Insert the contact message - cast to any to bypass TypeScript strict checking
+    const { error: insertError } = await (supabase
+      .from('contact_messages' as any)
       .insert({
         portfolio_id: portfolio.id,
         sender_name: name,
         sender_email: email,
         message: message,
-      } as any);
+      }) as any);
 
     if (insertError) {
       console.error('Error inserting contact message:', insertError);
