@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
         sender_name: name,
         sender_email: email,
         message: message,
-      });
+      } as any);
 
     if (insertError) {
       console.error('Error inserting contact message:', insertError);
