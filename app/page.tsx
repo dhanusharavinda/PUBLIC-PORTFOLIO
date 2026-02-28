@@ -422,7 +422,7 @@ export default function Home() {
                 <Sparkles className="w-5 h-5" />
               </div>
               <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-stone-800">
-                portoo.io
+                portlyfolio.site
               </h2>
             </div>
             <nav className="flex items-center gap-3 sm:gap-8">
@@ -468,7 +468,7 @@ export default function Home() {
               href="/explore"
               className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
             >
-              View Examples
+              View Public Projects
             </Link>
           </div>
         </div>
@@ -488,13 +488,13 @@ export default function Home() {
             <div className="flex items-center justify-center size-8 bg-orange-500 rounded-lg text-white shadow-sm">
               <Sparkles className="w-4 h-4" />
             </div>
-            <h2 className="text-xl font-bold text-stone-800">portoo.io</h2>
+            <h2 className="text-xl font-bold text-stone-800">portlyfolio.site</h2>
           </div>
           <div className="flex gap-8 text-sm font-semibold text-stone-500">
             <Link href="/explore" className="hover:text-orange-500 transition-colors">Explore</Link>
           </div>
           <div className="text-sm text-stone-500 font-medium">
-            &copy; {new Date().getFullYear()} portoo.io. All rights reserved.
+            &copy; {new Date().getFullYear()} portlyfolio.site. All rights reserved.
           </div>
         </div>
       </footer>

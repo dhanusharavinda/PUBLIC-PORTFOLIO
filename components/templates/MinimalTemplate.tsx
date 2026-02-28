@@ -119,18 +119,24 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-indigo-500 text-white rounded-full text-xs font-semibold hover:bg-indigo-600 transition-colors"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-indigo-500 text-white rounded-full text-xs font-semibold hover:bg-indigo-600 transition-colors h-8"
               >
                 <Share2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span className="hidden sm:inline">Share</span>
               </button>
-              <span className="text-xs font-semibold text-indigo-500 bg-indigo-50 px-2 sm:px-3 py-1.5 rounded-full hidden sm:block">
-                portoo.io
+              <span className="text-xs font-semibold text-indigo-500 bg-indigo-50 px-2 sm:px-3 py-1.5 rounded-full hidden sm:block h-8 flex items-center">
+                portlyfolio.site
               </span>
-              {!isPreview && <ViewCounter username={portfolio.username} initialCount={portfolio.view_count} />}
+              {!isPreview && (
+                <ViewCounter
+                  username={portfolio.username}
+                  initialCount={portfolio.view_count}
+                  className="h-8 flex items-center text-xs bg-slate-100 px-2 sm:px-3 rounded-full text-slate-600"
+                />
+              )}
               {isPreview && (
-                <span className="text-xs text-slate-500 inline-flex items-center gap-1">
-                  <Eye className="w-3.5 h-3.5" /> {portfolio.view_count}
+                <span className="text-xs text-slate-500 inline-flex items-center gap-1 h-8 bg-slate-100 px-2 sm:px-3 rounded-full">
+                  <Eye className="w-3.5 h-3.5" /> {portfolio.view_count} views
                 </span>
               )}
             </div>
@@ -373,7 +379,7 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                   Edit Portfolio
                 </Link>
               )}
-              <span>Built with portoo.io</span>
+              <span>Built with portlyfolio.site</span>
             </div>
           </div>
         </div>

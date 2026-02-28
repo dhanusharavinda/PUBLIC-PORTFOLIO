@@ -31,12 +31,12 @@ export function StepExperience() {
         <div>
           <h3 className="text-lg font-bold text-stone-800">Experience</h3>
           <p className="text-sm text-stone-500">
-            {formData.experiences.length}/10 experiences added
+            {formData.experiences.length}/5 experiences added
           </p>
         </div>
         <Button
           onClick={addExperience}
-          disabled={formData.experiences.length >= 10}
+          disabled={formData.experiences.length >= 5}
           className="bg-orange-500 hover:bg-orange-600"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -49,7 +49,11 @@ export function StepExperience() {
           <Briefcase className="w-16 h-16 mx-auto mb-4 text-stone-300" />
           <h4 className="text-lg font-bold text-stone-700 mb-2">No experience yet</h4>
           <p className="text-stone-500 mb-4">Add your work experience to showcase your career</p>
-          <Button onClick={addExperience} className="bg-orange-500 hover:bg-orange-600">
+          <Button
+            onClick={addExperience}
+            disabled={formData.experiences.length >= 5}
+            className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Experience
           </Button>

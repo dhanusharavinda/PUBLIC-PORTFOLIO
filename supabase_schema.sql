@@ -1,4 +1,4 @@
--- portoo.io Supabase Schema
+-- portlyfolio.site Supabase Schema
 -- Run this in your Supabase SQL Editor
 
 -- Create portfolios table

@@ -37,6 +37,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
     Languages: 'bg-[#0f2b2a] text-[#7dd3c7]',
     Tools: 'bg-[#113331] text-[#7dd3c7]',
     Frameworks: 'bg-[#123b39] text-[#7dd3c7]',
+    'Soft Skills': 'bg-[#1a2f2e] text-[#f9a8d4]',
     Other: 'bg-[#0f2423] text-[#7dd3c7]',
   };
 
@@ -102,7 +103,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#0f2b2a] rounded-xl flex items-center justify-center text-[#4fd1c5]">
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <span className="text-lg sm:text-xl font-black tracking-tight hidden sm:block">portoo.io</span>
+            <span className="text-lg sm:text-xl font-black tracking-tight hidden sm:block">portlyfolio.site</span>
           </Link>
           <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
             {['Bio', 'Skills', 'Experience', 'Projects', 'Contact'].map((item) => (
@@ -118,13 +119,13 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <button
               onClick={handleShare}
-              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-[#4fd1c5] text-[#001514] rounded-full text-xs font-bold hover:bg-[#3fc1b5] transition-colors"
+              className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-[#4fd1c5] text-[#001514] rounded-full text-xs font-bold hover:bg-[#3fc1b5] transition-colors h-8"
             >
               <Share2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span className="hidden sm:inline">Share</span>
             </button>
-            <span className="text-xs font-semibold text-[#4fd1c5] bg-[#0f2b2a] px-2 sm:px-3 py-1.5 rounded-full hidden md:block">
-              portoo.io
+            <span className="text-xs font-semibold text-[#4fd1c5] bg-[#0f2b2a] px-2 sm:px-3 rounded-full hidden md:block h-8 flex items-center">
+              portlyfolio.site
             </span>
           </div>
         </div>
@@ -462,7 +463,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
                 </Link>
               )}
               <a href="/" className="hover:text-purple-500 transition-colors">
-                Built with portoo.io
+                Built with portlyfolio.site
               </a>
             </div>
           </div>

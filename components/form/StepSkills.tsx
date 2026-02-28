@@ -16,21 +16,26 @@ import { X, Plus, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Skill } from '@/types/portfolio';
 
-const categories = ['Languages', 'Tools', 'Frameworks', 'Other'] as const;
+const categories = ['Languages', 'Tools', 'Frameworks', 'Soft Skills', 'Other'] as const;
 
 const suggestedSkills = [
+  // Technical Skills
   'Python', 'R', 'SQL', 'JavaScript', 'Java',
   'Tableau', 'Power BI', 'Looker', 'D3.js',
   'TensorFlow', 'PyTorch', 'Scikit-learn', 'Pandas', 'NumPy',
   'AWS', 'GCP', 'Azure', 'Docker', 'Kubernetes',
   'Spark', 'Hadoop', 'Kafka', 'Airflow', 'dbt',
   'Snowflake', 'PostgreSQL', 'MongoDB', 'Redis',
+  // Soft Skills
+  'Leadership', 'Communication', 'Problem Solving', 'Teamwork',
+  'Critical Thinking', 'Time Management', 'Adaptability', 'Creativity',
+  'Project Management', 'Collaboration', 'Presentation Skills', 'Analytical Thinking',
 ];
 
 export function StepSkills() {
   const { formData, updateSkills } = useFormContext();
   const [inputValue, setInputValue] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<Skill['category']>('Languages');
+  const [selectedCategory, setSelectedCategory] = useState<Skill['category']>('Tools');
 
   const addSkill = (name: string, category: Skill['category'] = selectedCategory) => {
     const trimmed = name.trim();
@@ -150,6 +155,7 @@ export function StepSkills() {
                             category === 'Languages' && 'bg-blue-100 text-blue-700 hover:bg-blue-200',
                             category === 'Tools' && 'bg-green-100 text-green-700 hover:bg-green-200',
                             category === 'Frameworks' && 'bg-purple-100 text-purple-700 hover:bg-purple-200',
+                            category === 'Soft Skills' && 'bg-pink-100 text-pink-700 hover:bg-pink-200',
                             category === 'Other' && 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                           )}
                           onClick={() => removeSkill(skill.name)}

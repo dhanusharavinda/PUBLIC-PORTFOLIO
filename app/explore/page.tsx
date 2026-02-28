@@ -90,7 +90,7 @@ export default async function ExplorePage() {
             <div className="size-10 flex items-center justify-center bg-sky-100 text-indigo-600 rounded-xl shadow-sm">
               <Sparkles className="w-5 h-5" />
             </div>
-            <span className="text-xl font-black tracking-tight">portoo.io</span>
+            <span className="text-xl font-black tracking-tight">portlyfolio.site</span>
           </Link>
           <div className="flex flex-1 justify-end sm:justify-center gap-2">
             <span className="text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full text-sm font-bold">
@@ -118,7 +118,7 @@ export default async function ExplorePage() {
             <div className="p-1.5 bg-indigo-100 rounded-lg text-indigo-600">
               <Sparkles className="w-5 h-5" />
             </div>
-            <span className="font-bold text-slate-800">portoo.io</span>
+            <span className="font-bold text-slate-800">portlyfolio.site</span>
             <span className="text-slate-400 text-sm ml-2">
               &copy; {new Date().getFullYear()}
             </span>

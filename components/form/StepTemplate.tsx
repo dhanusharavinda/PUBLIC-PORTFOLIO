@@ -109,7 +109,7 @@ export function StepTemplate() {
     }
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'portoo.io';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'portlyfolio.site';
 
   return (
     <div className="space-y-6">
