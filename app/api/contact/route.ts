@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = getSupabasePublicServerClient();
+    const supabase = getSupabasePublicServerClient() as any;
 
     // Find the portfolio by username
     const { data: portfolio, error: portfolioError } = await supabase
@@ -39,15 +39,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert the contact message - cast to any to bypass TypeScript strict checking
-    const { error: insertError } = await (supabase
-      .from('contact_messages' as any)
-      .insert({
-        portfolio_id: portfolio.id,
-        sender_name: name,
-        sender_email: email,
-        message: message,
-      }) as any);
+    // Insert the contact message using raw insert to bypass type checking
+    const insertData = {
+      portfolio_id: portfolio.id,
+      sender_name: name,
+      sender_email: email,
+      message: message,
+    };
+
+    const query = supabase.from('contact_messages');
+    const { error: insertError } = await query.insert(insertData);
 
     if (insertError) {
       console.error('Error inserting contact message:', insertError);
