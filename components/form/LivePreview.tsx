@@ -61,7 +61,7 @@ export function LivePreview() {
     ],
     template: formData.template,
     is_public: formData.is_public ?? true,
-    view_count: 42,
+    view_count: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     experiences: formData.experiences.length > 0

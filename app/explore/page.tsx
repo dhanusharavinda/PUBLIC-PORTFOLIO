@@ -10,13 +10,13 @@ interface ProjectWithPortfolio {
   description: string;
   cover_image_url: string;
   tech_stack: string[];
+  project_created_at: string;
   portfolio_id: string;
   portfolio_username: string;
   portfolio_full_name: string;
   portfolio_job_title: string;
   portfolio_profile_photo_url: string;
   portfolio_view_count: number;
-  portfolio_created_at: string;
 }
 
 async function getPublicProjects(): Promise<ProjectWithPortfolio[]> {
@@ -32,6 +32,7 @@ async function getPublicProjects(): Promise<ProjectWithPortfolio[]> {
         description,
         cover_image_url,
         tech_stack,
+        created_at,
         portfolio_id,
         portfolios!inner(
           username,
@@ -39,7 +40,6 @@ async function getPublicProjects(): Promise<ProjectWithPortfolio[]> {
           job_title,
           profile_photo_url,
           view_count,
-          created_at,
           is_public
         )
       `)
@@ -58,13 +58,13 @@ async function getPublicProjects(): Promise<ProjectWithPortfolio[]> {
       description: item.description,
       cover_image_url: item.cover_image_url,
       tech_stack: item.tech_stack || [],
+      project_created_at: item.created_at,
       portfolio_id: item.portfolio_id,
       portfolio_username: item.portfolios.username,
       portfolio_full_name: item.portfolios.full_name,
       portfolio_job_title: item.portfolios.job_title,
       portfolio_profile_photo_url: item.portfolios.profile_photo_url,
       portfolio_view_count: item.portfolios.view_count,
-      portfolio_created_at: item.portfolios.created_at,
     }));
   } catch (error) {
     console.error('Explore fetch failed:', error);

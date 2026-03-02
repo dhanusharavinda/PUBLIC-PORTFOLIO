@@ -18,13 +18,13 @@ interface ProjectWithPortfolio {
   description: string;
   cover_image_url: string;
   tech_stack: string[];
+  project_created_at: string;
   portfolio_id: string;
   portfolio_username: string;
   portfolio_full_name: string;
   portfolio_job_title: string;
   portfolio_profile_photo_url: string;
   portfolio_view_count: number;
-  portfolio_created_at: string;
 }
 
 interface ExploreDirectoryProps {
@@ -68,13 +68,13 @@ export function ExploreDirectory({ projects, allSkills }: ExploreDirectoryProps)
 
     const sorted = [...filtered].sort((a, b) => {
       if (sort === 'most_viewed') {
-        return (b.portfolio_view_count || 0) - (a.portfolio_view_count || 0);
+        return Number(b.portfolio_view_count || 0) - Number(a.portfolio_view_count || 0);
       }
       if (sort === 'alphabetical') {
         return a.name.localeCompare(b.name);
       }
       // newest
-      return new Date(b.portfolio_created_at).getTime() - new Date(a.portfolio_created_at).getTime();
+      return new Date(b.project_created_at).getTime() - new Date(a.project_created_at).getTime();
     });
 
     return sorted;
