@@ -411,6 +411,8 @@ function FormContent() {
 }
 
 export default function Home() {
+  const { isLoggedIn } = useAuth();
+
   return (
     <div className="min-h-screen bg-[#FFF9F5] font-sans">
       {/* Header */}
@@ -475,9 +477,22 @@ export default function Home() {
 
         {/* Form Section */}
         <div id="form">
-          <FormProvider>
-            <FormContent />
-          </FormProvider>
+          {isLoggedIn ? (
+            <FormProvider>
+              <FormContent />
+            </FormProvider>
+          ) : (
+            <div className="max-w-2xl mx-auto bg-white p-8 md:p-10 rounded-[2rem] border border-stone-100 shadow-xl shadow-stone-200/50 text-center">
+              <h3 className="text-2xl font-bold text-stone-800 mb-3">Login Required</h3>
+              <p className="text-stone-500 mb-6">Please log in to create and publish your portfolio.</p>
+              <Link
+                href="/login?returnTo=%2F"
+                className="inline-flex items-center justify-center bg-orange-500 text-white px-8 py-3 rounded-2xl font-bold hover:bg-orange-600 transition-colors"
+              >
+                Log In to Continue
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

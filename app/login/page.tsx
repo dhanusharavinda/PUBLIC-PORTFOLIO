@@ -6,8 +6,14 @@ import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowLeft, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawReturnTo = searchParams.get('returnTo') || '/';
+  const returnTo = rawReturnTo.startsWith('/') ? rawReturnTo : '/';
   const { isLoggedIn, userEmail, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +23,12 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.replace(returnTo);
+    }
+  }, [isLoggedIn, returnTo, router]);
 
   const handleGoogle = async () => {
     try {

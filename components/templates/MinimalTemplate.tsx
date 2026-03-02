@@ -6,7 +6,7 @@ import { ViewCounter } from '@/components/portfolio/ViewCounter';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
 import { formatDate, truncate } from '@/lib/utils';
 import { useMemo, useState } from 'react';
-import { Linkedin, Github, FileText, MapPin, Eye, Send, Share2 } from 'lucide-react';
+import { Linkedin, Github, FileText, MapPin, Eye, Mail, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -34,36 +34,6 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
 
   const featuredProject = sortedProjects.find((project) => project.is_featured) || sortedProjects[0] || null;
   const remainingProjects = sortedProjects.filter((project) => project.id !== featuredProject?.id);
-
-  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.get('name'),
-          email: formData.get('email'),
-          message: formData.get('message'),
-          portfolio_username: portfolio.username,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast.success('Message sent successfully!');
-        form.reset();
-      } else {
-        toast.error(result.error || 'Failed to send message');
-      }
-    } catch (error) {
-      toast.error('Something went wrong. Please try again.');
-    }
-  };
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -318,57 +288,19 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
             )}
           </section>
 
-          {/* Contact Section - Expanded */}
+          {/* Contact Section - Simple Email */}
           <section className="mt-10 pt-8 border-t border-[#eceffd]">
             <div className="text-center mb-8">
               <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-slate-800">Get In Touch</h2>
-              <p className="text-slate-500 text-base">Have a question or want to work together? Feel free to reach out!</p>
+              <p className="text-slate-500 text-base mb-6">Have a question or want to work together? Feel free to reach out!</p>
+              <a
+                href={`mailto:${portfolio.email}?subject=Contact from portlyfolio.site`}
+                className="inline-flex items-center gap-3 bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-md hover:shadow-lg"
+              >
+                <Mail className="w-5 h-5" />
+                {portfolio.email}
+              </a>
             </div>
-            <form onSubmit={handleContactSubmit} className="bg-white rounded-2xl p-6 sm:p-8 lg:p-10 shadow-[0_4px_30px_rgba(55,84,170,0.12)] border border-[#e8ebf5] max-w-3xl mx-auto">
-              <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-5">
-                <div>
-                  <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Your name"
-                    required
-                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 sm:py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="your.email@example.com"
-                    required
-                    className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 sm:py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base"
-                  />
-                </div>
-              </div>
-              <div className="mb-4 sm:mb-5">
-                <label className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2 block">Message</label>
-                <textarea
-                  name="message"
-                  placeholder="Your message here..."
-                  required
-                  rows={4}
-                  maxLength={1000}
-                  className="w-full bg-[#f7f8fb] border border-[#e8ebf5] rounded-lg px-4 py-3 sm:py-3.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-base resize-none"
-                />
-                <p className="text-xs text-slate-400 text-right mt-1">Max 1000 characters</p>
-              </div>
-              <div className="flex justify-center">
-                <button
-                  type="submit"
-                  className="bg-indigo-500 hover:bg-indigo-600 text-white px-8 sm:px-10 py-3 rounded-full font-semibold text-base transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
-                >
-                  <Send className="w-5 h-5" />
-                  Send Message
-                </button>
-              </div>
-            </form>
           </section>
 
           <div className="pt-4 mt-6 border-t border-[#eceffd] text-xs text-slate-500 flex flex-col sm:flex-row justify-between gap-2">

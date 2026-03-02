@@ -7,7 +7,7 @@ import { ViewCounter } from '@/components/portfolio/ViewCounter';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
 import { cn, formatDate, truncate } from '@/lib/utils';
 import { useMemo, useState } from 'react';
-import { Linkedin, Github, FileText, MapPin, Sparkles, Eye, Send, Link2, Share2 } from 'lucide-react';
+import { Linkedin, Github, FileText, MapPin, Sparkles, Eye, Mail, Link2, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -54,35 +54,6 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.get('name'),
-          email: formData.get('email'),
-          message: formData.get('message'),
-          portfolio_username: portfolio.username,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast.success('Message sent successfully!');
-        form.reset();
-      } else {
-        toast.error(result.error || 'Failed to send message');
-      }
-    } catch (error) {
-      toast.error('Something went wrong. Please try again.');
-    }
-  };
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -410,50 +381,15 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-slate-800 dark:text-white">Contact</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Have a question or want to work together? Feel free to reach out!</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Have a question or want to work together? Feel free to reach out!</p>
+            <a
+              href={`mailto:${portfolio.email}?subject=Contact from portlyfolio.site`}
+              className="inline-flex items-center gap-3 bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-md hover:shadow-lg"
+            >
+              <Mail className="w-5 h-5" />
+              {portfolio.email}
+            </a>
           </div>
-          <form onSubmit={handleContactSubmit} className="bg-white dark:bg-slate-800 rounded-3xl p-5 sm:p-6 shadow-lg border border-purple-100 dark:border-purple-900/30 mb-6">
-            <div className="grid sm:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-2 block">Name</label>
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  required
-                  className="w-full bg-purple-50 dark:bg-slate-700/50 border border-purple-100 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-purple-400 text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-2 block">Email</label>
-                <input
-                  type="email"
-                  placeholder="your.email@example.com"
-                  required
-                  className="w-full bg-purple-50 dark:bg-slate-700/50 border border-purple-100 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-purple-400 text-sm"
-                />
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-2 block">Message</label>
-              <textarea
-                placeholder="Your message here..."
-                required
-                rows={4}
-                maxLength={1000}
-                className="w-full bg-purple-50 dark:bg-slate-700/50 border border-purple-100 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-purple-400 text-sm resize-none"
-              />
-              <p className="text-xs text-slate-400 dark:text-slate-500 text-right mt-1">Max 1000 characters</p>
-            </div>
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-2.5 rounded-full font-semibold text-sm transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
-              >
-                <Send className="w-4 h-4" />
-                Send Message
-              </button>
-            </div>
-          </form>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             <span>Last updated {formatDate(portfolio.updated_at || new Date())}</span>
             <div className="flex items-center gap-3">
