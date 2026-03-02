@@ -238,9 +238,9 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
       </section>
 
       {/* Bio Section - Expanded */}
-      <section id="bio" className="py-16 sm:py-20 md:py-24 border-t border-purple-100 dark:border-purple-900/30">
+      <section id="bio" className="pt-10 pb-6 sm:pt-12 sm:pb-8 md:pt-14 md:pb-10 border-t border-purple-100 dark:border-purple-900/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-          <div className="text-center mb-8 sm:mb-12">
+          <div className="text-center mb-6 sm:mb-8">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-500 mb-3 sm:mb-4">About Me</h2>
             <div className="w-20 sm:w-32 h-1 sm:h-1.5 bg-gradient-to-r from-purple-400 to-pink-400 mx-auto rounded-full"></div>
           </div>
@@ -253,7 +253,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="py-12 sm:py-16 border-t border-purple-100 dark:border-purple-900/30">
+      <section id="skills" className="pt-6 pb-10 sm:pt-8 sm:pb-12 border-t border-purple-100 dark:border-purple-900/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-purple-500">Skills</h2>
           <div className="flex flex-wrap gap-2">

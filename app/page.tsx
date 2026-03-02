@@ -468,7 +468,7 @@ export default function Home() {
               href="/explore"
               className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
             >
-              View Public Projects
+              See What Others Are Building
             </Link>
           </div>
         </div>

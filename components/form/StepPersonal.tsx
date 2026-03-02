@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useFormContext } from './FormContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,9 +14,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Upload, FileText, Linkedin, Github, Briefcase, MapPin, Mail, User, Crop } from 'lucide-react';
+import { Upload, FileText, Linkedin, Github, Briefcase, MapPin, Mail, User } from 'lucide-react';
 import { cropAndResizeImage } from '@/lib/image-processing';
-import { ImageCropper } from '@/components/ui/image-cropper';
 import { toast } from 'sonner';
 
 export function StepPersonal() {
@@ -24,11 +23,6 @@ export function StepPersonal() {
   const bioWordCount = useMemo(() => {
     return formData.bio.trim().split(/\s+/).filter(Boolean).length;
   }, [formData.bio]);
-
-  // Image cropper state
-  const [cropperOpen, setCropperOpen] = useState(false);
-  const [cropperFile, setCropperFile] = useState<File | null>(null);
-  const [cropperType, setCropperType] = useState<'profile' | 'cover'>('profile');
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -38,35 +32,25 @@ export function StepPersonal() {
     if (!file) return;
 
     if (type === 'profile') {
-      // Open cropper for profile photo
-      setCropperFile(file);
-      setCropperType('profile');
-      setCropperOpen(true);
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please upload a valid image file.');
+        return;
+      }
+      try {
+        // Minimal flow: auto center-crop to square and update directly.
+        const optimized = await cropAndResizeImage(file, {
+          aspectRatio: 1,
+          width: 800,
+          height: 800,
+        });
+        updateFormData({ profile_photo: optimized, profile_photo_url: '' });
+      } catch (error) {
+        // Fallback to original file so upload still works.
+        updateFormData({ profile_photo: file, profile_photo_url: '' });
+        toast.error('Could not optimize image, using original file.');
+      }
     } else {
       updateFormData({ resume: file, resume_url: '' });
-    }
-  };
-
-  const handleCrop = (croppedFile: File) => {
-    if (cropperType === 'profile') {
-      updateFormData({ profile_photo: croppedFile, profile_photo_url: '' });
-    }
-    setCropperFile(null);
-  };
-
-  const handleAutoCrop = async () => {
-    if (!cropperFile) return;
-    try {
-      const optimized = await cropAndResizeImage(cropperFile, {
-        aspectRatio: 1,
-        width: 800,
-        height: 800,
-      });
-      updateFormData({ profile_photo: optimized, profile_photo_url: '' });
-      setCropperOpen(false);
-      setCropperFile(null);
-    } catch (error) {
-      toast.error('Auto-crop failed. Please try manual crop.');
     }
   };
 
@@ -198,39 +182,9 @@ export function StepPersonal() {
                   className="hidden"
                 />
               </label>
-              {cropperFile && (
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCropperOpen(true)}
-                    className="text-xs flex items-center gap-1 text-orange-500 hover:text-orange-600 font-medium"
-                  >
-                    <Crop className="w-3 h-3" />
-                    Manual Crop
-                  </button>
-                  <span className="text-xs text-stone-300">|</span>
-                  <button
-                    type="button"
-                    onClick={handleAutoCrop}
-                    className="text-xs text-stone-500 hover:text-orange-500"
-                  >
-                    Auto-crop
-                  </button>
-                </div>
-              )}
+              <p className="text-xs text-stone-400">Image updates automatically after upload.</p>
             </div>
           </div>
-          {/* Image Cropper Modal */}
-          <ImageCropper
-            imageFile={cropperFile}
-            isOpen={cropperOpen}
-            onClose={() => {
-              setCropperOpen(false);
-              setCropperFile(null);
-            }}
-            onCrop={handleCrop}
-            aspectRatio={1}
-          />
         </div>
 
         <div className="space-y-2">

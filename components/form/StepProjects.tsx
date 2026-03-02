@@ -23,12 +23,54 @@ import {
   FolderGit2,
   Crop,
 } from 'lucide-react';
-import { useState, KeyboardEvent } from 'react';
+import { useState, KeyboardEvent, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+
+// Component to handle project image preview with proper URL cleanup
+function ProjectImagePreview({ project }: { project: { id: string; cover_image: File | null; cover_image_url: string } }) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const prevFileRef = useRef<File | null>(null);
+
+  useEffect(() => {
+    // Only create new URL if file changed
+    if (project.cover_image && project.cover_image !== prevFileRef.current) {
+      // Revoke previous URL if exists
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      const url = URL.createObjectURL(project.cover_image);
+      setPreviewUrl(url);
+      prevFileRef.current = project.cover_image;
+    } else if (!project.cover_image) {
+      // Clear preview if file removed
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setPreviewUrl(null);
+      prevFileRef.current = null;
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [project.cover_image]);
+
+  if (previewUrl) {
+    return <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />;
+  }
+  if (project.cover_image_url) {
+    return <img src={project.cover_image_url} alt="Current" className="w-full h-full object-cover" />;
+  }
+  return <Upload className="w-6 h-6 text-stone-400" />;
+}
 
 export function StepProjects() {
   const { formData, addProject, removeProject, updateProject, reorderProjects } = useFormContext();
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [techInput, setTechInput] = useState<Record<string, string>>({});
 
   // Image cropper state
@@ -149,9 +191,27 @@ export function StepProjects() {
             {formData.projects.map((project, index) => (
               <div
                 key={project.id}
-                draggable
-                onDragStart={() => setDraggingId(project.id)}
-                onDragEnd={() => setDraggingId(null)}
+                draggable={!cropperOpen}
+                onDragStart={(e) => {
+                  setDraggingId(project.id);
+                  e.dataTransfer.effectAllowed = 'move';
+                  // Add a ghost image offset for better UX
+                  e.dataTransfer.setDragImage(e.currentTarget, 20, 20);
+                }}
+                onDragEnd={() => {
+                  setDraggingId(null);
+                  setDragOverId(null);
+                }}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  if (draggingId && draggingId !== project.id) {
+                    setDragOverId(project.id);
+                  }
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setDragOverId(null);
+                }}
                 onDragOver={(e) => {
                   e.preventDefault();
                   if (draggingId && draggingId !== project.id) {
@@ -163,18 +223,25 @@ export function StepProjects() {
                   }
                 }}
                 className={cn(
-                  'bg-white rounded-2xl border-2 p-6 transition-all',
-                  draggingId === project.id && 'opacity-50 scale-[1.02] shadow-xl',
+                  'bg-white rounded-2xl border-2 p-6 transition-all duration-200',
+                  draggingId === project.id && 'opacity-50 scale-[1.02] shadow-xl cursor-grabbing',
+                  dragOverId === project.id && draggingId !== project.id && 'border-orange-400 shadow-lg scale-[1.01]',
                   project.is_featured
                     ? 'border-orange-300 shadow-lg shadow-orange-100'
-                    : 'border-stone-200 hover:border-stone-300'
+                    : 'border-stone-200 hover:border-stone-300',
+                  !cropperOpen && 'cursor-grab'
                 )}
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div
-                      className="p-2 bg-stone-100 rounded-lg cursor-move hover:bg-stone-200 transition-colors"
+                      className={cn(
+                        'p-2 rounded-lg transition-colors',
+                        draggingId === project.id
+                          ? 'bg-orange-200 cursor-grabbing'
+                          : 'bg-stone-100 cursor-grab hover:bg-stone-200 active:bg-orange-100'
+                      )}
                       onMouseDown={() => setDraggingId(project.id)}
                     >
                       <GripVertical className="w-4 h-4 text-stone-400" />
@@ -224,21 +291,7 @@ export function StepProjects() {
                   <Label className="mb-2 block">Cover Image</Label>
                   <div className="flex items-center gap-4 p-4 bg-stone-50 rounded-xl border border-dashed border-stone-300">
                     <div className="size-20 rounded-lg bg-white flex items-center justify-center border border-stone-200 overflow-hidden">
-                      {project.cover_image ? (
-                        <img
-                          src={URL.createObjectURL(project.cover_image)}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : project.cover_image_url ? (
-                        <img
-                          src={project.cover_image_url}
-                          alt="Current"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Upload className="w-6 h-6 text-stone-400" />
-                      )}
+                      <ProjectImagePreview project={project} />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-bold text-stone-600 hover:text-orange-500 transition-colors cursor-pointer">

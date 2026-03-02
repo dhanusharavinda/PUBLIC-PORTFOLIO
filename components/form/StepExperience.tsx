@@ -10,10 +10,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Plus, Trash2, GripVertical, Briefcase } from 'lucide-react';
 import { useState } from 'react';
+import { useState as useStateDrag } from 'react';
 
 export function StepExperience() {
   const { formData, addExperience, removeExperience, updateExperience, reorderExperiences } = useFormContext();
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   // Month inputs use YYYY-MM format directly, no conversion needed
   const formatDateForInput = (dateStr: string) => {
@@ -65,8 +67,25 @@ export function StepExperience() {
               <div
                 key={experience.id}
                 draggable
-                onDragStart={() => setDraggingId(experience.id)}
-                onDragEnd={() => setDraggingId(null)}
+                onDragStart={(e) => {
+                  setDraggingId(experience.id);
+                  e.dataTransfer.effectAllowed = 'move';
+                  e.dataTransfer.setDragImage(e.currentTarget, 20, 20);
+                }}
+                onDragEnd={() => {
+                  setDraggingId(null);
+                  setDragOverId(null);
+                }}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  if (draggingId && draggingId !== experience.id) {
+                    setDragOverId(experience.id);
+                  }
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setDragOverId(null);
+                }}
                 onDragOver={(e) => {
                   e.preventDefault();
                   if (draggingId && draggingId !== experience.id) {
@@ -78,16 +97,22 @@ export function StepExperience() {
                   }
                 }}
                 className={cn(
-                  'bg-white rounded-2xl border-2 p-6 transition-all',
-                  draggingId === experience.id && 'opacity-50 scale-[1.02] shadow-xl',
-                  'border-stone-200 hover:border-stone-300'
+                  'bg-white rounded-2xl border-2 p-6 transition-all duration-200',
+                  draggingId === experience.id && 'opacity-50 scale-[1.02] shadow-xl cursor-grabbing',
+                  dragOverId === experience.id && draggingId !== experience.id && 'border-orange-400 shadow-lg scale-[1.01]',
+                  'border-stone-200 hover:border-stone-300 cursor-grab'
                 )}
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div
-                      className="p-2 bg-stone-100 rounded-lg cursor-move hover:bg-stone-200 transition-colors"
+                      className={cn(
+                        'p-2 rounded-lg transition-colors',
+                        draggingId === experience.id
+                          ? 'bg-orange-200 cursor-grabbing'
+                          : 'bg-stone-100 cursor-grab hover:bg-stone-200 active:bg-orange-100'
+                      )}
                       onMouseDown={() => setDraggingId(experience.id)}
                     >
                       <GripVertical className="w-4 h-4 text-stone-400" />
