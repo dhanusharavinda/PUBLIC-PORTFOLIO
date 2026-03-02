@@ -10,8 +10,8 @@ function hasSupabaseAuthCookie(request: NextRequest) {
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // Protect only create and explore routes.
-  if (pathname === '/' || pathname === '/explore') {
+  // Protect explore route.
+  if (pathname === '/explore') {
     if (!hasSupabaseAuthCookie(request)) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = '/login';
@@ -24,5 +24,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/explore'],
+  matcher: ['/explore'],
 };
