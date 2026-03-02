@@ -27,6 +27,7 @@ function FormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editUsername = searchParams.get('edit');
+  const [activeEditUsername, setActiveEditUsername] = useState<string | null>(editUsername);
   const hydratedUsernameRef = useRef<string | null>(null);
   const autoHydratedRef = useRef(false);
   const { isLoggedIn, userEmail } = useAuth();
@@ -102,6 +103,7 @@ function FormContent() {
         );
         setCurrentStep(1);
         hydratedUsernameRef.current = targetUsername;
+        setActiveEditUsername(targetUsername);
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Failed to load portfolio for editing.');
       } finally {
@@ -111,6 +113,7 @@ function FormContent() {
 
     const runHydration = async () => {
       if (editUsername) {
+        setActiveEditUsername(editUsername);
         await hydratePortfolio(editUsername);
         return;
       }
@@ -161,7 +164,7 @@ function FormContent() {
     { component: StepProjects, validate: () => null },
     { component: StepTemplate, validate: () => {
       // Only validate username for new portfolios (not edit mode)
-      if (!editUsername) {
+      if (!activeEditUsername) {
         if (!formData.username || formData.username.length < 3) {
           return 'Please enter a username (at least 3 characters)';
         }
@@ -191,7 +194,7 @@ function FormContent() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    const isEditMode = Boolean(editUsername);
+    const isEditMode = Boolean(activeEditUsername);
 
     try {
       const bioWordCount = formData.bio.trim().split(/\s+/).filter(Boolean).length;
@@ -313,7 +316,7 @@ function FormContent() {
       }));
 
       // Validate username for new portfolios
-      if (!editUsername) {
+      if (!activeEditUsername) {
         if (!formData.username || formData.username.length < 3) {
           throw new Error('Please enter a username (at least 3 characters) in the Template step');
         }
@@ -324,7 +327,7 @@ function FormContent() {
       }
 
       // Create portfolio
-      const username = editUsername || formData.username;
+      const username = activeEditUsername || formData.username;
       const portfolioData = {
         username,
         full_name: formData.full_name,
@@ -346,8 +349,8 @@ function FormContent() {
         projects: projectsWithUrls,
       };
 
-      const data = editUsername
-        ? await fetchJson<{ success: boolean; portfolio?: { username?: string } }>(`/api/portfolio/${editUsername}`, {
+      const data = activeEditUsername
+        ? await fetchJson<{ success: boolean; portfolio?: { username?: string } }>(`/api/portfolio/${activeEditUsername}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(portfolioData),
@@ -359,8 +362,8 @@ function FormContent() {
           });
 
       if (data.success) {
-        const finalUsername = editUsername || (data as { username: string }).username;
-        toast.success(editUsername ? 'Portfolio updated successfully!' : 'Portfolio created successfully!');
+        const finalUsername = activeEditUsername || (data as { username: string }).username;
+        toast.success(activeEditUsername ? 'Portfolio updated successfully!' : 'Portfolio created successfully!');
         router.push(`/success?username=${finalUsername}`);
       } else {
         toast.error('Failed to create portfolio');
@@ -425,7 +428,7 @@ function FormContent() {
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    {editUsername ? 'Update My Portfolio' : 'Generate My Portfolio'}
+                    {activeEditUsername ? 'Update My Portfolio' : 'Generate My Portfolio'}
                   </>
                 )}
               </Button>
