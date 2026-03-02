@@ -291,7 +291,7 @@ export function StepProjects() {
                   <Label className="mb-2 block">Cover Image</Label>
                   <div className="flex items-center gap-4 p-4 bg-stone-50 rounded-xl border border-dashed border-stone-300">
                     <div className="size-20 rounded-lg bg-white flex items-center justify-center border border-stone-200 overflow-hidden">
-                      <ProjectImagePreview project={project} />
+                      <ProjectImagePreview project={{ ...project, cover_image: project.cover_image ?? null }} />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-bold text-stone-600 hover:text-orange-500 transition-colors cursor-pointer">
