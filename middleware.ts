@@ -23,5 +23,6 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Export matcher directly (new convention for Next.js 15+)
-export const matcher = ['/', '/explore'];
+export const config = {
+  matcher: ['/', '/explore'],
+};
