@@ -18,6 +18,7 @@ import { fetchJson } from '@/lib/fetch-json';
 import { PortfolioWithProjects } from '@/types/portfolio';
 import { useAuth } from '@/lib/auth-context';
 import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
+import { supabase } from '@/lib/supabase';
 
 function FormContent() {
   const { currentStep, setCurrentStep, formData, updateFormData, updateSkills, updateProjects, updateExperiences } = useFormContext();
@@ -27,29 +28,30 @@ function FormContent() {
   const searchParams = useSearchParams();
   const editUsername = searchParams.get('edit');
   const hydratedUsernameRef = useRef<string | null>(null);
+  const autoHydratedRef = useRef(false);
   const { isLoggedIn, userEmail } = useAuth();
 
   useEffect(() => {
-    const hydratePortfolio = async () => {
-      if (!editUsername || hydratedUsernameRef.current === editUsername) {
+    const hydratePortfolio = async (targetUsername: string) => {
+      if (!targetUsername || hydratedUsernameRef.current === targetUsername) {
         return;
       }
 
       setIsLoadingPortfolio(true);
       try {
-        const portfolio = await fetchJson<PortfolioWithProjects>(`/api/portfolio/${editUsername}`);
+        const portfolio = await fetchJson<PortfolioWithProjects>(`/api/portfolio/${targetUsername}`);
         const ownerEmail = (portfolio.email || '').toLowerCase();
         const loggedInEmail = (userEmail || '').toLowerCase();
 
         if (!isLoggedIn || !loggedInEmail) {
-          toast.error('Please log in to edit this portfolio.');
+          toast.error('Please log in to continue.');
           router.push('/login');
           return;
         }
 
         if (ownerEmail !== loggedInEmail) {
           toast.error('You can only edit your own portfolio.');
-          router.push(`/${editUsername}`);
+          router.push(`/${targetUsername}`);
           return;
         }
 
@@ -99,7 +101,7 @@ function FormContent() {
           }))
         );
         setCurrentStep(1);
-        hydratedUsernameRef.current = editUsername;
+        hydratedUsernameRef.current = targetUsername;
       } catch (error) {
         toast.error(error instanceof Error ? error.message : 'Failed to load portfolio for editing.');
       } finally {
@@ -107,7 +109,42 @@ function FormContent() {
       }
     };
 
-    void hydratePortfolio();
+    const runHydration = async () => {
+      if (editUsername) {
+        await hydratePortfolio(editUsername);
+        return;
+      }
+
+      // Auto-load existing portfolio for logged-in users so form is pre-populated.
+      if (!isLoggedIn || !userEmail || autoHydratedRef.current) {
+        return;
+      }
+
+      autoHydratedRef.current = true;
+      try {
+        const { data } = await supabase.auth.getSession();
+        const token = data.session?.access_token;
+        if (!token) return;
+
+        const mine = await fetchJson<{ success: boolean; portfolios?: Array<{ username?: string }> }>(
+          '/api/my-portfolios',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const firstUsername = mine.portfolios?.[0]?.username;
+        if (!firstUsername) return;
+
+        await hydratePortfolio(firstUsername);
+      } catch (error) {
+        console.error('Auto-hydration failed:', error);
+      }
+    };
+
+    void runHydration();
   }, [editUsername, isLoggedIn, router, setCurrentStep, updateFormData, updateProjects, updateSkills, updateExperiences, userEmail]);
 
   const steps = [
