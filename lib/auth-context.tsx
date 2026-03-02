@@ -64,11 +64,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const getAuthRedirectBase = () => {
+    const envBase = process.env.NEXT_PUBLIC_BASE_URL?.trim();
+    const fallback = window.location.origin;
+    const base = envBase && envBase.length > 0 ? envBase : fallback;
+    return base.endsWith('/') ? base.slice(0, -1) : base;
+  };
+
   const signInWithGoogle = async () => {
+    const redirectBase = getAuthRedirectBase();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: `${redirectBase}/login`,
       },
     });
     if (error) {
@@ -104,11 +112,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const redirectBase = getAuthRedirectBase();
     const { error } = await supabase.auth.signUp({
       email: trimmedEmail,
       password: password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: `${redirectBase}/login`,
       },
     });
 
@@ -127,8 +136,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const redirectBase = getAuthRedirectBase();
     const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${redirectBase}/reset-password`,
     });
 
     if (error) {
