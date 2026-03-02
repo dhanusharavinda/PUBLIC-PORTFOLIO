@@ -101,11 +101,11 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                 <ViewCounter
                   username={portfolio.username}
                   initialCount={portfolio.view_count}
-                  className="h-8 flex items-center text-xs bg-slate-100 px-2 sm:px-3 rounded-full text-slate-600"
+                  className="h-8 shrink-0 whitespace-nowrap flex items-center text-xs bg-slate-100 px-2 sm:px-3 rounded-full text-slate-600"
                 />
               )}
               {isPreview && (
-                <span className="text-xs text-slate-500 inline-flex items-center gap-1 h-8 bg-slate-100 px-2 sm:px-3 rounded-full">
+                <span className="text-xs text-slate-500 inline-flex items-center gap-1 h-8 shrink-0 whitespace-nowrap bg-slate-100 px-2 sm:px-3 rounded-full">
                   <Eye className="w-3.5 h-3.5" /> {portfolio.view_count} views
                 </span>
               )}
