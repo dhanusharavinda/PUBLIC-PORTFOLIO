@@ -275,14 +275,25 @@ export function StepProjects() {
                 </div>
 
                 <div className="mb-4">
-                  <div className="space-y-2">
-                    <Label>Project Name</Label>
-                    <Input
-                      value={project.name}
-                      onChange={(e) => updateProject(project.id, { name: e.target.value })}
-                      placeholder="Neural Network Market Forecast"
-                      className="bg-stone-50"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Project Name</Label>
+                      <Input
+                        value={project.name}
+                        onChange={(e) => updateProject(project.id, { name: e.target.value })}
+                        placeholder="Neural Network Market Forecast"
+                        className="bg-stone-50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Label <span className="text-stone-400 font-normal">(optional)</span></Label>
+                      <Input
+                        value={project.label}
+                        onChange={(e) => updateProject(project.id, { label: e.target.value })}
+                        placeholder="e.g. Side Projects, Client Work"
+                        className="bg-stone-50"
+                      />
+                    </div>
                   </div>
                 </div>
 

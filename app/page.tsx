@@ -90,6 +90,7 @@ function FormContent() {
           (portfolio.projects || []).map((project) => ({
             id: project.id || crypto.randomUUID(),
             name: project.name || '',
+            label: project.label || '',
             cover_image: null,
             cover_image_url: project.cover_image_url || '',
             carousel_images: [null, null, null],
@@ -284,6 +285,7 @@ function FormContent() {
 
           return {
             name: project.name,
+            label: project.label || '',
             cover_image_url: coverImageUrl,
             carousel_images: carouselUrls,
             description: project.description,
@@ -451,7 +453,33 @@ function FormContent() {
 }
 
 export default function Home() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, userEmail } = useAuth();
+  const [myPortfolioUsername, setMyPortfolioUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      if (!isLoggedIn) {
+        setMyPortfolioUsername(null);
+        return;
+      }
+      try {
+        const { data } = await supabase.auth.getSession();
+        const token = data.session?.access_token;
+        if (!token) return;
+        const result = await fetchJson<{ success: boolean; portfolios?: Array<{ username?: string }> }>(
+          '/api/my-portfolios',
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const username = result.portfolios?.[0]?.username || null;
+        setMyPortfolioUsername(username);
+      } catch {
+        setMyPortfolioUsername(null);
+      }
+    };
+    void fetchPortfolio();
+  }, [isLoggedIn, userEmail]);
+
+  const hasPortfolio = isLoggedIn && myPortfolioUsername;
 
   return (
     <div className="min-h-screen bg-[#FFF9F5] font-sans">
@@ -468,9 +496,20 @@ export default function Home() {
               </h2>
             </div>
             <nav className="flex items-center gap-3 sm:gap-8">
-              <Link href="/" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
-                Create
-              </Link>
+              {hasPortfolio ? (
+                <>
+                  <Link href={`/${myPortfolioUsername}`} className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
+                    View
+                  </Link>
+                  <Link href={`/?edit=${myPortfolioUsername}`} className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
+                    Edit
+                  </Link>
+                </>
+              ) : (
+                <Link href="/" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
+                  Create
+                </Link>
+              )}
               <Link href="/explore" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
                 Explore
               </Link>
@@ -500,18 +539,37 @@ export default function Home() {
             Fill in your details. Pick a theme. Share your link. The professional way to showcase your projects.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#form"
-              className="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-orange-500/20 hover:bg-orange-600 transition-all transform hover:-translate-y-1 text-center"
-            >
-              Create Now
-            </a>
-            <Link
-              href="/explore"
-              className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
-            >
-              See What Others Are Building
-            </Link>
+            {hasPortfolio ? (
+              <>
+                <Link
+                  href={`/${myPortfolioUsername}`}
+                  className="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-orange-500/20 hover:bg-orange-600 transition-all transform hover:-translate-y-1 text-center"
+                >
+                  View Portfolio
+                </Link>
+                <Link
+                  href={`/?edit=${myPortfolioUsername}`}
+                  className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
+                >
+                  Edit Portfolio
+                </Link>
+              </>
+            ) : (
+              <>
+                <a
+                  href="#form"
+                  className="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-orange-500/20 hover:bg-orange-600 transition-all transform hover:-translate-y-1 text-center"
+                >
+                  Create Now
+                </a>
+                <Link
+                  href="/explore"
+                  className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
+                >
+                  See What Others Are Building
+                </Link>
+              </>
+            )}
           </div>
         </div>
 

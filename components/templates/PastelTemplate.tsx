@@ -46,8 +46,35 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
     [portfolio.experiences]
   );
 
-  const featuredProject = portfolio.projects.find((p) => p.is_featured);
-  const otherProjects = portfolio.projects.filter((p) => !p.is_featured);
+  const sortedProjects = useMemo(
+    () => [...(portfolio.projects || [])].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0)),
+    [portfolio.projects]
+  );
+
+  const [activeLabel, setActiveLabel] = useState<string | null>(null);
+
+  const projectLabels = useMemo(() => {
+    const labels = new Set<string>();
+    sortedProjects.forEach((p) => {
+      if (p.label && p.label.trim()) labels.add(p.label.trim());
+    });
+    return Array.from(labels);
+  }, [sortedProjects]);
+
+  const hasLabels = projectLabels.length > 0;
+
+  const filteredProjects = useMemo(() => {
+    if (activeLabel === null) {
+      return hasLabels
+        ? sortedProjects.filter((p) => !p.label || !p.label.trim())
+        : sortedProjects;
+    }
+    if (activeLabel === '__all__') return sortedProjects;
+    return sortedProjects.filter((p) => p.label?.trim() === activeLabel);
+  }, [sortedProjects, activeLabel, hasLabels]);
+
+  const featuredProject = filteredProjects.find((p) => p.is_featured) || filteredProjects[0] || null;
+  const otherProjects = filteredProjects.filter((p) => p.id !== featuredProject?.id);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -277,6 +304,39 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
       <section id="projects" className="py-12 sm:py-16 border-t border-purple-100 dark:border-purple-900/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-purple-500">Projects</h2>
+
+          {hasLabels && (
+            <div className="flex flex-wrap gap-2 mb-8">
+              <button
+                onClick={() => setActiveLabel(null)}
+                className={`px-4 py-1.5 rounded-full text-sm font-bold transition-colors ${
+                  activeLabel === null
+                    ? 'bg-[#4fd1c5] text-[#001514]'
+                    : 'bg-[#0f2b2a] text-[#7dd3c7] hover:bg-[#123b39]'
+                }`}
+              >
+                All
+              </button>
+              {projectLabels.map((label) => (
+                <button
+                  key={label}
+                  onClick={() => setActiveLabel(label)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-bold transition-colors ${
+                    activeLabel === label
+                      ? 'bg-[#4fd1c5] text-[#001514]'
+                      : 'bg-[#0f2b2a] text-[#7dd3c7] hover:bg-[#123b39]'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Empty state for filtered results */}
+          {filteredProjects.length === 0 && sortedProjects.length > 0 && (
+            <p className="text-slate-400 text-lg mb-8">No projects match this filter.</p>
+          )}
 
           {/* Featured Project */}
           {featuredProject && (

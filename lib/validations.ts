@@ -22,6 +22,7 @@ export const experienceSchema = z.object({
 
 export const projectSchema = z.object({
   name: z.string().max(100, 'Project name too long').optional().or(z.literal('')),
+  label: z.string().max(50, 'Label too long').optional().or(z.literal('')),
   cover_image_url: z.string().optional().or(z.literal('')),
   description: z.string().max(800, 'Description must be under 800 characters').optional().or(z.literal('')),
   tech_stack: z.array(z.string()).optional().default([]),

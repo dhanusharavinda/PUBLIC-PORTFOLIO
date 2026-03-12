@@ -32,8 +32,31 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
     [portfolio.experiences]
   );
 
-  const featuredProject = sortedProjects.find((project) => project.is_featured) || sortedProjects[0] || null;
-  const remainingProjects = sortedProjects.filter((project) => project.id !== featuredProject?.id);
+  const [activeLabel, setActiveLabel] = useState<string | null>(null);
+
+  const projectLabels = useMemo(() => {
+    const labels = new Set<string>();
+    sortedProjects.forEach((p) => {
+      if (p.label && p.label.trim()) labels.add(p.label.trim());
+    });
+    return Array.from(labels);
+  }, [sortedProjects]);
+
+  const hasLabels = projectLabels.length > 0;
+
+  const filteredProjects = useMemo(() => {
+    if (activeLabel === null) {
+      // Default: show only unlabeled projects (if labels exist), otherwise all
+      return hasLabels
+        ? sortedProjects.filter((p) => !p.label || !p.label.trim())
+        : sortedProjects;
+    }
+    if (activeLabel === '__all__') return sortedProjects;
+    return sortedProjects.filter((p) => p.label?.trim() === activeLabel);
+  }, [sortedProjects, activeLabel, hasLabels]);
+
+  const featuredProject = filteredProjects.find((project) => project.is_featured) || filteredProjects[0] || null;
+  const remainingProjects = filteredProjects.filter((project) => project.id !== featuredProject?.id);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -211,6 +234,34 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
               <span className="w-8 h-px bg-slate-400"></span>
             </h2>
 
+            {hasLabels && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                <button
+                  onClick={() => setActiveLabel(null)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                    activeLabel === null
+                      ? 'bg-indigo-500 text-white'
+                      : 'bg-[#eef2ff] text-indigo-700 hover:bg-indigo-100'
+                  }`}
+                >
+                  All
+                </button>
+                {projectLabels.map((label) => (
+                  <button
+                    key={label}
+                    onClick={() => setActiveLabel(label)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                      activeLabel === label
+                        ? 'bg-indigo-500 text-white'
+                        : 'bg-[#eef2ff] text-indigo-700 hover:bg-indigo-100'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {featuredProject ? (
               <div className="space-y-6">
                 {/* Featured Project */}
@@ -284,7 +335,9 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                 )}
               </div>
             ) : (
-              <p className="text-slate-500 text-lg">No projects added yet.</p>
+              <p className="text-slate-500 text-lg">
+                {sortedProjects.length > 0 ? 'No projects match this filter.' : 'No projects added yet.'}
+              </p>
             )}
           </section>
 

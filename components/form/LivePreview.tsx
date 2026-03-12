@@ -84,6 +84,7 @@ export function LivePreview() {
           id: p.id,
           portfolio_id: 'preview',
           name: p.name || `Project ${i + 1}`,
+          label: p.label || '',
           cover_image_url: p.cover_image
             ? createObjectUrl(p.cover_image)
             : p.cover_image_url || '',

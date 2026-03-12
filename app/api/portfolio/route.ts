@@ -165,6 +165,7 @@ export async function POST(request: NextRequest) {
           // Provide defaults for optional fields
           const projectWithDefaults = {
             name: project.name || '',
+            label: project.label || '',
             cover_image_url: project.cover_image_url || '',
             description: project.description || '',
             tech_stack: project.tech_stack || [],

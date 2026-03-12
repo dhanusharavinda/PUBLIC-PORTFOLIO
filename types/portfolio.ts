@@ -40,6 +40,7 @@ export interface Project {
   id?: string;
   portfolio_id?: string;
   name: string;
+  label?: string;
   impact_stat?: string;
   cover_image_url: string;
   carousel_images: string[];
@@ -115,6 +116,7 @@ export interface FormData {
 export interface FormProject {
   id: string;
   name: string;
+  label: string;
   cover_image?: File | null;
   cover_image_url: string;
   carousel_images: (File | null)[];

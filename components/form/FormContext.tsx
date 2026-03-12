@@ -72,6 +72,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
     const newProject: FormProject = {
       id: crypto.randomUUID(),
       name: '',
+      label: '',
       cover_image: null,
       cover_image_url: '',
       carousel_images: [null, null, null],
