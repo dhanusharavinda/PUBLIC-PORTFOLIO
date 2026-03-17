@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Upload, FileText, Linkedin, Github, Briefcase, MapPin, Mail, User } from 'lucide-react';
+import { Upload, FileText, Linkedin, Github, Briefcase, MapPin, Mail, User, X } from 'lucide-react';
 import { cropAndResizeImage } from '@/lib/image-processing';
 import { toast } from 'sonner';
 
@@ -173,15 +173,27 @@ export function StepPersonal() {
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-stone-500 hover:text-orange-500 transition-colors cursor-pointer">
-                {formData.profile_photo ? 'Change Image' : formData.profile_photo_url ? 'Change Image' : 'Upload Image'}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange(e, 'profile')}
-                  className="hidden"
-                />
-              </label>
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-bold text-stone-500 hover:text-orange-500 transition-colors cursor-pointer">
+                  {formData.profile_photo ? 'Change Image' : formData.profile_photo_url ? 'Change Image' : 'Upload Image'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 'profile')}
+                    className="hidden"
+                  />
+                </label>
+                {(formData.profile_photo || formData.profile_photo_url) && (
+                  <button
+                    type="button"
+                    onClick={() => updateFormData({ profile_photo: null, profile_photo_url: '' })}
+                    className="flex items-center gap-1 text-sm font-bold text-stone-400 hover:text-red-500 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Remove
+                  </button>
+                )}
+              </div>
               <p className="text-xs text-stone-400">Image updates automatically after upload.</p>
             </div>
           </div>
