@@ -472,16 +472,13 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
               className="group cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.015] hover:border-[#5EEAD4]/20 transition-all mb-6 overflow-hidden"
             >
               <div className="grid md:grid-cols-[1.1fr,1fr]">
-                <div className="aspect-video md:aspect-auto md:min-h-[280px] relative overflow-hidden bg-[#111520]">
+                <div className="aspect-video md:aspect-[16/10] overflow-hidden bg-[#111520]">
                   {featuredProject.cover_image_url ? (
-                    <Image
+                    <img
                       src={featuredProject.cover_image_url}
                       alt={featuredProject.name}
-                      fill
-                      priority
-                      sizes="(max-width: 768px) 100vw, 55vw"
-                      quality={85}
-                      className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                      loading="eager"
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[#5A6170] text-sm">No image</div>
@@ -518,15 +515,13 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
                   onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}
                   className="group cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.015] hover:border-[#5EEAD4]/20 transition-all overflow-hidden"
                 >
-                  <div className="aspect-[16/10] relative overflow-hidden bg-[#111520]">
+                  <div className="aspect-[16/10] overflow-hidden bg-[#111520]">
                     {project.cover_image_url ? (
-                      <Image
+                      <img
                         src={project.cover_image_url}
                         alt={project.name}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        quality={85}
-                        className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#5A6170] text-xs">No image</div>
