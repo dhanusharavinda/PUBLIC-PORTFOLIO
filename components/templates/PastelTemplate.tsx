@@ -232,8 +232,8 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
         <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-teal-500/[0.04] blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-violet-500/[0.03] blur-[100px] pointer-events-none" />
 
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-20 sm:pt-28 pb-16 sm:pb-24">
-          <div className="grid lg:grid-cols-[1fr,auto] gap-12 items-end">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-14 sm:pt-20 pb-10 sm:pb-14">
+          <div className="grid lg:grid-cols-[1fr,auto] gap-8 items-end">
             <div>
               {/* Availability tag */}
               {portfolio.open_to_work && (
@@ -243,7 +243,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
                 </div>
               )}
 
-              <h1 data-anim="hero" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] tracking-tight mb-4" style={{ fontFamily: "'Syne', system-ui, sans-serif" }}>
+              <h1 data-anim="hero" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] tracking-tight mb-3" style={{ fontFamily: "'Syne', system-ui, sans-serif" }}>
                 {portfolio.full_name}
               </h1>
 
@@ -252,12 +252,12 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
               </p>
 
               {portfolio.tagline && (
-                <p data-anim="hero" className="text-base text-[#5A6170] max-w-lg mb-6 leading-relaxed">
+                <p data-anim="hero" className="text-base text-[#5A6170] max-w-lg mb-4 leading-relaxed">
                   {portfolio.tagline}
                 </p>
               )}
 
-              <div data-anim="hero" className="flex items-center gap-3 text-sm text-[#5A6170] mb-8">
+              <div data-anim="hero" className="flex items-center gap-3 text-sm text-[#5A6170] mb-5">
                 {portfolio.location && (
                   <span className="flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5" />
@@ -331,7 +331,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
 
       {/* ━━ About ━━ */}
       <section id="about" data-anim="section" className="border-t border-white/[0.04]">
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
           <div className="grid lg:grid-cols-[200px,1fr] gap-8">
             <div>
               <h2 className="text-xs font-bold text-[#5A6170] uppercase tracking-[0.2em]">About</h2>
@@ -360,7 +360,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
 
       {/* ━━ Skills ━━ */}
       <section id="skills" data-anim="section" className="border-t border-white/[0.04]">
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
           <div className="grid lg:grid-cols-[200px,1fr] gap-8">
             <div>
               <h2 className="text-xs font-bold text-[#5A6170] uppercase tracking-[0.2em]">Skills</h2>
@@ -389,7 +389,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
       {/* ━━ Experience ━━ */}
       {sortedExperiences.length > 0 && (
         <section id="experience" data-anim="section" className="border-t border-white/[0.04]">
-          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
             <div className="grid lg:grid-cols-[200px,1fr] gap-8">
               <div>
                 <h2 className="text-xs font-bold text-[#5A6170] uppercase tracking-[0.2em]">Experience</h2>
@@ -436,8 +436,8 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
 
       {/* ━━ Projects ━━ */}
       <section id="projects" data-anim="section" className="border-t border-white/[0.04]">
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16 sm:py-20">
-          <div className="flex items-end justify-between mb-10">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
+          <div className="flex items-end justify-between mb-6">
             <h2 className="text-xs font-bold text-[#5A6170] uppercase tracking-[0.2em]">Projects</h2>
             {hasLabels && (
               <div className="flex gap-1.5">
@@ -469,15 +469,16 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
             <div
               data-anim="item"
               onClick={() => { setSelectedProject(featuredProject); setIsModalOpen(true); }}
-              className="group cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.015] hover:border-[#5EEAD4]/20 transition-all mb-8 overflow-hidden"
+              className="group cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.015] hover:border-[#5EEAD4]/20 transition-all mb-6 overflow-hidden"
             >
               <div className="grid md:grid-cols-[1.1fr,1fr]">
-                <div className="aspect-video md:aspect-auto md:min-h-[300px] relative overflow-hidden bg-[#111520]">
+                <div className="aspect-video md:aspect-auto md:min-h-[280px] relative overflow-hidden bg-[#111520]">
                   {featuredProject.cover_image_url ? (
                     <Image
                       src={featuredProject.cover_image_url}
                       alt={featuredProject.name}
                       fill
+                      priority
                       sizes="(max-width: 768px) 100vw, 55vw"
                       quality={85}
                       className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
@@ -563,7 +564,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
 
       {/* ━━ Contact ━━ */}
       <section id="contact" data-anim="section" className="border-t border-white/[0.04]">
-        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-20 sm:py-28">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
           <div className="max-w-xl">
             <p className="text-xs font-bold text-[#5A6170] uppercase tracking-[0.2em] mb-4">Get in touch</p>
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Syne', system-ui" }}>

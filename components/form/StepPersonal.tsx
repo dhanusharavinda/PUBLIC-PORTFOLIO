@@ -154,7 +154,7 @@ export function StepPersonal() {
             <Upload className="w-4 h-4" />
             Profile Photo
           </Label>
-          <div className="flex items-center gap-4 p-2 bg-[var(--m-bg-secondary)] rounded-2xl border border-dashed border-[var(--m-border)]">
+          <label className="flex items-center gap-4 p-2 bg-[var(--m-bg-secondary)] rounded-2xl border border-dashed border-[var(--m-border)] hover:border-[var(--m-accent)] cursor-pointer transition-colors group">
             <div className="size-14 rounded-xl bg-[var(--m-bg-card)] flex items-center justify-center border border-[var(--m-border)] shadow-sm overflow-hidden">
               {formData.profile_photo ? (
                 <img
@@ -169,34 +169,32 @@ export function StepPersonal() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <Upload className="w-5 h-5 text-[var(--m-text-muted)]" />
+                <Upload className="w-5 h-5 text-[var(--m-text-muted)] group-hover:text-[var(--m-accent)]" />
               )}
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-bold text-[var(--m-text-secondary)] hover:text-[var(--m-accent)] transition-colors cursor-pointer">
-                  {formData.profile_photo ? 'Change Image' : formData.profile_photo_url ? 'Change Image' : 'Upload Image'}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileChange(e, 'profile')}
-                    className="hidden"
-                  />
-                </label>
-                {(formData.profile_photo || formData.profile_photo_url) && (
-                  <button
-                    type="button"
-                    onClick={() => updateFormData({ profile_photo: null, profile_photo_url: '' })}
-                    className="flex items-center gap-1 text-sm font-bold text-[var(--m-text-muted)] hover:text-red-500 transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                    Remove
-                  </button>
-                )}
-              </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-bold text-[var(--m-text-secondary)] group-hover:text-[var(--m-accent)] transition-colors">
+                {formData.profile_photo ? 'Change Image' : formData.profile_photo_url ? 'Change Image' : 'Upload Image'}
+              </span>
               <p className="text-xs text-[var(--m-text-muted)]">Image updates automatically after upload.</p>
             </div>
-          </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileChange(e, 'profile')}
+              className="hidden"
+            />
+          </label>
+          {(formData.profile_photo || formData.profile_photo_url) && (
+            <button
+              type="button"
+              onClick={() => updateFormData({ profile_photo: null, profile_photo_url: '' })}
+              className="flex items-center gap-1 text-xs font-bold text-[var(--m-text-muted)] hover:text-red-500 transition-colors mt-1"
+            >
+              <X className="w-3.5 h-3.5" />
+              Remove
+            </button>
+          )}
         </div>
 
         <div className="space-y-2">
