@@ -1,8 +1,6 @@
 import { getSupabasePublicServerClient } from '@/lib/supabase-server';
 import { ExploreDirectory } from '@/components/explore/ExploreDirectory';
-import { Sparkles } from 'lucide-react';
-import Link from 'next/link';
-import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
+import { ExploreShell } from '@/components/explore/ExploreShell';
 
 interface ProjectWithPortfolio {
   id: string;
@@ -22,8 +20,7 @@ interface ProjectWithPortfolio {
 async function getPublicProjects(): Promise<ProjectWithPortfolio[]> {
   try {
     const supabase = getSupabasePublicServerClient();
-    
-    // Fetch projects from public portfolios
+
     const { data, error } = await supabase
       .from('projects')
       .select(`
@@ -51,7 +48,6 @@ async function getPublicProjects(): Promise<ProjectWithPortfolio[]> {
       return [];
     }
 
-    // Transform the data
     return (data || []).map((item: any) => ({
       id: item.id,
       name: item.name,
@@ -75,61 +71,14 @@ async function getPublicProjects(): Promise<ProjectWithPortfolio[]> {
 export default async function ExplorePage() {
   const projects = await getPublicProjects();
 
-  // Extract all unique skills for the filter dropdown
   const allSkills = new Set<string>();
   projects.forEach((project) => {
     project.tech_stack.forEach((skill) => allSkills.add(skill));
   });
 
   return (
-    <div className="min-h-screen bg-[#FEFCE8] text-slate-800 font-sans">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-dashed border-stone-200 px-6 md:px-10 py-4 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="size-10 flex items-center justify-center bg-sky-100 text-indigo-600 rounded-xl shadow-sm">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <span className="text-xl font-black tracking-tight">portlyfolio.site</span>
-          </Link>
-          <div className="flex flex-1 justify-end sm:justify-center gap-2">
-            <span className="text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full text-sm font-bold">
-              Explore
-            </span>
-            <Link
-              href="/"
-              className="text-slate-500 hover:text-indigo-600 hover:bg-slate-50 px-4 py-2 rounded-full text-sm font-bold transition-all"
-            >
-              Create
-            </Link>
-            <AuthHeaderActions />
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-6 md:px-10 py-12">
-        <ExploreDirectory projects={projects} allSkills={Array.from(allSkills).sort()} />
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-dashed border-stone-200 py-10 px-6 md:px-10 bg-white/50">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-indigo-100 rounded-lg text-indigo-600">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <span className="font-bold text-slate-800">portlyfolio.site</span>
-            <span className="text-slate-400 text-sm ml-2">
-              &copy; {new Date().getFullYear()}
-            </span>
-          </div>
-          <div className="flex gap-8">
-            <Link href="/" className="text-slate-500 hover:text-indigo-600 text-sm font-medium transition-colors">
-              Create Portfolio
-            </Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+    <ExploreShell>
+      <ExploreDirectory projects={projects} allSkills={Array.from(allSkills).sort()} />
+    </ExploreShell>
   );
 }

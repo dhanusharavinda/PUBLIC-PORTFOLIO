@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/lib/auth-context";
+import { ModeProvider } from "@/lib/mode-context";
 import { Analytics } from "@vercel/analytics/react";
 
 const geistSans = Geist({
@@ -27,9 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-mode="professional" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased m-transition`}
       >
         <ThemeProvider
           attribute="class"
@@ -37,11 +38,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <AuthProvider>
-            {children}
-            <Toaster position="bottom-right" />
-            <Analytics />
-          </AuthProvider>
+          <ModeProvider>
+            <AuthProvider>
+              {children}
+              <Toaster position="bottom-right" />
+              <Analytics />
+            </AuthProvider>
+          </ModeProvider>
         </ThemeProvider>
       </body>
     </html>

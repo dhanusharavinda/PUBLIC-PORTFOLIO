@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { fetchJson } from '@/lib/fetch-json';
@@ -53,7 +52,6 @@ export function AuthHeaderActions() {
           },
         });
 
-        // Take only the first portfolio (enforced one per user)
         const portfolios = Array.isArray(result.portfolios) ? result.portfolios : [];
         setPortfolio(portfolios[0] || null);
       } catch (error) {
@@ -69,15 +67,28 @@ export function AuthHeaderActions() {
   if (isLoggedIn) {
     return (
       <div className="flex items-center gap-2">
-        <span className="hidden md:inline text-xs text-stone-500 max-w-[180px] truncate">{userEmail}</span>
+        <span
+          className="hidden md:inline text-xs max-w-[140px] truncate"
+          style={{ color: 'var(--m-text-muted)' }}
+        >
+          {userEmail}
+        </span>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button type="button" variant="outline" className="h-9 px-3 text-xs gap-1">
-              <FolderOpen className="w-4 h-4" />
-              My Portfolio
+            <button
+              className="h-8 px-3 text-xs font-semibold flex items-center gap-1 border transition-colors"
+              style={{
+                backgroundColor: 'var(--m-bg-card)',
+                borderColor: 'var(--m-border)',
+                color: 'var(--m-text)',
+                borderRadius: 'var(--m-radius)',
+              }}
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">My Portfolio</span>
               <ChevronDown className="w-3 h-3" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" className="w-64">
@@ -126,8 +137,12 @@ export function AuthHeaderActions() {
   }
 
   return (
-    <Button asChild className="h-9 px-4 text-xs bg-orange-500 hover:bg-orange-600">
-      <Link href="/login">Login</Link>
-    </Button>
+    <Link
+      href="/login"
+      className="m-btn-accent h-8 px-4 text-xs flex items-center justify-center"
+      style={{ borderRadius: 'var(--m-radius)' }}
+    >
+      Login
+    </Link>
   );
 }

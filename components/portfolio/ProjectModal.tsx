@@ -45,6 +45,9 @@ export function ProjectModal({
                 src={project.cover_image_url}
                 alt={project.name}
                 fill
+                sizes="(max-width: 1024px) 100vw, 60vw"
+                quality={90}
+                priority
                 className="object-cover"
               />
             ) : (

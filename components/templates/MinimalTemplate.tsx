@@ -278,6 +278,8 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                         src={featuredProject.cover_image_url}
                         alt={featuredProject.name}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
+                        quality={85}
                         className="object-cover"
                       />
                     </div>
@@ -316,6 +318,8 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
                               src={project.cover_image_url}
                               alt={project.name}
                               fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+                              quality={85}
                               className="object-cover"
                             />
                           </div>

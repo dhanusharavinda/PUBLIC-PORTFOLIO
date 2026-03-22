@@ -9,6 +9,7 @@ import { StepProjects } from '@/components/form/StepProjects';
 import { StepTemplate } from '@/components/form/StepTemplate';
 import { LivePreview } from '@/components/form/LivePreview';
 import { Button } from '@/components/ui/button';
+import { ModeToggle } from '@/components/ui/mode-toggle';
 import { toast } from 'sonner';
 import { ArrowRight, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -17,6 +18,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchJson } from '@/lib/fetch-json';
 import { PortfolioWithProjects } from '@/types/portfolio';
 import { useAuth } from '@/lib/auth-context';
+import { useMode } from '@/lib/mode-context';
 import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
 import { supabase } from '@/lib/supabase';
 
@@ -119,7 +121,6 @@ function FormContent() {
         return;
       }
 
-      // Auto-load existing portfolio for logged-in users so form is pre-populated.
       if (!isLoggedIn || !userEmail || autoHydratedRef.current) {
         return;
       }
@@ -164,7 +165,6 @@ function FormContent() {
     { component: StepExperience, validate: () => null },
     { component: StepProjects, validate: () => null },
     { component: StepTemplate, validate: () => {
-      // Only validate username for new portfolios (not edit mode)
       if (!activeEditUsername) {
         if (!formData.username || formData.username.length < 3) {
           return 'Please enter a username (at least 3 characters)';
@@ -233,25 +233,21 @@ function FormContent() {
     }
   };
 
-      // Upload files first
       let profilePhotoUrl = formData.profile_photo_url;
       let resumeUrl = formData.resume_url;
 
-      // Upload profile photo (or use existing URL if editing and not changed)
       if (formData.profile_photo) {
         profilePhotoUrl = await uploadFile(formData.profile_photo, 'profile-photos');
       } else if (isEditMode && formData.profile_photo_url) {
         profilePhotoUrl = formData.profile_photo_url;
       }
 
-      // Upload resume (or use existing URL if editing and not changed)
       if (formData.resume) {
         resumeUrl = await uploadFile(formData.resume, 'resumes');
       } else if (isEditMode && formData.resume_url) {
         resumeUrl = formData.resume_url;
       }
 
-      // Upload project images
       const activeProjects = formData.projects.filter(
         (project) =>
           project.name.trim() ||
@@ -298,7 +294,6 @@ function FormContent() {
         })
       );
 
-      // Prepare experiences data
       const activeExperiences = formData.experiences.filter(
         (exp) =>
           exp.company.trim() ||
@@ -317,7 +312,6 @@ function FormContent() {
         order_index: index,
       }));
 
-      // Validate username for new portfolios
       if (!activeEditUsername) {
         if (!formData.username || formData.username.length < 3) {
           throw new Error('Please enter a username (at least 3 characters) in the Template step');
@@ -328,7 +322,6 @@ function FormContent() {
         }
       }
 
-      // Create portfolio
       const username = activeEditUsername || formData.username;
       const portfolioData = {
         username,
@@ -379,14 +372,24 @@ function FormContent() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-10">
       {/* Form Section */}
       <div className="lg:col-span-7">
-        <div className="bg-white p-8 md:p-10 rounded-[2rem] border border-stone-100 shadow-xl shadow-stone-200/50">
+        <div
+          className="p-6 md:p-8 border m-transition animate-fade-in"
+          style={{
+            backgroundColor: 'var(--m-bg-card)',
+            borderColor: 'var(--m-border)',
+            borderRadius: 'var(--m-radius-lg)',
+            boxShadow: `0 8px 30px var(--m-shadow)`,
+          }}
+        >
           <FormProgress currentStep={currentStep} />
 
           {isLoadingPortfolio ? (
-            <div className="py-16 text-center text-stone-500 font-medium">Loading portfolio for editing...</div>
+            <div className="py-16 text-center font-medium" style={{ color: 'var(--m-text-secondary)' }}>
+              Loading portfolio for editing...
+            </div>
           ) : (
             <CurrentStepComponent />
           )}
@@ -394,33 +397,35 @@ function FormContent() {
           {/* Navigation Buttons */}
           <div className="mt-8 flex justify-between">
             {currentStep > 1 ? (
-              <Button
-                variant="outline"
+              <button
                 onClick={handleBack}
                 disabled={isSubmitting || isLoadingPortfolio}
-                className="flex items-center gap-2"
+                className="m-btn-outline flex items-center gap-2 px-5 py-2.5 disabled:opacity-50"
+                style={{ borderRadius: 'var(--m-radius)' }}
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
-              </Button>
+              </button>
             ) : (
               <div />
             )}
 
             {currentStep < 5 ? (
-              <Button
+              <button
                 onClick={handleNext}
                 disabled={isSubmitting || isLoadingPortfolio}
-                className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
+                className="m-btn-accent flex items-center gap-2 px-6 py-2.5 disabled:opacity-50"
+                style={{ borderRadius: 'var(--m-radius)' }}
               >
                 {currentStep === 4 ? 'Next: Choose Theme' : 'Next'}
                 <ArrowRight className="w-4 h-4" />
-              </Button>
+              </button>
             ) : (
-              <Button
+              <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || isLoadingPortfolio}
-                className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
+                className="m-btn-accent flex items-center gap-2 px-6 py-2.5 disabled:opacity-50"
+                style={{ borderRadius: 'var(--m-radius)' }}
               >
                 {isSubmitting ? (
                   <>
@@ -433,18 +438,16 @@ function FormContent() {
                     {activeEditUsername ? 'Update My Portfolio' : 'Generate My Portfolio'}
                   </>
                 )}
-              </Button>
+              </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Live Preview Section - Desktop Only */}
-      <div className="hidden lg:block lg:col-span-5 xl:col-span-5">
+      {/* Live Preview Section */}
+      <div className="hidden lg:block lg:col-span-5">
         <LivePreview />
       </div>
-
-      {/* Live Preview Section - Mobile/Tablet */}
       <div className="lg:hidden">
         <LivePreview />
       </div>
@@ -454,6 +457,7 @@ function FormContent() {
 
 export default function Home() {
   const { isLoggedIn, userEmail } = useAuth();
+  const { isAesthetic } = useMode();
   const [myPortfolioUsername, setMyPortfolioUsername] = useState<string | null>(null);
 
   useEffect(() => {
@@ -482,37 +486,74 @@ export default function Home() {
   const hasPortfolio = isLoggedIn && myPortfolioUsername;
 
   return (
-    <div className="min-h-screen bg-[#FFF9F5] font-sans">
+    <div className="min-h-screen m-transition m-grain" style={{ backgroundColor: 'var(--m-bg)' }}>
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-white/60 backdrop-blur-md border-b border-white/40">
+      <header
+        className="sticky top-0 z-50 w-full backdrop-blur-md border-b m-transition"
+        style={{
+          backgroundColor: 'var(--m-bg-header)',
+          borderColor: 'var(--m-border-header)',
+        }}
+      >
         <div className="w-full px-4 sm:px-6 lg:px-10">
-          <div className="flex h-20 items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center size-10 bg-orange-500 rounded-xl text-white shadow-md shadow-orange-500/20">
-                <Sparkles className="w-5 h-5" />
+          <div className="flex h-16 items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div
+                className="flex items-center justify-center size-9 rounded-lg shadow-sm"
+                style={{ backgroundColor: 'var(--m-accent)', color: 'var(--m-bg)' }}
+              >
+                <Sparkles className="w-4 h-4" />
               </div>
-              <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-stone-800">
+              <h2
+                className="text-xl font-extrabold tracking-tight"
+                style={{ color: 'var(--m-text-heading)', fontFamily: 'var(--m-font-heading)' }}
+              >
                 portlyfolio.site
               </h2>
             </div>
-            <nav className="flex items-center gap-3 sm:gap-8">
+            <nav className="flex items-center gap-2 sm:gap-4">
               {hasPortfolio ? (
                 <>
-                  <Link href={`/${myPortfolioUsername}`} className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
+                  <Link
+                    href={`/${myPortfolioUsername}`}
+                    className="text-sm font-semibold transition-colors px-2 py-1"
+                    style={{ color: 'var(--m-text-secondary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--m-text-secondary)'}
+                  >
                     View
                   </Link>
-                  <Link href={`/?edit=${myPortfolioUsername}`} className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
+                  <Link
+                    href={`/?edit=${myPortfolioUsername}`}
+                    className="text-sm font-semibold transition-colors px-2 py-1"
+                    style={{ color: 'var(--m-text-secondary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--m-text-secondary)'}
+                  >
                     Edit
                   </Link>
                 </>
               ) : (
-                <Link href="/" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
+                <Link
+                  href="/"
+                  className="text-sm font-semibold transition-colors px-2 py-1"
+                  style={{ color: 'var(--m-text-secondary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--m-text-secondary)'}
+                >
                   Create
                 </Link>
               )}
-              <Link href="/explore" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
+              <Link
+                href="/explore"
+                className="text-sm font-semibold transition-colors px-2 py-1"
+                style={{ color: 'var(--m-text-secondary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--m-text-secondary)'}
+              >
                 Explore
               </Link>
+              <ModeToggle />
               <AuthHeaderActions />
             </nav>
           </div>
@@ -520,36 +561,64 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="w-full px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-sm border border-white text-orange-500 text-xs font-bold uppercase tracking-wider mx-auto shadow-sm mb-6">
+      <section className="w-full px-4 sm:px-6 lg:px-10 py-12 lg:py-16 relative overflow-hidden">
+        {/* Aesthetic mode colored accent blocks */}
+        {isAesthetic && (
+          <>
+            <div className="absolute top-8 left-6 w-20 h-20 bg-[#FFD60A] rounded-sm opacity-10 rotate-12" />
+            <div className="absolute top-32 right-10 w-16 h-16 bg-[#FF6B6B] rounded-sm opacity-10 -rotate-6" />
+            <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-[#00E676] rounded-sm opacity-8 rotate-45" />
+          </>
+        )}
+        <div className="max-w-4xl mx-auto text-center mb-12 animate-fade-in-up relative z-10">
+          <div
+            className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wider mx-auto mb-6 border"
+            style={{
+              backgroundColor: 'var(--m-bg-badge)',
+              borderColor: 'var(--m-border)',
+              color: 'var(--m-accent)',
+              borderRadius: isAesthetic ? '0.25rem' : '9999px',
+            }}
+          >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+              <span
+                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                style={{ backgroundColor: 'var(--m-accent)' }}
+              />
+              <span
+                className="relative inline-flex rounded-full h-2 w-2"
+                style={{ backgroundColor: 'var(--m-accent)' }}
+              />
             </span>
             Free Portfolio Generator
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-stone-800 mb-4">
-            Your Portfolio.{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-purple-500">
-              Your Story.
-            </span>
+          <h1
+            className="text-4xl sm:text-5xl lg:text-7xl font-black leading-none tracking-tight mb-4"
+            style={{ color: 'var(--m-text-heading)', fontFamily: 'var(--m-font-heading)' }}
+          >
+            YOUR PORTFOLIO.{' '}
+            <span className="m-gradient-text">YOUR STORY.</span>
           </h1>
-          <p className="text-lg text-stone-500 max-w-2xl mx-auto font-medium leading-relaxed mb-8">
+          <p
+            className="text-lg max-w-2xl mx-auto font-medium leading-relaxed mb-8"
+            style={{ color: 'var(--m-text-secondary)' }}
+          >
             Fill in your details. Pick a theme. Share your link. The professional way to showcase your projects.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             {hasPortfolio ? (
               <>
                 <Link
                   href={`/${myPortfolioUsername}`}
-                  className="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-orange-500/20 hover:bg-orange-600 transition-all transform hover:-translate-y-1 text-center"
+                  className="m-btn-accent px-8 py-3.5 font-bold text-base text-center"
+                  style={{ borderRadius: 'var(--m-radius)' }}
                 >
                   View Portfolio
                 </Link>
                 <Link
                   href={`/?edit=${myPortfolioUsername}`}
-                  className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
+                  className="m-btn-outline px-8 py-3.5 font-bold text-base text-center"
+                  style={{ borderRadius: 'var(--m-radius)' }}
                 >
                   Edit Portfolio
                 </Link>
@@ -558,13 +627,15 @@ export default function Home() {
               <>
                 <a
                   href="#form"
-                  className="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-orange-500/20 hover:bg-orange-600 transition-all transform hover:-translate-y-1 text-center"
+                  className="m-btn-accent px-8 py-3.5 font-bold text-base text-center"
+                  style={{ borderRadius: 'var(--m-radius)' }}
                 >
                   Create Now
                 </a>
                 <Link
                   href="/explore"
-                  className="bg-white text-stone-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-stone-50 border border-stone-200 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-center"
+                  className="m-btn-outline px-8 py-3.5 font-bold text-base text-center"
+                  style={{ borderRadius: 'var(--m-radius)' }}
                 >
                   See What Others Are Building
                 </Link>
@@ -580,12 +651,28 @@ export default function Home() {
               <FormContent />
             </FormProvider>
           ) : (
-            <div className="max-w-2xl mx-auto bg-white p-8 md:p-10 rounded-[2rem] border border-stone-100 shadow-xl shadow-stone-200/50 text-center">
-              <h3 className="text-2xl font-bold text-stone-800 mb-3">Login Required</h3>
-              <p className="text-stone-500 mb-6">Please log in to create and publish your portfolio.</p>
+            <div
+              className="max-w-2xl mx-auto p-8 md:p-10 border text-center m-transition"
+              style={{
+                backgroundColor: 'var(--m-bg-card)',
+                borderColor: 'var(--m-border)',
+                borderRadius: 'var(--m-radius-lg)',
+                boxShadow: `0 8px 30px var(--m-shadow)`,
+              }}
+            >
+              <h3
+                className="text-2xl font-bold mb-3"
+                style={{ color: 'var(--m-text-heading)', fontFamily: 'var(--m-font-heading)' }}
+              >
+                Login Required
+              </h3>
+              <p className="mb-6" style={{ color: 'var(--m-text-secondary)' }}>
+                Please log in to create and publish your portfolio.
+              </p>
               <Link
                 href="/login?returnTo=%2F"
-                className="inline-flex items-center justify-center bg-orange-500 text-white px-8 py-3 rounded-2xl font-bold hover:bg-orange-600 transition-colors"
+                className="m-btn-accent inline-flex items-center justify-center px-8 py-3"
+                style={{ borderRadius: 'var(--m-radius)' }}
               >
                 Log In to Continue
               </Link>
@@ -595,18 +682,40 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-stone-100 py-12">
-        <div className="w-full px-4 sm:px-6 lg:px-10 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center size-8 bg-orange-500 rounded-lg text-white shadow-sm">
-              <Sparkles className="w-4 h-4" />
+      <footer
+        className="border-t py-10 m-transition"
+        style={{
+          backgroundColor: 'var(--m-bg-footer)',
+          borderColor: 'var(--m-border)',
+        }}
+      >
+        <div className="w-full px-4 sm:px-6 lg:px-10 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="flex items-center justify-center size-7 rounded-md"
+              style={{ backgroundColor: 'var(--m-accent)', color: 'var(--m-bg)' }}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
             </div>
-            <h2 className="text-xl font-bold text-stone-800">portlyfolio.site</h2>
+            <h2
+              className="text-lg font-bold"
+              style={{ color: 'var(--m-text-heading)', fontFamily: 'var(--m-font-heading)' }}
+            >
+              portlyfolio.site
+            </h2>
           </div>
-          <div className="flex gap-8 text-sm font-semibold text-stone-500">
-            <Link href="/explore" className="hover:text-orange-500 transition-colors">Explore</Link>
+          <div className="flex gap-6 text-sm font-semibold">
+            <Link
+              href="/explore"
+              className="transition-colors"
+              style={{ color: 'var(--m-text-secondary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--m-text-secondary)'}
+            >
+              Explore
+            </Link>
           </div>
-          <div className="text-sm text-stone-500 font-medium">
+          <div className="text-sm font-medium" style={{ color: 'var(--m-text-muted)' }}>
             &copy; {new Date().getFullYear()} portlyfolio.site. All rights reserved.
           </div>
         </div>

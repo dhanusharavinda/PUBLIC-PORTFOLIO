@@ -22,45 +22,68 @@ export function FormProgress({ currentStep, totalSteps = 5 }: FormProgressProps)
     <div className="mb-8">
       <div className="flex justify-between items-end mb-4">
         <div>
-          <h2 className="text-3xl font-extrabold text-stone-800">
+          <h2
+            className="text-2xl font-extrabold m-zine-heading"
+            style={{ color: 'var(--m-text-heading)', fontFamily: 'var(--m-font-heading)' }}
+          >
             {steps[currentStep - 1]?.label || 'Complete'}
           </h2>
-          <p className="text-stone-500 text-sm font-medium mt-1">
+          <p className="text-sm font-medium mt-1" style={{ color: 'var(--m-text-secondary)' }}>
             Step {currentStep} of {totalSteps}
           </p>
         </div>
-        <span className="text-orange-500 font-black bg-orange-100 px-3 py-1 rounded-lg">
+        <span
+          className="font-black px-3 py-1 text-sm"
+          style={{
+            backgroundColor: 'var(--m-accent-light)',
+            color: 'var(--m-accent)',
+            borderRadius: 'var(--m-radius)',
+          }}
+        >
           {Math.round(progress)}%
         </span>
       </div>
-      <div className="h-3 w-full bg-stone-100 rounded-full overflow-hidden p-0.5">
+      <div
+        className="h-2.5 w-full overflow-hidden p-0.5"
+        style={{
+          backgroundColor: 'var(--m-bg-secondary)',
+          borderRadius: 'var(--m-radius)',
+        }}
+      >
         <div
-          className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full shadow-sm transition-all duration-500"
-          style={{ width: `${progress}%` }}
+          className="h-full shadow-sm transition-all duration-500"
+          style={{
+            width: `${progress}%`,
+            background: 'var(--m-gradient)',
+            borderRadius: 'var(--m-radius)',
+          }}
         />
       </div>
       <div className="flex justify-between mt-4">
         {steps.map((step) => (
           <div
             key={step.number}
-            className={cn(
-              'flex items-center gap-2 text-sm font-medium transition-colors',
-              step.number === currentStep
-                ? 'text-orange-500'
+            className="flex items-center gap-2 text-sm font-medium transition-colors"
+            style={{
+              color: step.number === currentStep
+                ? 'var(--m-accent)'
                 : step.number < currentStep
-                ? 'text-stone-600'
-                : 'text-stone-400'
-            )}
+                ? 'var(--m-text)'
+                : 'var(--m-text-muted)',
+            }}
           >
             <div
-              className={cn(
-                'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors',
-                step.number === currentStep
-                  ? 'bg-orange-500 text-white'
+              className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors"
+              style={{
+                backgroundColor: step.number === currentStep
+                  ? 'var(--m-accent)'
                   : step.number < currentStep
-                  ? 'bg-stone-600 text-white'
-                  : 'bg-stone-200 text-stone-500'
-              )}
+                  ? 'var(--m-text-secondary)'
+                  : 'var(--m-bg-secondary)',
+                color: step.number <= currentStep
+                  ? 'var(--m-bg)'
+                  : 'var(--m-text-muted)',
+              }}
             >
               {step.number < currentStep ? '✓' : step.number}
             </div>

@@ -15,7 +15,6 @@ export function LivePreview() {
   const [device, setDevice] = useState<DeviceType>('desktop');
   const objectUrlsRef = useRef<string[]>([]);
 
-  // Cleanup object URLs to prevent memory leaks
   useEffect(() => {
     return () => {
       objectUrlsRef.current.forEach((url) => {
@@ -29,14 +28,12 @@ export function LivePreview() {
     };
   }, []);
 
-  // Create and track object URLs
   const createObjectUrl = (file: File): string => {
     const url = URL.createObjectURL(file);
     objectUrlsRef.current.push(url);
     return url;
   };
 
-  // Transform form data into portfolio format for preview
   const previewData: PortfolioWithProjects = {
     id: 'preview',
     username: 'preview',
@@ -134,42 +131,48 @@ export function LivePreview() {
 
   return (
     <div className="sticky top-28">
-      <div className="flex items-center justify-between mb-4 px-2">
-        <div className="flex items-center gap-2 text-stone-500">
-          <span className="font-bold text-xs uppercase tracking-widest">Live Preview</span>
-        </div>
-        <div className="flex gap-2 p-1 bg-white rounded-lg border border-stone-200 shadow-sm">
-          <button
-            onClick={() => setDevice('desktop')}
-            className={cn(
-              'size-8 flex items-center justify-center rounded transition-colors',
-              device === 'desktop' ? 'bg-orange-100 text-orange-600' : 'hover:bg-stone-50'
-            )}
-          >
-            <Laptop className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setDevice('tablet')}
-            className={cn(
-              'size-8 flex items-center justify-center rounded transition-colors',
-              device === 'tablet' ? 'bg-orange-100 text-orange-600' : 'hover:bg-stone-50'
-            )}
-          >
-            <Tablet className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setDevice('mobile')}
-            className={cn(
-              'size-8 flex items-center justify-center rounded transition-colors',
-              device === 'mobile' ? 'bg-orange-100 text-orange-600' : 'hover:bg-stone-50'
-            )}
-          >
-            <Smartphone className="w-4 h-4" />
-          </button>
+      <div className="flex items-center justify-between mb-3 px-2">
+        <span
+          className="font-bold text-xs uppercase tracking-widest"
+          style={{ color: 'var(--m-text-muted)' }}
+        >
+          Live Preview
+        </span>
+        <div
+          className="flex gap-1 p-1 border"
+          style={{
+            backgroundColor: 'var(--m-bg-card)',
+            borderColor: 'var(--m-border)',
+            borderRadius: 'var(--m-radius)',
+          }}
+        >
+          {([
+            { key: 'desktop', Icon: Laptop },
+            { key: 'tablet', Icon: Tablet },
+            { key: 'mobile', Icon: Smartphone },
+          ] as const).map(({ key, Icon }) => (
+            <button
+              key={key}
+              onClick={() => setDevice(key)}
+              className="size-7 flex items-center justify-center rounded transition-colors"
+              style={{
+                backgroundColor: device === key ? 'var(--m-accent-light)' : 'transparent',
+                color: device === key ? 'var(--m-accent)' : 'var(--m-text-muted)',
+              }}
+            >
+              <Icon className="w-3.5 h-3.5" />
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="bg-stone-100 rounded-2xl p-4">
+      <div
+        className="p-4"
+        style={{
+          backgroundColor: 'var(--m-bg-secondary)',
+          borderRadius: 'var(--m-radius-lg)',
+        }}
+      >
         <div
           className="mx-auto bg-white rounded-xl shadow-xl transition-all duration-300 max-h-[80vh] overflow-auto"
           style={{ width: deviceSettings[device].frameWidth, maxWidth: '100%' }}
@@ -186,7 +189,7 @@ export function LivePreview() {
         </div>
       </div>
 
-      <p className="text-xs text-stone-400 text-center mt-2">
+      <p className="text-xs text-center mt-2" style={{ color: 'var(--m-text-muted)' }}>
         Preview updates as you type
       </p>
     </div>
