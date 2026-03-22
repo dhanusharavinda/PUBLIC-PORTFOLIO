@@ -64,7 +64,7 @@ function ProjectImagePreview({ project }: { project: { id: string; cover_image: 
   if (project.cover_image_url) {
     return <img src={project.cover_image_url} alt="Current" className="w-full h-full object-cover" />;
   }
-  return <Upload className="w-6 h-6 text-stone-400" />;
+  return <Upload className="w-6 h-6 text-[var(--m-text-muted)]" />;
 }
 
 export function StepProjects() {
@@ -160,15 +160,15 @@ export function StepProjects() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-bold text-stone-800">Projects</h3>
-          <p className="text-sm text-stone-500">
+          <h3 className="text-lg font-bold text-[var(--m-text-heading)]">Projects</h3>
+          <p className="text-sm text-[var(--m-text-secondary)]">
             {formData.projects.length}/10 projects added
           </p>
         </div>
         <Button
           onClick={addProject}
           disabled={formData.projects.length >= 10}
-          className="bg-orange-500 hover:bg-orange-600"
+          className="bg-[var(--m-accent)] hover:bg-[var(--m-accent-hover)]"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Project
@@ -176,11 +176,11 @@ export function StepProjects() {
       </div>
 
       {formData.projects.length === 0 ? (
-        <div className="text-center py-16 bg-stone-50 rounded-3xl border border-dashed border-stone-200">
-          <FolderGit2 className="w-16 h-16 mx-auto mb-4 text-stone-300" />
-          <h4 className="text-lg font-bold text-stone-700 mb-2">No projects yet</h4>
-          <p className="text-stone-500 mb-4">Add your first project to showcase your work</p>
-          <Button onClick={addProject} className="bg-orange-500 hover:bg-orange-600">
+        <div className="text-center py-16 bg-[var(--m-bg-secondary)] rounded-3xl border border-dashed border-[var(--m-border)]">
+          <FolderGit2 className="w-16 h-16 mx-auto mb-4 text-[var(--m-text-muted)]" />
+          <h4 className="text-lg font-bold text-[var(--m-text)] mb-2">No projects yet</h4>
+          <p className="text-[var(--m-text-secondary)] mb-4">Add your first project to showcase your work</p>
+          <Button onClick={addProject} className="bg-[var(--m-accent)] hover:bg-[var(--m-accent-hover)]">
             <Plus className="w-4 h-4 mr-2" />
             Add Project
           </Button>
@@ -223,12 +223,12 @@ export function StepProjects() {
                   }
                 }}
                 className={cn(
-                  'bg-white rounded-2xl border-2 p-6 transition-all duration-200',
+                  'bg-[var(--m-bg-card)] rounded-2xl border-2 p-6 transition-all duration-200',
                   draggingId === project.id && 'opacity-50 scale-[1.02] shadow-xl cursor-grabbing',
-                  dragOverId === project.id && draggingId !== project.id && 'border-orange-400 shadow-lg scale-[1.01]',
+                  dragOverId === project.id && draggingId !== project.id && 'border-[var(--m-accent)] shadow-lg scale-[1.01]',
                   project.is_featured
-                    ? 'border-orange-300 shadow-lg shadow-orange-100'
-                    : 'border-stone-200 hover:border-stone-300',
+                    ? 'border-[var(--m-accent)] shadow-lg shadow-[var(--m-accent-light)]'
+                    : 'border-[var(--m-border)] hover:border-[var(--m-border-hover)]',
                   !cropperOpen && 'cursor-grab'
                 )}
               >
@@ -239,24 +239,24 @@ export function StepProjects() {
                       className={cn(
                         'p-2 rounded-lg transition-colors',
                         draggingId === project.id
-                          ? 'bg-orange-200 cursor-grabbing'
-                          : 'bg-stone-100 cursor-grab hover:bg-stone-200 active:bg-orange-100'
+                          ? 'bg-[var(--m-accent-light)] cursor-grabbing'
+                          : 'bg-[var(--m-bg-secondary)] cursor-grab hover:bg-[var(--m-bg-card-hover)] active:bg-[var(--m-accent-light)]'
                       )}
                       onMouseDown={() => setDraggingId(project.id)}
                     >
-                      <GripVertical className="w-4 h-4 text-stone-400" />
+                      <GripVertical className="w-4 h-4 text-[var(--m-text-muted)]" />
                     </div>
-                    <span className="text-sm font-bold text-stone-400">#{index + 1}</span>
+                    <span className="text-sm font-bold text-[var(--m-text-muted)]">#{index + 1}</span>
                     {project.is_featured && (
-                      <Badge className="bg-orange-100 text-orange-700">
-                        <Star className="w-3 h-3 mr-1 fill-orange-500" />
+                      <Badge className="bg-[var(--m-accent-light)] text-[var(--m-accent)]">
+                        <Star className="w-3 h-3 mr-1 fill-[var(--m-accent)]" />
                         Featured
                       </Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 mr-4">
-                      <Label htmlFor={`featured-${project.id}`} className="text-sm text-stone-600">
+                      <Label htmlFor={`featured-${project.id}`} className="text-sm text-[var(--m-text-secondary)]">
                         Featured
                       </Label>
                       <Switch
@@ -267,7 +267,7 @@ export function StepProjects() {
                     </div>
                     <button
                       onClick={() => removeProject(project.id)}
-                      className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-[var(--m-text-muted)] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -282,16 +282,16 @@ export function StepProjects() {
                         value={project.name}
                         onChange={(e) => updateProject(project.id, { name: e.target.value })}
                         placeholder="Neural Network Market Forecast"
-                        className="bg-stone-50"
+                        className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Label <span className="text-stone-400 font-normal">(optional)</span></Label>
+                      <Label>Label <span className="text-[var(--m-text-muted)] font-normal">(optional)</span></Label>
                       <Input
                         value={project.label}
                         onChange={(e) => updateProject(project.id, { label: e.target.value })}
                         placeholder="e.g. Side Projects, Client Work"
-                        className="bg-stone-50"
+                        className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                       />
                     </div>
                   </div>
@@ -300,12 +300,12 @@ export function StepProjects() {
                 {/* Cover Image */}
                 <div className="mb-4">
                   <Label className="mb-2 block">Cover Image</Label>
-                  <div className="flex items-center gap-4 p-4 bg-stone-50 rounded-xl border border-dashed border-stone-300">
-                    <div className="size-20 rounded-lg bg-white flex items-center justify-center border border-stone-200 overflow-hidden">
+                  <div className="flex items-center gap-4 p-4 bg-[var(--m-bg-secondary)] rounded-xl border border-dashed border-[var(--m-border)]">
+                    <div className="size-20 rounded-lg bg-[var(--m-bg-card)] flex items-center justify-center border border-[var(--m-border)] overflow-hidden">
                       <ProjectImagePreview project={{ ...project, cover_image: project.cover_image ?? null }} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-bold text-stone-600 hover:text-orange-500 transition-colors cursor-pointer">
+                      <label className="text-sm font-bold text-[var(--m-text-secondary)] hover:text-[var(--m-accent)] transition-colors cursor-pointer">
                         {project.cover_image ? 'Change Cover Image' : project.cover_image_url ? 'Change Cover' : 'Upload Cover Image'}
                         <input
                           type="file"
@@ -319,16 +319,16 @@ export function StepProjects() {
                           <button
                             type="button"
                             onClick={() => setCropperOpen(true)}
-                            className="text-xs flex items-center gap-1 text-orange-500 hover:text-orange-600 font-medium"
+                            className="text-xs flex items-center gap-1 text-[var(--m-accent)] hover:text-[var(--m-accent)] font-medium"
                           >
                             <Crop className="w-3 h-3" />
                             Manual Crop
                           </button>
-                          <span className="text-xs text-stone-300">|</span>
+                          <span className="text-xs text-[var(--m-text-muted)]">|</span>
                           <button
                             type="button"
                             onClick={handleAutoCrop}
-                            className="text-xs text-stone-500 hover:text-orange-500"
+                            className="text-xs text-[var(--m-text-secondary)] hover:text-[var(--m-accent)]"
                           >
                             Auto-crop
                           </button>
@@ -348,14 +348,14 @@ export function StepProjects() {
                     rows={3}
                     maxLength={800}
                     className={cn(
-                      'bg-stone-50 resize-none',
-                      project.description.length > 760 && 'border-orange-500 focus:border-orange-500'
+                      'bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)] resize-none',
+                      project.description.length > 760 && 'border-[var(--m-accent)] focus:border-[var(--m-accent)]'
                     )}
                   />
                   <p
                     className={cn(
                       'text-xs text-right mt-1',
-                      project.description.length > 760 ? 'text-orange-500' : 'text-stone-400'
+                      project.description.length > 760 ? 'text-[var(--m-accent)]' : 'text-[var(--m-text-muted)]'
                     )}
                   >
                     {project.description.length}/800
@@ -385,7 +385,7 @@ export function StepProjects() {
                     }
                     onKeyDown={(e) => handleTechKeyDown(e, project.id)}
                     placeholder="Add technology and press Enter..."
-                    className="bg-stone-50"
+                    className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                   />
                 </div>
 
@@ -400,7 +400,7 @@ export function StepProjects() {
                       value={project.github_url}
                       onChange={(e) => updateProject(project.id, { github_url: e.target.value })}
                       placeholder="https://github.com/..."
-                      className="bg-stone-50"
+                      className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                     />
                   </div>
                   <div className="space-y-2">
@@ -412,7 +412,7 @@ export function StepProjects() {
                       value={project.demo_url}
                       onChange={(e) => updateProject(project.id, { demo_url: e.target.value })}
                       placeholder="https://..."
-                      className="bg-stone-50"
+                      className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                     />
                   </div>
                 </div>

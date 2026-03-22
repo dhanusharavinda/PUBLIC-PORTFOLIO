@@ -66,9 +66,9 @@ export function StepSkills() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-orange-50 border border-orange-100 rounded-2xl p-6">
-        <h3 className="text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
-          <Wand2 className="w-5 h-5 text-orange-500" />
+      <div className="bg-[var(--m-accent-light)] border border-[var(--m-border)] rounded-2xl p-6">
+        <h3 className="text-lg font-bold text-[var(--m-text-heading)] mb-4 flex items-center gap-2">
+          <Wand2 className="w-5 h-5 text-[var(--m-accent)]" />
           Add Your Skills
         </h3>
 
@@ -79,14 +79,14 @@ export function StepSkills() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type a skill and press Enter..."
-              className="bg-white border-stone-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10"
+              className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
             />
           </div>
           <Select
             value={selectedCategory}
             onValueChange={(v) => setSelectedCategory(v as Skill['category'])}
           >
-            <SelectTrigger className="w-full sm:w-[160px] bg-white">
+            <SelectTrigger className="w-full sm:w-[160px] bg-[var(--m-bg-card)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -100,19 +100,19 @@ export function StepSkills() {
           <button
             onClick={() => addSkill(inputValue)}
             disabled={!inputValue.trim() || formData.skills.length >= 30}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-[var(--m-accent)] text-white rounded-lg font-bold hover:bg-[var(--m-accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Plus className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="text-xs text-stone-500 mb-4">
+        <p className="text-xs text-[var(--m-text-secondary)] mb-4">
           {formData.skills.length}/30 skills added
         </p>
 
         {/* Suggested Skills */}
         <div className="mb-6">
-          <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">
+          <p className="text-xs font-bold text-[var(--m-text-muted)] uppercase tracking-wider mb-2">
             Suggested Skills
           </p>
           <div className="flex flex-wrap gap-2">
@@ -123,7 +123,7 @@ export function StepSkills() {
                 <button
                   key={skill}
                   onClick={() => addSkill(skill, 'Other')}
-                  className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-sm text-stone-600 hover:border-orange-500 hover:text-orange-500 transition-colors"
+                  className="px-3 py-1.5 bg-[var(--m-bg-card)] border border-[var(--m-border)] rounded-full text-sm text-[var(--m-text-secondary)] hover:border-[var(--m-accent)] hover:text-[var(--m-accent)] transition-colors"
                 >
                   + {skill}
                 </button>
@@ -134,7 +134,7 @@ export function StepSkills() {
         {/* Added Skills */}
         {formData.skills.length > 0 && (
           <div>
-            <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">
+            <p className="text-xs font-bold text-[var(--m-text-muted)] uppercase tracking-wider mb-2">
               Your Skills
             </p>
             <div className="space-y-3">
@@ -144,7 +144,7 @@ export function StepSkills() {
 
                 return (
                   <div key={category}>
-                    <p className="text-xs font-medium text-stone-500 mb-2">{category}</p>
+                    <p className="text-xs font-medium text-[var(--m-text-secondary)] mb-2">{category}</p>
                     <div className="flex flex-wrap gap-2">
                       {skills.map((skill) => (
                         <Badge
@@ -156,7 +156,7 @@ export function StepSkills() {
                             category === 'Tools' && 'bg-green-100 text-green-700 hover:bg-green-200',
                             category === 'Frameworks' && 'bg-purple-100 text-purple-700 hover:bg-purple-200',
                             category === 'Soft Skills' && 'bg-pink-100 text-pink-700 hover:bg-pink-200',
-                            category === 'Other' && 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                            category === 'Other' && 'bg-[var(--m-bg-secondary)] text-[var(--m-text)] hover:bg-[var(--m-bg-card-hover)]'
                           )}
                           onClick={() => removeSkill(skill.name)}
                         >
@@ -174,7 +174,7 @@ export function StepSkills() {
       </div>
 
       {formData.skills.length === 0 && (
-        <div className="text-center py-12 text-stone-400">
+        <div className="text-center py-12 text-[var(--m-text-muted)]">
           <Wand2 className="w-12 h-12 mx-auto mb-3 opacity-50" />
           <p className="font-medium">Add skills to showcase your expertise</p>
           <p className="text-sm mt-1">Type a skill name and press Enter</p>

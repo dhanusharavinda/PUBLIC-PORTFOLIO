@@ -67,7 +67,7 @@ export function StepPersonal() {
             value={formData.full_name}
             onChange={(e) => updateFormData({ full_name: e.target.value })}
             placeholder="Alex Rivera"
-            className="bg-stone-50 border-transparent focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10"
+            className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
           />
         </div>
 
@@ -81,7 +81,7 @@ export function StepPersonal() {
             value={formData.job_title}
             onChange={(e) => updateFormData({ job_title: e.target.value })}
             placeholder="Senior Data Scientist"
-            className="bg-stone-50 border-transparent focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10"
+            className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
           />
         </div>
       </div>
@@ -94,9 +94,9 @@ export function StepPersonal() {
           onChange={(e) => updateFormData({ tagline: e.target.value })}
           placeholder="Turning complex data into actionable insights"
           maxLength={100}
-          className="bg-stone-50 border-transparent focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10"
+          className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
         />
-        <p className="text-xs text-stone-400 text-right">{formData.tagline.length}/100</p>
+        <p className="text-xs text-[var(--m-text-muted)] text-right">{formData.tagline.length}/100</p>
       </div>
 
       <div className="space-y-2">
@@ -107,11 +107,11 @@ export function StepPersonal() {
           onChange={(e) => updateFormData({ bio: e.target.value })}
           placeholder="Briefly describe your expertise and passion..."
           rows={4}
-          className="bg-stone-50 border-transparent focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10 resize-none"
+          className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)] resize-none"
         />
         <p className={cn(
           'text-xs text-right',
-          bioWordCount > 360 ? 'text-orange-500' : 'text-stone-400'
+          bioWordCount > 360 ? 'text-[var(--m-accent)]' : 'text-[var(--m-text-muted)]'
         )}>
           {bioWordCount}/400 words
         </p>
@@ -129,7 +129,7 @@ export function StepPersonal() {
             value={formData.email}
             onChange={(e) => updateFormData({ email: e.target.value })}
             placeholder="alex@example.com"
-            className="bg-stone-50 border-transparent focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10"
+            className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
           />
         </div>
 
@@ -143,7 +143,7 @@ export function StepPersonal() {
             value={formData.location}
             onChange={(e) => updateFormData({ location: e.target.value })}
             placeholder="San Francisco, CA"
-            className="bg-stone-50 border-transparent focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10"
+            className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
           />
         </div>
       </div>
@@ -154,8 +154,8 @@ export function StepPersonal() {
             <Upload className="w-4 h-4" />
             Profile Photo
           </Label>
-          <div className="flex items-center gap-4 p-2 bg-stone-50 rounded-2xl border border-dashed border-stone-300">
-            <div className="size-14 rounded-xl bg-white flex items-center justify-center border border-stone-200 shadow-sm overflow-hidden">
+          <div className="flex items-center gap-4 p-2 bg-[var(--m-bg-secondary)] rounded-2xl border border-dashed border-[var(--m-border)]">
+            <div className="size-14 rounded-xl bg-[var(--m-bg-card)] flex items-center justify-center border border-[var(--m-border)] shadow-sm overflow-hidden">
               {formData.profile_photo ? (
                 <img
                   src={URL.createObjectURL(formData.profile_photo)}
@@ -169,12 +169,12 @@ export function StepPersonal() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <Upload className="w-5 h-5 text-stone-400" />
+                <Upload className="w-5 h-5 text-[var(--m-text-muted)]" />
               )}
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-3">
-                <label className="text-sm font-bold text-stone-500 hover:text-orange-500 transition-colors cursor-pointer">
+                <label className="text-sm font-bold text-[var(--m-text-secondary)] hover:text-[var(--m-accent)] transition-colors cursor-pointer">
                   {formData.profile_photo ? 'Change Image' : formData.profile_photo_url ? 'Change Image' : 'Upload Image'}
                   <input
                     type="file"
@@ -187,14 +187,14 @@ export function StepPersonal() {
                   <button
                     type="button"
                     onClick={() => updateFormData({ profile_photo: null, profile_photo_url: '' })}
-                    className="flex items-center gap-1 text-sm font-bold text-stone-400 hover:text-red-500 transition-colors"
+                    className="flex items-center gap-1 text-sm font-bold text-[var(--m-text-muted)] hover:text-red-500 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                     Remove
                   </button>
                 )}
               </div>
-              <p className="text-xs text-stone-400">Image updates automatically after upload.</p>
+              <p className="text-xs text-[var(--m-text-muted)]">Image updates automatically after upload.</p>
             </div>
           </div>
         </div>
@@ -204,11 +204,11 @@ export function StepPersonal() {
             <FileText className="w-4 h-4" />
             Resume (PDF)
           </Label>
-          <label className="flex items-center gap-4 p-2 bg-stone-50 rounded-2xl border border-dashed border-stone-300 hover:border-orange-500/50 transition-colors cursor-pointer group">
-            <div className="size-14 rounded-xl bg-white flex items-center justify-center border border-stone-200 shadow-sm group-hover:scale-105 transition-transform">
-              <FileText className="w-5 h-5 text-stone-400 group-hover:text-orange-500" />
+          <label className="flex items-center gap-4 p-2 bg-[var(--m-bg-secondary)] rounded-2xl border border-dashed border-[var(--m-border)] hover:border-[var(--m-accent)] transition-colors cursor-pointer group">
+            <div className="size-14 rounded-xl bg-[var(--m-bg-card)] flex items-center justify-center border border-[var(--m-border)] shadow-sm group-hover:scale-105 transition-transform">
+              <FileText className="w-5 h-5 text-[var(--m-text-muted)] group-hover:text-[var(--m-accent)]" />
             </div>
-            <span className="text-sm font-bold text-stone-500 group-hover:text-orange-500">
+            <span className="text-sm font-bold text-[var(--m-text-secondary)] group-hover:text-[var(--m-accent)]">
               {formData.resume ? formData.resume.name : 'Upload Resume'}
             </span>
             <input
@@ -232,7 +232,7 @@ export function StepPersonal() {
             value={formData.linkedin_url}
             onChange={(e) => updateFormData({ linkedin_url: e.target.value })}
             placeholder="https://linkedin.com/in/..."
-            className="bg-stone-50 border-transparent focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10"
+            className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
           />
         </div>
 
@@ -246,20 +246,20 @@ export function StepPersonal() {
             value={formData.github_username}
             onChange={(e) => updateFormData({ github_username: e.target.value })}
             placeholder="alexrivera"
-            className="bg-stone-50 border-transparent focus:border-orange-500 focus:bg-white focus:ring-4 focus:ring-orange-500/10"
+            className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
           />
         </div>
       </div>
 
       <div className="pt-4 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 bg-stone-100 rounded-2xl border border-stone-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 bg-[var(--m-bg-secondary)] rounded-2xl border border-[var(--m-border)]">
           <div className="flex items-center gap-4">
             <div className="size-10 rounded-full bg-green-500 text-white flex items-center justify-center">
               <Briefcase className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm font-bold text-stone-800">Open to Work</p>
-              <p className="text-xs text-stone-500">Show a badge on your profile</p>
+              <p className="text-sm font-bold text-[var(--m-text-heading)]">Open to Work</p>
+              <p className="text-xs text-[var(--m-text-secondary)]">Show a badge on your profile</p>
             </div>
           </div>
           <Switch
@@ -268,14 +268,14 @@ export function StepPersonal() {
           />
         </div>
 
-        <div className="flex items-center justify-between p-5 bg-stone-100 rounded-2xl border border-stone-200">
+        <div className="flex items-center justify-between p-5 bg-[var(--m-bg-secondary)] rounded-2xl border border-[var(--m-border)]">
           <div className="flex items-center gap-4">
             <div className="size-10 rounded-full bg-purple-500 text-white flex items-center justify-center">
               <Briefcase className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm font-bold text-stone-800">Availability Status</p>
-              <p className="text-xs text-stone-500">Let others know your availability</p>
+              <p className="text-sm font-bold text-[var(--m-text-heading)]">Availability Status</p>
+              <p className="text-xs text-[var(--m-text-secondary)]">Let others know your availability</p>
             </div>
           </div>
           <Select
@@ -284,7 +284,7 @@ export function StepPersonal() {
               updateFormData({ availability_status: value as typeof formData.availability_status })
             }
           >
-            <SelectTrigger className="w-full sm:w-[180px] bg-white">
+            <SelectTrigger className="w-full sm:w-[180px] bg-[var(--m-bg-card)]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

@@ -3,7 +3,6 @@
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
-import { ModeToggle } from '@/components/ui/mode-toggle';
 import { type ReactNode } from 'react';
 
 export function ExploreShell({ children }: { children: ReactNode }) {
@@ -49,7 +48,6 @@ export function ExploreShell({ children }: { children: ReactNode }) {
               >
                 Create
               </Link>
-              <ModeToggle />
               <AuthHeaderActions />
             </div>
           </div>

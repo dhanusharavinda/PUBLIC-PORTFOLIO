@@ -2,7 +2,6 @@
 
 import { useSearchParams } from 'next/navigation';
 import { QRCodeComponent } from '@/components/portfolio/QRCode';
-import { ModeToggle } from '@/components/ui/mode-toggle';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -72,7 +71,6 @@ export function SuccessClient() {
           >
             Explore
           </Link>
-          <ModeToggle />
         </div>
       </header>
 

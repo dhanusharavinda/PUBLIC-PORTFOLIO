@@ -31,15 +31,15 @@ export function StepExperience() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-bold text-stone-800">Experience</h3>
-          <p className="text-sm text-stone-500">
+          <h3 className="text-lg font-bold text-[var(--m-text-heading)]">Experience</h3>
+          <p className="text-sm text-[var(--m-text-secondary)]">
             {formData.experiences.length}/5 experiences added
           </p>
         </div>
         <Button
           onClick={addExperience}
           disabled={formData.experiences.length >= 5}
-          className="bg-orange-500 hover:bg-orange-600"
+          className="bg-[var(--m-accent)] hover:bg-[var(--m-accent-hover)]"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Experience
@@ -47,14 +47,14 @@ export function StepExperience() {
       </div>
 
       {formData.experiences.length === 0 ? (
-        <div className="text-center py-16 bg-stone-50 rounded-3xl border border-dashed border-stone-200">
-          <Briefcase className="w-16 h-16 mx-auto mb-4 text-stone-300" />
-          <h4 className="text-lg font-bold text-stone-700 mb-2">No experience yet</h4>
-          <p className="text-stone-500 mb-4">Add your work experience to showcase your career</p>
+        <div className="text-center py-16 bg-[var(--m-bg-secondary)] rounded-3xl border border-dashed border-[var(--m-border)]">
+          <Briefcase className="w-16 h-16 mx-auto mb-4 text-[var(--m-text-muted)]" />
+          <h4 className="text-lg font-bold text-[var(--m-text)] mb-2">No experience yet</h4>
+          <p className="text-[var(--m-text-secondary)] mb-4">Add your work experience to showcase your career</p>
           <Button
             onClick={addExperience}
             disabled={formData.experiences.length >= 5}
-            className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50"
+            className="bg-[var(--m-accent)] hover:bg-[var(--m-accent-hover)] disabled:opacity-50"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Experience
@@ -97,10 +97,10 @@ export function StepExperience() {
                   }
                 }}
                 className={cn(
-                  'bg-white rounded-2xl border-2 p-6 transition-all duration-200',
+                  'bg-[var(--m-bg-card)] rounded-2xl border-2 p-6 transition-all duration-200',
                   draggingId === experience.id && 'opacity-50 scale-[1.02] shadow-xl cursor-grabbing',
-                  dragOverId === experience.id && draggingId !== experience.id && 'border-orange-400 shadow-lg scale-[1.01]',
-                  'border-stone-200 hover:border-stone-300 cursor-grab'
+                  dragOverId === experience.id && draggingId !== experience.id && 'border-[var(--m-accent)] shadow-lg scale-[1.01]',
+                  'border-[var(--m-border)] hover:border-[var(--m-border-hover)] cursor-grab'
                 )}
               >
                 {/* Header */}
@@ -110,18 +110,18 @@ export function StepExperience() {
                       className={cn(
                         'p-2 rounded-lg transition-colors',
                         draggingId === experience.id
-                          ? 'bg-orange-200 cursor-grabbing'
-                          : 'bg-stone-100 cursor-grab hover:bg-stone-200 active:bg-orange-100'
+                          ? 'bg-[var(--m-accent-light)] cursor-grabbing'
+                          : 'bg-[var(--m-bg-secondary)] cursor-grab hover:bg-[var(--m-bg-card-hover)] active:bg-[var(--m-accent-light)]'
                       )}
                       onMouseDown={() => setDraggingId(experience.id)}
                     >
-                      <GripVertical className="w-4 h-4 text-stone-400" />
+                      <GripVertical className="w-4 h-4 text-[var(--m-text-muted)]" />
                     </div>
-                    <span className="text-sm font-bold text-stone-400">#{index + 1}</span>
+                    <span className="text-sm font-bold text-[var(--m-text-muted)]">#{index + 1}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 mr-4">
-                      <Label htmlFor={`current-${experience.id}`} className="text-sm text-stone-600">
+                      <Label htmlFor={`current-${experience.id}`} className="text-sm text-[var(--m-text-secondary)]">
                         Current
                       </Label>
                       <Switch
@@ -134,7 +134,7 @@ export function StepExperience() {
                     </div>
                     <button
                       onClick={() => removeExperience(experience.id)}
-                      className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-[var(--m-text-muted)] hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -148,7 +148,7 @@ export function StepExperience() {
                       value={experience.company}
                       onChange={(e) => updateExperience(experience.id, { company: e.target.value })}
                       placeholder="Acme Corporation"
-                      className="bg-stone-50"
+                      className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                     />
                   </div>
                   <div className="space-y-2">
@@ -157,7 +157,7 @@ export function StepExperience() {
                       value={experience.role}
                       onChange={(e) => updateExperience(experience.id, { role: e.target.value })}
                       placeholder="Senior Developer"
-                      className="bg-stone-50"
+                      className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                     />
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export function StepExperience() {
                       value={experience.location}
                       onChange={(e) => updateExperience(experience.id, { location: e.target.value })}
                       placeholder="New York, NY"
-                      className="bg-stone-50"
+                      className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                     />
                   </div>
                   <div className="space-y-2">
@@ -178,7 +178,7 @@ export function StepExperience() {
                       type="month"
                       value={formatDateForInput(experience.start_date)}
                       onChange={(e) => updateExperience(experience.id, { start_date: e.target.value })}
-                      className="bg-stone-50"
+                      className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                     />
                   </div>
                 </div>
@@ -191,7 +191,7 @@ export function StepExperience() {
                         type="month"
                         value={formatDateForInput(experience.end_date)}
                         onChange={(e) => updateExperience(experience.id, { end_date: e.target.value })}
-                        className="bg-stone-50"
+                        className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
                       />
                     </div>
                   </div>
@@ -206,14 +206,14 @@ export function StepExperience() {
                     rows={3}
                     maxLength={800}
                     className={cn(
-                      'bg-stone-50 resize-none',
-                      experience.description.length > 760 && 'border-orange-500 focus:border-orange-500'
+                      'bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)] resize-none',
+                      experience.description.length > 760 && 'border-[var(--m-accent)] focus:border-[var(--m-accent)]'
                     )}
                   />
                   <p
                     className={cn(
                       'text-xs text-right',
-                      experience.description.length > 760 ? 'text-orange-500' : 'text-stone-400'
+                      experience.description.length > 760 ? 'text-[var(--m-accent)]' : 'text-[var(--m-text-muted)]'
                     )}
                   >
                     {experience.description.length}/800

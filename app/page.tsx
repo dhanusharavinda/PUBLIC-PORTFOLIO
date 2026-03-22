@@ -9,7 +9,6 @@ import { StepProjects } from '@/components/form/StepProjects';
 import { StepTemplate } from '@/components/form/StepTemplate';
 import { LivePreview } from '@/components/form/LivePreview';
 import { Button } from '@/components/ui/button';
-import { ModeToggle } from '@/components/ui/mode-toggle';
 import { toast } from 'sonner';
 import { ArrowRight, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -18,7 +17,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchJson } from '@/lib/fetch-json';
 import { PortfolioWithProjects } from '@/types/portfolio';
 import { useAuth } from '@/lib/auth-context';
-import { useMode } from '@/lib/mode-context';
 import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
 import { supabase } from '@/lib/supabase';
 
@@ -457,7 +455,6 @@ function FormContent() {
 
 export default function Home() {
   const { isLoggedIn, userEmail } = useAuth();
-  const { isAesthetic } = useMode();
   const [myPortfolioUsername, setMyPortfolioUsername] = useState<string | null>(null);
 
   useEffect(() => {
@@ -553,7 +550,6 @@ export default function Home() {
               >
                 Explore
               </Link>
-              <ModeToggle />
               <AuthHeaderActions />
             </nav>
           </div>
@@ -563,13 +559,9 @@ export default function Home() {
       {/* Hero Section */}
       <section className="w-full px-4 sm:px-6 lg:px-10 py-12 lg:py-16 relative overflow-hidden">
         {/* Aesthetic mode colored accent blocks */}
-        {isAesthetic && (
-          <>
-            <div className="absolute top-8 left-6 w-20 h-20 bg-[#FFD60A] rounded-sm opacity-10 rotate-12" />
-            <div className="absolute top-32 right-10 w-16 h-16 bg-[#FF6B6B] rounded-sm opacity-10 -rotate-6" />
-            <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-[#00E676] rounded-sm opacity-8 rotate-45" />
-          </>
-        )}
+        <div className="absolute top-8 left-6 w-20 h-20 bg-[#FFD60A] rounded-sm opacity-10 rotate-12" />
+        <div className="absolute top-32 right-10 w-16 h-16 bg-[#FF6B6B] rounded-sm opacity-10 -rotate-6" />
+        <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-[#00E676] rounded-sm opacity-8 rotate-45" />
         <div className="max-w-4xl mx-auto text-center mb-12 animate-fade-in-up relative z-10">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wider mx-auto mb-6 border"
@@ -577,7 +569,7 @@ export default function Home() {
               backgroundColor: 'var(--m-bg-badge)',
               borderColor: 'var(--m-border)',
               color: 'var(--m-accent)',
-              borderRadius: isAesthetic ? '0.25rem' : '9999px',
+              borderRadius: '0.25rem',
             }}
           >
             <span className="relative flex h-2 w-2">

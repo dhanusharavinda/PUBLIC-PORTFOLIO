@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { Database, ArrowRight, Sparkles } from 'lucide-react';
-import { ModeToggle } from '@/components/ui/mode-toggle';
 
 export default function NotFound() {
   return (
@@ -49,7 +48,6 @@ export default function NotFound() {
             >
               Create
             </Link>
-            <ModeToggle />
           </nav>
         </div>
       </header>

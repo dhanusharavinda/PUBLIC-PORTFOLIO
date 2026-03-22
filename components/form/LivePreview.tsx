@@ -174,7 +174,7 @@ export function LivePreview() {
         }}
       >
         <div
-          className="mx-auto bg-white rounded-xl shadow-xl transition-all duration-300 max-h-[80vh] overflow-auto"
+          className="mx-auto bg-[var(--m-bg-card)] rounded-xl shadow-xl transition-all duration-300 max-h-[80vh] overflow-auto"
           style={{ width: deviceSettings[device].frameWidth, maxWidth: '100%' }}
         >
           <div

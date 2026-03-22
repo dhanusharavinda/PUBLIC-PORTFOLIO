@@ -114,21 +114,21 @@ export function StepTemplate() {
   return (
     <div className="space-y-6">
       {/* Username Picker Section */}
-      <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl p-6">
+      <div className="bg-[var(--m-bg-secondary)] border-2 border-[var(--m-accent)] rounded-2xl p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white">
+          <div className="w-10 h-10 bg-[var(--m-accent)] rounded-xl flex items-center justify-center text-white">
             <Link2 className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-stone-800">Choose Your URL</h3>
-            <p className="text-sm text-stone-500">This will be your unique portfolio link</p>
+            <h3 className="text-lg font-bold text-[var(--m-text-heading)]">Choose Your URL</h3>
+            <p className="text-sm text-[var(--m-text-secondary)]">This will be your unique portfolio link</p>
           </div>
         </div>
 
         <div className="space-y-3">
           <div className="relative">
-            <div className="flex items-center bg-white border-2 border-stone-200 rounded-xl overflow-hidden focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/10 transition-all">
-              <span className="px-4 py-3 text-stone-400 text-sm font-medium border-r border-stone-200 bg-stone-50">
+            <div className="flex items-center bg-[var(--m-bg-card)] border-2 border-[var(--m-border)] rounded-xl overflow-hidden focus-within:border-[var(--m-accent)] focus-within:ring-4 focus-within:ring-[var(--m-accent)]/10 transition-all">
+              <span className="px-4 py-3 text-[var(--m-text-muted)] text-sm font-medium border-r border-[var(--m-border)] bg-[var(--m-bg-secondary)]">
                 {baseUrl.replace(/^https?:\/\//, '')}/
               </span>
               <input
@@ -137,13 +137,13 @@ export function StepTemplate() {
                 onChange={(e) => handleUsernameChange(e.target.value)}
                 onBlur={handleUsernameBlur}
                 placeholder="your-name"
-                className="flex-1 px-4 py-3 text-stone-800 font-semibold placeholder:font-normal focus:outline-none"
+                className="flex-1 px-4 py-3 text-[var(--m-text-heading)] font-semibold placeholder:font-normal focus:outline-none"
                 minLength={3}
                 maxLength={30}
               />
               {isChecking && (
                 <div className="px-3">
-                  <Loader2 className="w-5 h-5 text-stone-400 animate-spin" />
+                  <Loader2 className="w-5 h-5 text-[var(--m-text-muted)] animate-spin" />
                 </div>
               )}
               {!isChecking && availabilityStatus === 'available' && (
@@ -164,7 +164,7 @@ export function StepTemplate() {
               'text-sm font-medium flex items-center gap-1.5',
               availabilityStatus === 'available' && 'text-emerald-600',
               availabilityStatus === 'taken' && 'text-red-600',
-              availabilityStatus === 'invalid' && 'text-orange-600'
+              availabilityStatus === 'invalid' && 'text-[var(--m-accent)]'
             )}>
               {availabilityStatus === 'available' && <Check className="w-4 h-4" />}
               {(availabilityStatus === 'taken' || availabilityStatus === 'invalid') && <AlertCircle className="w-4 h-4" />}
@@ -172,15 +172,15 @@ export function StepTemplate() {
             </p>
           )}
 
-          <p className="text-xs text-stone-400">
+          <p className="text-xs text-[var(--m-text-muted)]">
             Only lowercase letters, numbers, and hyphens. No spaces or special characters.
           </p>
         </div>
       </div>
 
       <div className="text-center mb-8">
-        <h3 className="text-2xl font-bold text-stone-800 mb-2">Choose Your Template</h3>
-        <p className="text-stone-500">
+        <h3 className="text-2xl font-bold text-[var(--m-text-heading)] mb-2">Choose Your Template</h3>
+        <p className="text-[var(--m-text-secondary)]">
           Select a design that matches your personal style.
         </p>
       </div>
@@ -193,12 +193,12 @@ export function StepTemplate() {
             className={cn(
               'relative rounded-2xl border-2 p-6 text-left transition-all duration-300',
               formData.template === template.id
-                ? 'border-orange-500 bg-orange-50 shadow-lg shadow-orange-100'
-                : 'border-stone-200 bg-white hover:border-stone-300 hover:shadow-md'
+                ? 'border-[var(--m-accent)] bg-[var(--m-accent-light)] shadow-lg shadow-[var(--m-shadow)]'
+                : 'border-[var(--m-border)] bg-[var(--m-bg-card)] hover:border-[var(--m-border-hover)] hover:shadow-md'
             )}
           >
             {formData.template === template.id && (
-              <div className="absolute top-4 right-4 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+              <div className="absolute top-4 right-4 w-8 h-8 bg-[var(--m-accent)] rounded-full flex items-center justify-center">
                 <Check className="w-5 h-5 text-white" />
               </div>
             )}
@@ -208,22 +208,22 @@ export function StepTemplate() {
                 className={cn(
                   'w-12 h-12 rounded-xl flex items-center justify-center',
                   formData.template === template.id
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-stone-100 text-stone-600'
+                    ? 'bg-[var(--m-accent)] text-white'
+                    : 'bg-[var(--m-bg-secondary)] text-[var(--m-text-secondary)]'
                 )}
               >
                 {template.icon}
               </div>
             </div>
 
-            <h4 className="text-lg font-bold text-stone-800 mb-1">{template.name}</h4>
-            <p className="text-sm text-stone-500 mb-4">{template.description}</p>
+            <h4 className="text-lg font-bold text-[var(--m-text-heading)] mb-1">{template.name}</h4>
+            <p className="text-sm text-[var(--m-text-secondary)] mb-4">{template.description}</p>
 
             <div className="flex gap-2 mb-4">
               {template.colors.map((color, i) => (
                 <div
                   key={i}
-                  className="w-6 h-6 rounded-full border border-stone-200"
+                  className="w-6 h-6 rounded-full border border-[var(--m-border)]"
                   style={{ backgroundColor: color }}
                 />
               ))}
@@ -231,8 +231,8 @@ export function StepTemplate() {
 
             <ul className="space-y-1">
               {template.features.map((feature) => (
-                <li key={feature} className="text-xs text-stone-500 flex items-center gap-1">
-                  <span className="w-1 h-1 rounded-full bg-stone-400" />
+                <li key={feature} className="text-xs text-[var(--m-text-secondary)] flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-[var(--m-text-muted)]" />
                   {feature}
                 </li>
               ))}
@@ -241,19 +241,19 @@ export function StepTemplate() {
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-stone-200">
-        <label className="flex items-start gap-4 p-4 rounded-2xl border-2 border-stone-200 hover:border-stone-300 bg-white cursor-pointer transition-all">
+      <div className="mt-8 pt-6 border-t border-[var(--m-border)]">
+        <label className="flex items-start gap-4 p-4 rounded-2xl border-2 border-[var(--m-border)] hover:border-[var(--m-border-hover)] bg-[var(--m-bg-card)] cursor-pointer transition-all">
           <div
             className={cn(
               'w-12 h-12 rounded-xl flex items-center justify-center shrink-0',
-              formData.is_public ? 'bg-emerald-500 text-white' : 'bg-stone-100 text-stone-600'
+              formData.is_public ? 'bg-emerald-500 text-white' : 'bg-[var(--m-bg-secondary)] text-[var(--m-text-secondary)]'
             )}
           >
             <Globe className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <p className="font-bold text-stone-800">Let others explore my portfolio</p>
-            <p className="text-sm text-stone-500 mt-0.5">
+            <p className="font-bold text-[var(--m-text-heading)]">Let others explore my portfolio</p>
+            <p className="text-sm text-[var(--m-text-secondary)] mt-0.5">
               When enabled, your portfolio appears in the Explore directory so others can discover you. You can always change this later.
             </p>
             <button
@@ -263,7 +263,7 @@ export function StepTemplate() {
                 'mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all',
                 formData.is_public
                   ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  : 'bg-[var(--m-bg-secondary)] text-[var(--m-text-secondary)] hover:bg-[var(--m-bg-card-hover)]'
               )}
             >
               {formData.is_public ? 'Enabled – visible in Explore' : 'Disabled – only viewable by link'}

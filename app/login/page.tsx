@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useMode } from '@/lib/mode-context';
 import { Button } from '@/components/ui/button';
-import { ModeToggle } from '@/components/ui/mode-toggle';
 import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowLeft, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -126,7 +125,6 @@ export default function LoginPage() {
               >
                 Explore
               </Link>
-              <ModeToggle />
             </nav>
           </div>
         </div>
