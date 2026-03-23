@@ -48,6 +48,9 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
     return sortedProjects.filter((p) => p.label?.trim() === activeLabel);
   }, [sortedProjects, activeLabel, hasLabels]);
   const featuredProject = filteredProjects.find((p) => p.is_featured) || filteredProjects[0] || null;
+  const featuredProjectName = featuredProject?.name?.trim() || 'Untitled Project';
+  const featuredProjectDescription = featuredProject?.description?.trim() || 'Project details are available in the full preview.';
+  const featuredTechStack = featuredProject?.tech_stack?.filter(Boolean) || [];
   const otherProjects = filteredProjects.filter((p) => p.id !== featuredProject?.id);
 
   // Skills grouped by category
@@ -467,7 +470,6 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
           {/* Featured */}
           {featuredProject && (
             <div
-              data-anim="item"
               onClick={() => { setSelectedProject(featuredProject); setIsModalOpen(true); }}
               className="group cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.015] hover:border-[#5EEAD4]/20 transition-all mb-6 overflow-hidden"
             >
@@ -476,29 +478,37 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
                   {featuredProject.cover_image_url ? (
                     <img
                       src={featuredProject.cover_image_url}
-                      alt={featuredProject.name}
+                      alt={featuredProjectName}
                       loading="eager"
                       className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#5A6170] text-sm">No image</div>
+                    <div className="w-full h-full bg-gradient-to-br from-[#111826] to-[#0f2230] flex items-center justify-center">
+                      <span className="text-[#5EEAD4] text-sm font-semibold tracking-wide">
+                        {featuredProjectName}
+                      </span>
+                    </div>
                   )}
                 </div>
-                <div className="p-6 sm:p-8 flex flex-col justify-center">
+                <div className="p-6 sm:p-8 flex flex-col justify-center bg-[#0D121B] min-h-[220px]">
                   <span className="text-[10px] font-bold tracking-widest text-[#5EEAD4] uppercase mb-3">Featured</span>
                   <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 group-hover:text-[#5EEAD4] transition-colors" style={{ fontFamily: "'Syne', system-ui" }}>
-                    {featuredProject.name}
+                    {featuredProjectName}
                     <ArrowUpRight className="inline-block w-5 h-5 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </h3>
                   <p className="text-sm text-[#8891A0] leading-relaxed mb-5">
-                    {truncate(featuredProject.description, 200)}
+                    {truncate(featuredProjectDescription, 200)}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
-                    {featuredProject.tech_stack.map((tech) => (
+                    {featuredTechStack.length > 0 ? featuredTechStack.map((tech) => (
                       <span key={tech} className="px-2.5 py-1 rounded border border-white/[0.06] bg-white/[0.02] text-xs text-[#A0A8B8] font-medium">
                         {tech}
                       </span>
-                    ))}
+                    )) : (
+                      <span className="px-2.5 py-1 rounded border border-white/[0.06] bg-white/[0.02] text-xs text-[#A0A8B8] font-medium">
+                        Project Details
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -508,10 +518,13 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
           {/* Grid */}
           {otherProjects.length > 0 && (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {otherProjects.map((project) => (
+              {otherProjects.map((project) => {
+                const projectName = project.name?.trim() || 'Untitled Project';
+                const projectDescription = project.description?.trim() || 'Project details available in preview.';
+                const projectTechStack = project.tech_stack?.filter(Boolean) || [];
+                return (
                 <div
                   key={project.id}
-                  data-anim="item"
                   onClick={() => { setSelectedProject(project); setIsModalOpen(true); }}
                   className="group cursor-pointer rounded-xl border border-white/[0.06] bg-white/[0.015] hover:border-[#5EEAD4]/20 transition-all overflow-hidden"
                 >
@@ -519,35 +532,42 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
                     {project.cover_image_url ? (
                       <img
                         src={project.cover_image_url}
-                        alt={project.name}
+                        alt={projectName}
                         loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#5A6170] text-xs">No image</div>
+                      <div className="w-full h-full bg-gradient-to-br from-[#111826] to-[#0f2230] flex items-center justify-center text-[#5EEAD4] text-xs font-semibold px-2 text-center">
+                        {projectName}
+                      </div>
                     )}
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 bg-[#0D121B] min-h-[140px]">
                     <h3 className="text-sm font-semibold text-white mb-1.5 group-hover:text-[#5EEAD4] transition-colors flex items-center gap-1">
-                      {project.name}
+                      {projectName}
                       <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </h3>
                     <p className="text-xs text-[#8891A0] mb-3 line-clamp-2 leading-relaxed">
-                      {truncate(project.description, 100)}
+                      {truncate(projectDescription, 100)}
                     </p>
                     <div className="flex flex-wrap gap-1">
-                      {project.tech_stack.slice(0, 3).map((tech) => (
+                      {projectTechStack.slice(0, 3).map((tech) => (
                         <span key={tech} className="px-2 py-0.5 rounded border border-white/[0.05] text-[10px] text-[#A0A8B8] font-medium">
                           {tech}
                         </span>
                       ))}
-                      {project.tech_stack.length > 3 && (
-                        <span className="px-2 py-0.5 text-[10px] text-[#5A6170]">+{project.tech_stack.length - 3}</span>
+                      {projectTechStack.length > 3 && (
+                        <span className="px-2 py-0.5 text-[10px] text-[#5A6170]">+{projectTechStack.length - 3}</span>
+                      )}
+                      {projectTechStack.length === 0 && (
+                        <span className="px-2 py-0.5 rounded border border-white/[0.05] text-[10px] text-[#A0A8B8] font-medium">
+                          Project
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
 
