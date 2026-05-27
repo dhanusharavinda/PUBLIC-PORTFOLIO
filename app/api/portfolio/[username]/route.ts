@@ -15,6 +15,17 @@ function isMissingExperiencesSchema(error: unknown) {
   return code === '42P01' || message.includes('relation') || message.includes('experiences');
 }
 
+function isMissingSectionVisibilityColumn(error: unknown) {
+  if (!error || typeof error !== 'object') return false;
+  const code = 'code' in error && typeof (error as { code?: unknown }).code === 'string'
+    ? (error as { code: string }).code
+    : '';
+  const message = 'message' in error && typeof (error as { message?: unknown }).message === 'string'
+    ? (error as { message: string }).message.toLowerCase()
+    : '';
+  return (code === '42703' || code === 'PGRST204') && message.includes('section_visibility');
+}
+
 interface RouteParams {
   params: Promise<{ username: string }>;
 }
@@ -99,12 +110,24 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       updated_at: new Date().toISOString(),
     };
 
-    const { data: portfolio, error } = await supabaseAdmin
+    let { data: portfolio, error } = await supabaseAdmin
       .from('portfolios')
       .update(updateData as never)
       .eq('username', username)
       .select()
       .single();
+
+    // Graceful fallback: if section_visibility column isn't migrated yet, retry without it
+    if (error && isMissingSectionVisibilityColumn(error)) {
+      console.warn('section_visibility column missing — updating portfolio without it. Run the migration to enable section toggles.');
+      const { section_visibility: _omit, ...withoutVisibility } = updateData as Record<string, unknown>;
+      ({ data: portfolio, error } = await supabaseAdmin
+        .from('portfolios')
+        .update(withoutVisibility as never)
+        .eq('username', username)
+        .select()
+        .single());
+    }
 
     if (error) {
       console.error('Portfolio update error:', error);

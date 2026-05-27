@@ -1,6 +1,6 @@
 'use client';
 
-import { PortfolioWithProjects } from '@/types/portfolio';
+import { PortfolioWithProjects, normalizeSectionVisibility } from '@/types/portfolio';
 import { CopyEmailButton } from '@/components/portfolio/CopyEmailButton';
 import { ViewCounter } from '@/components/portfolio/ViewCounter';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
@@ -19,6 +19,7 @@ interface MinimalTemplateProps {
 
 export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplateProps) {
   const { canEditPortfolio } = useAuth();
+  const sv = normalizeSectionVisibility(portfolio.section_visibility);
   const [selectedProject, setSelectedProject] = useState(portfolio.projects[0] || null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -155,6 +156,7 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
           </div>
 
           {/* About Section - Expanded */}
+          {sv.about && (
           <section className="mb-10">
             <div className="bg-gradient-to-br from-indigo-50/50 to-purple-50/50 rounded-2xl p-6 border border-indigo-100">
               <h2 className="text-sm font-bold text-indigo-600 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -167,8 +169,10 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
               </p>
             </div>
           </section>
+          )}
 
           {/* Skills Section - Expanded */}
+          {sv.skills && (
           <section className="mb-10">
             <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
               <span className="w-8 h-px bg-slate-400"></span>
@@ -190,44 +194,11 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
               )}
             </div>
           </section>
-
-          {/* Experience Section - Expanded */}
-          {sortedExperiences.length > 0 && (
-            <section className="mb-10">
-              <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <span className="w-8 h-px bg-slate-400"></span>
-                Experience
-                <span className="w-8 h-px bg-slate-400"></span>
-              </h2>
-              <div className="space-y-4">
-                {sortedExperiences.map((exp) => (
-                  <div key={exp.id} className="flex gap-4 p-5 bg-[#fbfcff] rounded-xl border border-[#e8ebf5] hover:shadow-md transition-shadow">
-                    <div className="w-3 h-3 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-lg text-slate-800">{exp.role}</h3>
-                        <span className="text-slate-400">@</span>
-                        <span className="font-medium text-lg text-indigo-600">{exp.company}</span>
-                        {exp.is_current && (
-                          <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
-                            Current
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-slate-500 mb-2">
-                        {exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}
-                        {exp.location && ` · ${exp.location}`}
-                      </p>
-                      <p className="text-base text-slate-600">{exp.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
           )}
 
           {/* Projects Section - Expanded */}
-          <section className="mb-10">
+          {sv.projects && (
+          <section className="mb-10" data-section="projects">
             <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
               <span className="w-8 h-px bg-slate-400"></span>
               Projects
@@ -344,8 +315,45 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
               </p>
             )}
           </section>
+          )}
+
+          {/* Experience Section - Expanded */}
+          {sv.experience && sortedExperiences.length > 0 && (
+            <section className="mb-10" data-section="experience">
+              <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span className="w-8 h-px bg-slate-400"></span>
+                Experience
+                <span className="w-8 h-px bg-slate-400"></span>
+              </h2>
+              <div className="space-y-4">
+                {sortedExperiences.map((exp) => (
+                  <div key={exp.id} className="flex gap-4 p-5 bg-[#fbfcff] rounded-xl border border-[#e8ebf5] hover:shadow-md transition-shadow">
+                    <div className="w-3 h-3 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-lg text-slate-800">{exp.role}</h3>
+                        <span className="text-slate-400">@</span>
+                        <span className="font-medium text-lg text-indigo-600">{exp.company}</span>
+                        {exp.is_current && (
+                          <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                            Current
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-500 mb-2">
+                        {exp.start_date} - {exp.is_current ? 'Present' : exp.end_date}
+                        {exp.location && ` · ${exp.location}`}
+                      </p>
+                      <p className="text-base text-slate-600">{exp.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Contact Section - Simple Email */}
+          {sv.contact && (
           <section className="mt-10 pt-8 border-t border-[#eceffd]">
             <div className="text-center mb-8">
               <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-slate-800">Get In Touch</h2>
@@ -359,6 +367,7 @@ export function MinimalTemplate({ portfolio, isPreview = false }: MinimalTemplat
               </a>
             </div>
           </section>
+          )}
 
           <div className="pt-4 mt-6 border-t border-[#eceffd] text-xs text-slate-500 flex flex-col sm:flex-row justify-between gap-2">
             <span>Last updated {portfolio.updated_at ? formatDate(portfolio.updated_at || new Date()) : 'Recently'}</span>

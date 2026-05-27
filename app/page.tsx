@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchJson } from '@/lib/fetch-json';
-import { PortfolioWithProjects } from '@/types/portfolio';
+import { PortfolioWithProjects, normalizeSectionVisibility } from '@/types/portfolio';
 import { useAuth } from '@/lib/auth-context';
 import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
 import { supabase } from '@/lib/supabase';
@@ -71,6 +71,7 @@ function FormContent() {
           open_to_work: portfolio.open_to_work,
           template: (portfolio as { template?: string }).template === 'pastel' ? 'professional' : portfolio.template,
           is_public: portfolio.is_public ?? true,
+          section_visibility: normalizeSectionVisibility(portfolio.section_visibility),
         });
 
         updateSkills(Array.isArray(portfolio.skills) ? portfolio.skills : []);
@@ -338,6 +339,7 @@ function FormContent() {
         skills: formData.skills,
         template: formData.template,
         is_public: formData.is_public ?? true,
+        section_visibility: formData.section_visibility,
         experiences: experiencesData,
         projects: projectsWithUrls,
       };

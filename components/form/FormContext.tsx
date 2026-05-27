@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { FormData, TemplateType, AvailabilityStatus, Skill, FormProject, FormExperience } from '@/types/portfolio';
+import { FormData, TemplateType, AvailabilityStatus, Skill, FormProject, FormExperience, SectionKey, DEFAULT_SECTION_VISIBILITY, MAX_PROJECTS } from '@/types/portfolio';
 
 interface FormContextType {
   currentStep: number;
@@ -11,6 +11,7 @@ interface FormContextType {
   updateProjects: (projects: FormProject[]) => void;
   updateSkills: (skills: Skill[]) => void;
   updateExperiences: (experiences: FormExperience[]) => void;
+  toggleSection: (section: SectionKey) => void;
   addProject: () => void;
   removeProject: (id: string) => void;
   updateProject: (id: string, data: Partial<FormProject>) => void;
@@ -41,6 +42,7 @@ const defaultFormData: FormData = {
   projects: [],
   template: 'minimal',
   is_public: true,
+  section_visibility: { ...DEFAULT_SECTION_VISIBILITY },
   username: '',
 };
 
@@ -66,8 +68,18 @@ export function FormProvider({ children }: { children: ReactNode }) {
     setFormData((prev) => ({ ...prev, experiences }));
   };
 
+  const toggleSection = (section: SectionKey) => {
+    setFormData((prev) => ({
+      ...prev,
+      section_visibility: {
+        ...prev.section_visibility,
+        [section]: !prev.section_visibility[section],
+      },
+    }));
+  };
+
   const addProject = () => {
-    if (formData.projects.length >= 10) return;
+    if (formData.projects.length >= MAX_PROJECTS) return;
 
     const newProject: FormProject = {
       id: crypto.randomUUID(),
@@ -174,6 +186,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
         updateProjects,
         updateSkills,
         updateExperiences,
+        toggleSection,
         addProject,
         removeProject,
         updateProject,

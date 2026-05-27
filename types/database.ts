@@ -28,6 +28,7 @@ export interface Database {
           skills: Json;
           template: 'minimal' | 'professional';
           is_public: boolean;
+          section_visibility: Json | null;
           view_count: number;
           created_at: string;
           updated_at: string;
@@ -50,6 +51,7 @@ export interface Database {
           skills?: Json;
           template?: 'minimal' | 'professional';
           is_public?: boolean;
+          section_visibility?: Json | null;
           view_count?: number;
           created_at?: string;
           updated_at?: string;
@@ -72,6 +74,7 @@ export interface Database {
           skills?: Json;
           template?: 'minimal' | 'professional';
           is_public?: boolean;
+          section_visibility?: Json | null;
           view_count?: number;
           created_at?: string;
           updated_at?: string;

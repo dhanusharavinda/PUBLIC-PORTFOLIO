@@ -1,11 +1,20 @@
 'use client';
 
 import { useFormContext } from './FormContext';
-import { TemplateType } from '@/types/portfolio';
+import { TemplateType, SectionKey } from '@/types/portfolio';
 import { cn } from '@/lib/utils';
-import { Check, Sparkles, Briefcase, Globe, Link2, AlertCircle, Loader2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Check, Sparkles, Briefcase, Globe, Link2, AlertCircle, Loader2, Eye, EyeOff, User, Wrench, FolderGit2, Mail } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { fetchJson } from '@/lib/fetch-json';
+
+const SECTION_OPTIONS: { key: SectionKey; label: string; description: string; icon: React.ReactNode }[] = [
+  { key: 'about', label: 'About', description: 'Your bio and intro', icon: <User className="w-4 h-4" /> },
+  { key: 'skills', label: 'Skills', description: 'Tools and technologies', icon: <Wrench className="w-4 h-4" /> },
+  { key: 'projects', label: 'Projects', description: 'Showcased work', icon: <FolderGit2 className="w-4 h-4" /> },
+  { key: 'experience', label: 'Work Experience', description: 'Roles and history', icon: <Briefcase className="w-4 h-4" /> },
+  { key: 'contact', label: 'Contact', description: 'Get-in-touch section', icon: <Mail className="w-4 h-4" /> },
+];
 
 const templates: {
   id: TemplateType;
@@ -44,7 +53,7 @@ function slugifyUsername(name: string): string {
 }
 
 export function StepTemplate() {
-  const { formData, updateFormData } = useFormContext();
+  const { formData, updateFormData, toggleSection } = useFormContext();
   const [isChecking, setIsChecking] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'taken' | 'invalid' | null>(null);
   const [availabilityMessage, setAvailabilityMessage] = useState('');
@@ -239,6 +248,58 @@ export function StepTemplate() {
             </ul>
           </button>
         ))}
+      </div>
+
+      {/* Section Visibility */}
+      <div className="mt-8 pt-6 border-t border-[var(--m-border)]">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-[var(--m-accent)] rounded-xl flex items-center justify-center text-white">
+            <Eye className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-[var(--m-text-heading)]">Section Visibility</h3>
+            <p className="text-sm text-[var(--m-text-secondary)]">
+              Toggle sections on or off. Hidden sections stay saved — flip them back on anytime.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {SECTION_OPTIONS.map((section) => {
+            const visible = formData.section_visibility[section.key];
+            return (
+              <label
+                key={section.key}
+                className={cn(
+                  'flex items-center gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all',
+                  visible
+                    ? 'border-[var(--m-accent)] bg-[var(--m-accent-light)]'
+                    : 'border-[var(--m-border)] bg-[var(--m-bg-card)] hover:border-[var(--m-border-hover)]'
+                )}
+              >
+                <div
+                  className={cn(
+                    'w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                    visible ? 'bg-[var(--m-accent)] text-white' : 'bg-[var(--m-bg-secondary)] text-[var(--m-text-muted)]'
+                  )}
+                >
+                  {visible ? section.icon : <EyeOff className="w-4 h-4" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-[var(--m-text-heading)] truncate">{section.label}</p>
+                  <p className="text-xs text-[var(--m-text-secondary)] truncate">
+                    {visible ? section.description : 'Hidden from your portfolio'}
+                  </p>
+                </div>
+                <Switch
+                  checked={visible}
+                  onCheckedChange={() => toggleSection(section.key)}
+                  aria-label={`Toggle ${section.label} section`}
+                />
+              </label>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-8 pt-6 border-t border-[var(--m-border)]">

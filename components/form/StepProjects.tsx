@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { cropAndResizeImage } from '@/lib/image-processing';
+import { MAX_PROJECTS } from '@/types/portfolio';
 import { ImageCropper } from '@/components/ui/image-cropper';
 import {
   Plus,
@@ -162,12 +163,12 @@ export function StepProjects() {
         <div>
           <h3 className="text-lg font-bold text-[var(--m-text-heading)]">Projects</h3>
           <p className="text-sm text-[var(--m-text-secondary)]">
-            {formData.projects.length}/10 projects added
+            {formData.projects.length}/{MAX_PROJECTS} projects added
           </p>
         </div>
         <Button
           onClick={addProject}
-          disabled={formData.projects.length >= 10}
+          disabled={formData.projects.length >= MAX_PROJECTS}
           className="bg-[var(--m-accent)] hover:bg-[var(--m-accent-hover)]"
         >
           <Plus className="w-4 h-4 mr-2" />

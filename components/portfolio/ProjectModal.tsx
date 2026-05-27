@@ -26,7 +26,10 @@ export function ProjectModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[96vw] max-w-5xl p-0 overflow-hidden bg-white">
+      <DialogContent
+        showCloseButton={false}
+        className="w-[97vw] max-w-[1200px] sm:max-w-[1200px] p-0 overflow-hidden bg-white rounded-2xl"
+      >
         <VisuallyHidden>
           <DialogTitle>{project.name}</DialogTitle>
         </VisuallyHidden>
@@ -38,26 +41,28 @@ export function ProjectModal({
           <X className="w-5 h-5" />
         </button>
 
-        <div className="grid lg:grid-cols-[1.2fr,1fr] max-h-[88vh] overflow-y-auto">
-          <div className="relative aspect-video lg:aspect-auto lg:min-h-[420px] bg-stone-100">
+        <div className="grid lg:grid-cols-2 max-h-[92vh] lg:max-h-[88vh]">
+          {/* Thumbnail — shown in full (no cropping) */}
+          <div className="relative bg-stone-50 flex items-center justify-center lg:h-full min-h-[240px] sm:min-h-[320px] p-3 sm:p-4">
             {project.cover_image_url ? (
               <Image
                 src={project.cover_image_url}
                 alt={project.name}
-                fill
-                sizes="(max-width: 1024px) 100vw, 60vw"
+                width={1600}
+                height={900}
+                sizes="(max-width: 1024px) 97vw, 600px"
                 quality={90}
                 priority
-                className="object-cover"
+                className="w-full h-auto max-h-full object-contain rounded-lg"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-stone-400">
+              <div className="w-full aspect-video flex items-center justify-center text-stone-400">
                 No image
               </div>
             )}
           </div>
 
-          <div className="p-6 md:p-8 flex flex-col">
+          <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
             <div className="flex-1">
               <Badge
                 className={cn(
@@ -71,7 +76,7 @@ export function ProjectModal({
 
               <h3 className="text-2xl font-bold mb-2">{project.name}</h3>
 
-              <p className="text-stone-600 leading-relaxed mb-6">
+              <p className="text-stone-600 leading-relaxed mb-6 whitespace-pre-wrap">
                 {project.description}
               </p>
 

@@ -15,6 +15,23 @@ function isMissingExperiencesSchema(error: unknown) {
   return code === '42P01' || message.includes('relation') || message.includes('experiences');
 }
 
+/**
+ * Detects when the portfolios.section_visibility column hasn't been added yet
+ * (migration not run). Lets us retry the write without that field instead of
+ * failing the whole save.
+ */
+function isMissingSectionVisibilityColumn(error: unknown) {
+  if (!error || typeof error !== 'object') return false;
+  const code = 'code' in error && typeof (error as { code?: unknown }).code === 'string'
+    ? (error as { code: string }).code
+    : '';
+  const message = 'message' in error && typeof (error as { message?: unknown }).message === 'string'
+    ? (error as { message: string }).message.toLowerCase()
+    : '';
+  // 42703 = undefined column (Postgres), PGRST204 = column not in PostgREST schema cache
+  return (code === '42703' || code === 'PGRST204') && message.includes('section_visibility');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabaseAdmin = getSupabaseAdmin();
@@ -88,18 +105,29 @@ export async function POST(request: NextRequest) {
       username,
     };
 
-    const { data: portfolio, error: portfolioError } = await supabaseAdmin
+    let { data: portfolio, error: portfolioError } = await supabaseAdmin
       .from('portfolios')
       .insert(portfolioData as never)
       .select()
       .single();
+
+    // Graceful fallback: if section_visibility column isn't migrated yet, retry without it
+    if (portfolioError && isMissingSectionVisibilityColumn(portfolioError)) {
+      console.warn('section_visibility column missing — saving portfolio without it. Run the migration to enable section toggles.');
+      const { section_visibility: _omit, ...withoutVisibility } = portfolioData as Record<string, unknown>;
+      ({ data: portfolio, error: portfolioError } = await supabaseAdmin
+        .from('portfolios')
+        .insert(withoutVisibility as never)
+        .select()
+        .single());
+    }
 
     if (portfolioError) {
       console.error('Portfolio insert error:', portfolioError);
       return apiError('Failed to create portfolio', 500);
     }
 
-    const portfolioId = (portfolio as { id: string }).id;
+    const portfolioId = (portfolio as unknown as { id: string }).id;
 
     // Insert experiences if any (filter out empty entries)
     if (normalizedBody.experiences && normalizedBody.experiences.length > 0) {
@@ -198,8 +226,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      username: (portfolio as { username: string }).username,
-      portfolio_url: `${baseUrl}/${(portfolio as { username: string }).username}`,
+      username: (portfolio as unknown as { username: string }).username,
+      portfolio_url: `${baseUrl}/${(portfolio as unknown as { username: string }).username}`,
     });
   } catch (error) {
     console.error('API error:', error);

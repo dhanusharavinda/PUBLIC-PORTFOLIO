@@ -20,6 +20,14 @@ export const experienceSchema = z.object({
   order_index: z.number(),
 });
 
+export const sectionVisibilitySchema = z.object({
+  about: z.boolean(),
+  skills: z.boolean(),
+  projects: z.boolean(),
+  experience: z.boolean(),
+  contact: z.boolean(),
+});
+
 export const projectSchema = z.object({
   name: z.string().max(100, 'Project name too long').optional().or(z.literal('')),
   label: z.string().max(50, 'Label too long').optional().or(z.literal('')),
@@ -55,6 +63,7 @@ export const portfolioSchema = z.object({
   skills: z.array(skillSchema).max(30, 'Max 30 skills allowed'),
   template: z.enum(['minimal', 'professional']),
   is_public: z.boolean().default(true),
+  section_visibility: sectionVisibilitySchema.optional(),
 });
 
 export const formDataSchema = z.object({
@@ -81,11 +90,12 @@ export const formDataSchema = z.object({
   experiences: z.array(experienceSchema).max(10, 'Max 10 experiences'),
 
   // Step 4: Projects
-  projects: z.array(projectSchema).max(10, 'Max 10 projects'),
+  projects: z.array(projectSchema).max(20, 'Max 20 projects'),
 
   // Step 5: Template
   template: z.enum(['minimal', 'professional']),
   is_public: z.boolean().default(true),
+  section_visibility: sectionVisibilitySchema.optional(),
 });
 
 export type PortfolioFormData = z.infer<typeof formDataSchema>;

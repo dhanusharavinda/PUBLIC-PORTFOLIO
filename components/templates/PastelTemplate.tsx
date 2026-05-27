@@ -1,6 +1,6 @@
 'use client';
 
-import { PortfolioWithProjects } from '@/types/portfolio';
+import { PortfolioWithProjects, normalizeSectionVisibility } from '@/types/portfolio';
 import { CopyEmailButton } from '@/components/portfolio/CopyEmailButton';
 import { ViewCounter } from '@/components/portfolio/ViewCounter';
 import { ProjectModal } from '@/components/portfolio/ProjectModal';
@@ -19,6 +19,7 @@ interface PastelTemplateProps {
 
 export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateProps) {
   const { canEditPortfolio } = useAuth();
+  const sv = normalizeSectionVisibility(portfolio.section_visibility);
   const [selectedProject, setSelectedProject] = useState(portfolio.projects[0] || null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [navActive, setNavActive] = useState('');
@@ -154,7 +155,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
   useEffect(() => {
     if (isPreview) return;
     const handleScroll = () => {
-      const sections = ['about', 'skills', 'experience', 'projects', 'contact'];
+      const sections = ['about', 'skills', 'projects', 'experience', 'contact'];
       for (const id of sections.reverse()) {
         const el = document.getElementById(id);
         if (el && el.getBoundingClientRect().top < 200) {
@@ -181,7 +182,13 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
     }
   };
 
-  const navItems = ['About', 'Skills', ...(sortedExperiences.length > 0 ? ['Experience'] : []), 'Projects', 'Contact'];
+  const navItems = [
+    ...(sv.about ? ['About'] : []),
+    ...(sv.skills ? ['Skills'] : []),
+    ...(sv.projects ? ['Projects'] : []),
+    ...(sv.experience && sortedExperiences.length > 0 ? ['Experience'] : []),
+    ...(sv.contact ? ['Contact'] : []),
+  ];
 
   const categoryAccents: Record<string, string> = {
     Languages: 'border-emerald-400/30 bg-emerald-400/5 text-emerald-300',
@@ -333,6 +340,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
       </section>
 
       {/* ━━ About ━━ */}
+      {sv.about && (
       <section id="about" data-anim="section" className="border-t border-white/[0.04]">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
           <div className="grid lg:grid-cols-[200px,1fr] gap-8">
@@ -360,8 +368,10 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
           </div>
         </div>
       </section>
+      )}
 
       {/* ━━ Skills ━━ */}
+      {sv.skills && (
       <section id="skills" data-anim="section" className="border-t border-white/[0.04]">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
           <div className="grid lg:grid-cols-[200px,1fr] gap-8">
@@ -388,56 +398,10 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
           </div>
         </div>
       </section>
-
-      {/* ━━ Experience ━━ */}
-      {sortedExperiences.length > 0 && (
-        <section id="experience" data-anim="section" className="border-t border-white/[0.04]">
-          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
-            <div className="grid lg:grid-cols-[200px,1fr] gap-8">
-              <div>
-                <h2 className="text-xs font-bold text-[#5A6170] uppercase tracking-[0.2em]">Experience</h2>
-              </div>
-              <div className="space-y-0">
-                {sortedExperiences.map((exp, i) => (
-                  <div
-                    key={exp.id}
-                    data-anim="item"
-                    className={cn(
-                      'relative pl-6 pb-8',
-                      i < sortedExperiences.length - 1 && 'border-l border-white/[0.06]'
-                    )}
-                  >
-                    {/* Timeline dot */}
-                    <div className={cn(
-                      'absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full border-2',
-                      exp.is_current
-                        ? 'bg-[#5EEAD4] border-[#5EEAD4]'
-                        : 'bg-[#0B0F14] border-[#5A6170]'
-                    )} />
-
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
-                      <h3 className="text-base font-semibold text-white">{exp.role}</h3>
-                      <span className="text-[#5EEAD4] text-sm font-medium">{exp.company}</span>
-                      {exp.is_current && (
-                        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-semibold">
-                          Current
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-[#5A6170] mb-2">
-                      {exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}
-                      {exp.location && ` · ${exp.location}`}
-                    </p>
-                    <p className="text-sm text-[#8891A0] leading-relaxed">{exp.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
       )}
 
       {/* ━━ Projects ━━ */}
+      {sv.projects && (
       <section id="projects" data-anim="section" className="border-t border-white/[0.04]">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
           <div className="flex items-end justify-between mb-6">
@@ -576,8 +540,58 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
           )}
         </div>
       </section>
+      )}
+
+      {/* ━━ Experience ━━ */}
+      {sv.experience && sortedExperiences.length > 0 && (
+        <section id="experience" data-anim="section" className="border-t border-white/[0.04]">
+          <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
+            <div className="grid lg:grid-cols-[200px,1fr] gap-8">
+              <div>
+                <h2 className="text-xs font-bold text-[#5A6170] uppercase tracking-[0.2em]">Experience</h2>
+              </div>
+              <div className="space-y-0">
+                {sortedExperiences.map((exp, i) => (
+                  <div
+                    key={exp.id}
+                    data-anim="item"
+                    className={cn(
+                      'relative pl-6 pb-8',
+                      i < sortedExperiences.length - 1 && 'border-l border-white/[0.06]'
+                    )}
+                  >
+                    {/* Timeline dot */}
+                    <div className={cn(
+                      'absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full border-2',
+                      exp.is_current
+                        ? 'bg-[#5EEAD4] border-[#5EEAD4]'
+                        : 'bg-[#0B0F14] border-[#5A6170]'
+                    )} />
+
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
+                      <h3 className="text-base font-semibold text-white">{exp.role}</h3>
+                      <span className="text-[#5EEAD4] text-sm font-medium">{exp.company}</span>
+                      {exp.is_current && (
+                        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-semibold">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#5A6170] mb-2">
+                      {exp.start_date} — {exp.is_current ? 'Present' : exp.end_date}
+                      {exp.location && ` · ${exp.location}`}
+                    </p>
+                    <p className="text-sm text-[#8891A0] leading-relaxed">{exp.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ━━ Contact ━━ */}
+      {sv.contact && (
       <section id="contact" data-anim="section" className="border-t border-white/[0.04]">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
           <div className="max-w-xl">
@@ -598,6 +612,7 @@ export function PastelTemplate({ portfolio, isPreview = false }: PastelTemplateP
           </div>
         </div>
       </section>
+      )}
 
       {/* ━━ Footer ━━ */}
       <footer className="border-t border-white/[0.04] py-6">

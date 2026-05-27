@@ -20,6 +20,7 @@ CREATE TABLE portfolios (
   skills JSONB DEFAULT '[]'::jsonb,
   template TEXT CHECK (template IN ('minimal', 'professional')) DEFAULT 'minimal',
   is_public BOOLEAN DEFAULT true,
+  section_visibility JSONB DEFAULT '{"about":true,"skills":true,"projects":true,"experience":true,"contact":true}'::jsonb,
   view_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()

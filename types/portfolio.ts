@@ -1,6 +1,32 @@
 export type TemplateType = 'minimal' | 'professional';
 export type AvailabilityStatus = 'open_fulltime' | 'freelance' | 'not_looking';
 
+export type SectionKey = 'about' | 'skills' | 'projects' | 'experience' | 'contact';
+
+export type SectionVisibility = Record<SectionKey, boolean>;
+
+export const DEFAULT_SECTION_VISIBILITY: SectionVisibility = {
+  about: true,
+  skills: true,
+  projects: true,
+  experience: true,
+  contact: true,
+};
+
+/**
+ * Normalize a possibly-missing/partial section_visibility value (e.g. from the DB
+ * before the column exists) into a complete object. Anything unspecified defaults
+ * to visible so existing portfolios keep showing every section.
+ */
+export function normalizeSectionVisibility(
+  value: Partial<SectionVisibility> | null | undefined
+): SectionVisibility {
+  return { ...DEFAULT_SECTION_VISIBILITY, ...(value ?? {}) };
+}
+
+/** Maximum number of projects a portfolio can showcase. */
+export const MAX_PROJECTS = 20;
+
 export interface Skill {
   name: string;
   category: 'Languages' | 'Tools' | 'Frameworks' | 'Other';
@@ -71,6 +97,7 @@ export interface Portfolio {
   skills: Skill[];
   template: TemplateType;
   is_public: boolean;
+  section_visibility?: SectionVisibility;
   view_count: number;
   created_at?: string;
   updated_at?: string;
@@ -110,6 +137,7 @@ export interface FormData {
   // Step 5: Template & URL
   template: TemplateType;
   is_public: boolean;
+  section_visibility: SectionVisibility;
   username: string;
 }
 

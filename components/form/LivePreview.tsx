@@ -58,6 +58,7 @@ export function LivePreview() {
     ],
     template: formData.template,
     is_public: formData.is_public ?? true,
+    section_visibility: formData.section_visibility,
     view_count: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
