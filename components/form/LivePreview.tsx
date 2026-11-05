@@ -20,6 +20,7 @@ export function LivePreview({ publishedUsername }: { publishedUsername: string |
   const [previewRun, setPreviewRun] = useState(0);
   const [fileUrls, setFileUrls] = useState(new Map<File, string>());
   const viewport = useRef<HTMLDivElement>(null);
+  const previewCanvas = useRef<HTMLCanvasElement>(null);
   const objectUrls = useRef(new Map<File, string>());
   const { profile_photo, projects, resume } = formData;
 
@@ -107,10 +108,13 @@ export function LivePreview({ publishedUsername }: { publishedUsername: string |
           </div>
         </div>
       </div>
-      <div ref={viewport} className={styles.viewport} tabIndex={0} role="region" aria-label="Scrollable portfolio preview">
-        <div className={styles.frame} style={{ width: frameWidth, zoom }}>
-          <EditorialPortfolio key={previewRun} portfolio={previewData} mode="preview" />
+      <div className={styles.previewSurface}>
+        <div ref={viewport} className={styles.viewport} tabIndex={0} role="region" aria-label="Scrollable portfolio preview">
+          <div className={styles.frame} style={{ width: frameWidth, zoom, minHeight: `calc((min(68vh, 38rem) + 2.5rem) / ${zoom})` }}>
+            <EditorialPortfolio key={previewRun} portfolio={previewData} mode="preview" previewScroll={viewport} previewCanvas={previewCanvas} />
+          </div>
         </div>
+        <canvas ref={previewCanvas} className={styles.previewCanvas} data-swarm-canvas aria-hidden="true" />
       </div>
       <p className={styles.caption}>This is how your published page will look.</p>
     </aside>

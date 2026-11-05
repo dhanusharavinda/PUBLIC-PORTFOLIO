@@ -1,115 +1,142 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
-import styles from './editorial.module.css';
+import { createPortfolioConstruction } from './portfolio-construction';
+import type { ConstructionFrame } from './portfolio-construction';
+import { createPortfolioSwarmCanvas } from './portfolio-swarm-canvas';
 
-const motionQuery = '(prefers-reduced-motion: no-preference)';
-const ease = 'cubic-bezier(.2,.72,.22,1)';
-type Scene = 'identity' | 'work';
+type Phase = 'unavailable' | 'building' | 'complete' | 'static';
 
-function animationTarget(section: Element) {
-  return section.querySelector('[data-assembly-trigger]') || section;
-}
-
-export function usePortfolioAssembly(root: RefObject<HTMLElement | null>) {
-  const [runs, setRuns] = useState({ identity: 0, work: 0 });
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const playing = useRef<Record<Scene, Animation[]>>({ identity: [], work: [] });
-
-  const play = useCallback((section: Element, scene: Scene) => {
-    if (!window.matchMedia(motionQuery).matches) return;
-
-    playing.current[scene].forEach((animation) => animation.cancel());
-    playing.current[scene] = Array.from(section.querySelectorAll('[data-assembly-piece]'))
-      .slice(0, 3)
-      .map((piece, index) => {
-        const type = piece.getAttribute('data-assembly-piece') === 'type';
-        const frames = type
-          ? [{ clipPath: 'inset(-14% 78% -18% -6%)' }, { clipPath: 'inset(-14% -6% -18% -6%)' }]
-          : [
-              { transform: index % 2 === 0 ? 'translateY(15px)' : 'translate(12px, 16px)', opacity: .7 },
-              { transform: 'none', opacity: 1 },
-            ];
-        return piece.animate(frames, { duration: type ? 720 : 630, delay: index * 105, easing: ease, fill: 'backwards' });
-      });
-    setRuns((current) => ({ ...current, [scene]: current[scene] + 1 }));
-  }, []);
+export function usePortfolioAssembly(
+  root: RefObject<HTMLElement | null>,
+  canvasRef: RefObject<HTMLCanvasElement | null>,
+  previewScroll?: RefObject<HTMLDivElement | null>,
+) {
+  const [phase, setPhase] = useState<Phase>('unavailable');
+  const [cursorsHidden, setCursorsHidden] = useState(false);
+  const controls = useRef<{ finish(): void; replay(): void; toggleCursors(): void } | null>(null);
 
   useEffect(() => {
-    const element = root.current;
-    if (!element) return;
-    const preference = window.matchMedia(motionQuery);
+    const article = root.current;
+    const canvas = canvasRef.current;
+    if (!article || !canvas) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting || !preference.matches) continue;
-        observer.unobserve(entry.target);
-        const section = entry.target.closest('[data-assembly-scene]');
-        const scene = section?.getAttribute('data-assembly-scene');
-        if (section && (scene === 'identity' || scene === 'work')) play(section, scene);
-      }
-    }, { rootMargin: '0px 0px -12% 0px' });
-    observerRef.current = observer;
+    const scrollRoot = previewScroll?.current ?? window;
+    const preference = window.matchMedia('(prefers-reduced-motion: no-preference)');
+    const renderer = createPortfolioSwarmCanvas(canvas);
+    let construction: ReturnType<typeof createPortfolioConstruction> | null = null;
+    let snapshot: ConstructionFrame | null = null;
+    let activePhase: Phase = 'unavailable';
+    let pointer: { x: number; y: number } | null = null;
+    let muted = false;
+    let renderFrame = 0;
 
-    function watch() {
-      observer.disconnect();
-      if (preference.matches) {
-        element?.querySelectorAll('[data-assembly-scene]').forEach((section) => observer.observe(animationTarget(section)));
-      } else {
-        Object.values(playing.current).flat().forEach((animation) => animation.cancel());
-      }
+    function queueRender() {
+      if (!renderFrame) renderFrame = window.requestAnimationFrame(render);
     }
 
-    // A draft can gain its work section while the editor stays mounted.
-    const content = new MutationObserver((changes) => {
-      if (!preference.matches) return;
-      for (const change of changes) {
-        for (const node of change.addedNodes) {
-          if (!(node instanceof HTMLElement)) continue;
-          if (node.matches('[data-assembly-trigger]')) observer.observe(node);
-          if (node.matches('[data-assembly-scene]')) observer.observe(animationTarget(node));
-        }
+    function render(now: number) {
+      renderFrame = 0;
+      if (!snapshot || muted || activePhase === 'unavailable' || activePhase === 'static') {
+        renderer.clear();
+        return;
       }
-    });
-    content.observe(element, { childList: true, subtree: true });
-    watch();
-    preference.addEventListener('change', watch);
-    const animations = playing.current;
+
+      const { bounds, tasks } = snapshot;
+      const bar = article?.querySelector('[data-construction-controls]');
+      const top = Math.max(bounds.y, bar?.getBoundingClientRect().bottom ?? bounds.y);
+      const keepMoving = renderer.render({
+        mode: activePhase === 'building' ? 'building' : 'complete',
+        tasks,
+        pointer,
+        bounds: { x: bounds.x, y: top, width: bounds.width, height: Math.max(0, bounds.y + bounds.height - top) },
+      }, now);
+      if (keepMoving && activePhase === 'complete') queueRender();
+    }
+
+    function updatePointer(event: PointerEvent) {
+      if (event.pointerType === 'touch' && !event.isPrimary) return;
+      pointer = { x: event.clientX, y: event.clientY };
+      queueRender();
+    }
+
+    function leave() {
+      pointer = null;
+      queueRender();
+    }
+
+    function configure() {
+      construction?.destroy();
+      construction = null;
+      snapshot = null;
+      activePhase = 'unavailable';
+      muted = false;
+      renderer.clear();
+      setCursorsHidden(false);
+
+      if (!preference.matches || !article) {
+        setPhase('unavailable');
+        return;
+      }
+
+      construction = createPortfolioConstruction(article, {
+        scrollRoot,
+        onFrame(frame) {
+          snapshot = frame;
+          queueRender();
+        },
+        onPhase(next) {
+          activePhase = next;
+          setPhase(next);
+          queueRender();
+        },
+      });
+    }
+
+    controls.current = {
+      finish() {
+        construction?.finish();
+      },
+      replay() {
+        muted = false;
+        setCursorsHidden(false);
+        renderer.clear();
+        construction?.replay();
+      },
+      toggleCursors() {
+        muted = !muted;
+        setCursorsHidden(muted);
+        queueRender();
+      },
+    };
+
+    const setupFrame = window.requestAnimationFrame(configure);
+    preference.addEventListener('change', configure);
+    article.addEventListener('pointermove', updatePointer, { passive: true });
+    article.addEventListener('pointerdown', updatePointer, { passive: true });
+    article.addEventListener('pointerleave', leave);
+    article.addEventListener('pointercancel', leave);
 
     return () => {
-      observer.disconnect();
-      content.disconnect();
-      observerRef.current = null;
-      preference.removeEventListener('change', watch);
-      Object.values(animations).flat().forEach((animation) => animation.cancel());
+      window.cancelAnimationFrame(setupFrame);
+      window.cancelAnimationFrame(renderFrame);
+      preference.removeEventListener('change', configure);
+      article.removeEventListener('pointermove', updatePointer);
+      article.removeEventListener('pointerdown', updatePointer);
+      article.removeEventListener('pointerleave', leave);
+      article.removeEventListener('pointercancel', leave);
+      construction?.destroy();
+      renderer.clear();
+      controls.current = null;
     };
-  }, [play, root]);
+  }, [root, canvasRef, previewScroll]);
 
-  function replay() {
-    const identity = root.current?.querySelector('[data-assembly-scene="identity"]');
-    const work = root.current?.querySelector('[data-assembly-scene="work"]');
-    if (identity) {
-      observerRef.current?.unobserve(identity);
-      identity.scrollIntoView({ block: 'start', behavior: 'auto' });
-      play(identity, 'identity');
-    }
-    if (work) observerRef.current?.observe(animationTarget(work));
-  }
-
-  return { runs, replay };
-}
-
-export function AssemblyCursor({ role }: { role: 'Type' | 'Images' | 'Layout' }) {
-  return (
-    <span className={styles.assemblyMark} data-cursor={role} aria-hidden="true">
-      <span className={styles.assemblyOutline} />
-      <span className={styles.assemblyCursor}>
-        <svg viewBox="0 0 21 24" width="21" height="24">
-          <path d="M2 2v17l5.2-4.4 3.2 6.5 3.4-1.6-3.3-6.4H18L2 2Z" fill="currentColor" stroke="white" strokeWidth="1.4" strokeLinejoin="round" />
-        </svg>
-        <span>{role}</span>
-      </span>
-    </span>
-  );
+  return {
+    phase,
+    cursorsHidden,
+    skip: () => controls.current?.finish(),
+    replay: () => controls.current?.replay(),
+    toggleCursors: () => controls.current?.toggleCursors(),
+  };
 }

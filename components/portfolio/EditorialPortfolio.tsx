@@ -4,13 +4,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowDown, ArrowUpRight, Plus, RotateCcw, Share2 } from 'lucide-react';
 import { useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth-context';
 import { normalizeSectionVisibility } from '@/types/portfolio';
 import type { PortfolioWithProjects, Project } from '@/types/portfolio';
 import { CopyEmailButton } from './CopyEmailButton';
 import { ViewCounter } from './ViewCounter';
-import { AssemblyCursor, usePortfolioAssembly } from './PortfolioAssembly';
+import { usePortfolioAssembly } from './PortfolioAssembly';
 import styles from './editorial.module.css';
 
 export type EditorialProject = Project & {
@@ -48,32 +49,30 @@ function PortfolioImage({ src, alt, eager = false, sizes }: {
   return <Image src={src} alt={alt} fill unoptimized={!optimizedImage(src)} loading={eager ? 'eager' : 'lazy'} sizes={sizes} />;
 }
 
-function ProjectCover({ project, eager = false, decorative = false }: {
-  project: EditorialProject; eager?: boolean; decorative?: boolean;
+function ProjectCover({ project }: {
+  project: EditorialProject;
 }) {
   const cover = imageUrl(project.cover_image_url);
   return (
-    <span className={styles.projectCover} data-has-image={Boolean(cover)} aria-hidden={decorative || undefined}>
-      {cover ? <PortfolioImage src={cover} alt={decorative ? '' : project.coverAlt || ''} eager={eager} sizes="(max-width: 700px) 100vw, 52vw" /> : null}
+    <span className={styles.projectCover} data-has-image={Boolean(cover)} data-construction-piece="drag" aria-hidden="true">
+      {cover ? <PortfolioImage src={cover} alt={project.coverAlt || ''} sizes="(max-width: 700px) 100vw, 52vw" /> : null}
       {(!cover || project.coverTitle) && <span className={styles.coverTitle}>{project.coverTitle || project.name}</span>}
     </span>
   );
 }
 
-function ProjectEntry({ project, cursor, run }: {
-  project: EditorialProject; cursor?: 'Images' | 'Layout'; run: number;
-}) {
+function ProjectEntry({ project }: { project: EditorialProject }) {
   const cover = imageUrl(project.cover_image_url);
   const images = [...new Set((project.carousel_images || []).map(imageUrl).filter((url): url is string => Boolean(url) && url !== cover))];
   const source = httpUrl(project.github_url);
   const demo = httpUrl(project.demo_url);
 
   return (
-    <article className={styles.project} data-assembly-piece={cursor ? '' : undefined}>
+    <article className={styles.project}>
       <details className={styles.projectDetails}>
         <summary aria-label={project.name}>
-          <ProjectCover project={project} decorative />
-          <span className={styles.projectCaption}>
+          <ProjectCover project={project} />
+          <span className={styles.projectCaption} data-construction-piece="type">
             <span>
               <span className={styles.projectName}>{project.name}</span>
               {project.label && <span className={styles.projectLabel}>{project.label}</span>}
@@ -103,17 +102,21 @@ function ProjectEntry({ project, cursor, run }: {
           {!project.description && !project.impact_stat && !project.tech_stack?.length && !cover && !source && !demo && !project.photoCredit && !images.length && <p>Details will be added here.</p>}
         </div>
       </details>
-      {cursor && run > 0 && <AssemblyCursor key={run} role={cursor} />}
     </article>
   );
 }
 
-export function EditorialPortfolio({ portfolio, mode = 'published' }: {
+export function EditorialPortfolio({ portfolio, mode = 'published', previewScroll, previewCanvas }: {
   portfolio: PortfolioWithProjects & { projects: EditorialProject[] };
   mode?: PortfolioMode;
+  previewScroll?: RefObject<HTMLDivElement | null>;
+  previewCanvas?: RefObject<HTMLCanvasElement | null>;
 }) {
   const root = useRef<HTMLElement>(null);
-  const { runs, replay } = usePortfolioAssembly(root);
+  const localCanvas = useRef<HTMLCanvasElement>(null);
+  const { phase, skip, replay, cursorsHidden, toggleCursors } = usePortfolioAssembly(
+    root, previewCanvas ?? localCanvas, previewScroll,
+  );
   const { canEditPortfolio } = useAuth();
   const [label, setLabel] = useState<string | null>(null);
   const visibility = normalizeSectionVisibility(portfolio.section_visibility);
@@ -145,7 +148,6 @@ export function EditorialPortfolio({ portfolio, mode = 'published' }: {
   const portrait = imageUrl(portfolio.profile_photo_url);
   const name = portfolio.full_name || 'Your name';
   const availability = portfolio.availability_status === 'freelance' ? 'Open for freelance work' : 'Open to work';
-  const heroFeature = showWork ? feature : undefined;
 
   async function share() {
     try {
@@ -158,116 +160,118 @@ export function EditorialPortfolio({ portfolio, mode = 'published' }: {
   }
 
   return (
-    <article ref={root} className={styles.portfolio} data-portfolio-theme={dark ? 'ink' : 'paper'} data-portfolio-mode={mode} aria-labelledby={sectionId('portfolio-name')}>
+    <>
+      {mode !== 'preview' && <canvas ref={localCanvas} className={styles.swarmCanvas} data-swarm-canvas aria-hidden="true" />}
+      <article ref={root} className={styles.portfolio} data-portfolio-theme={dark ? 'ink' : 'paper'} data-portfolio-mode={mode} aria-labelledby={sectionId('portfolio-name')}>
+      {phase !== 'unavailable' && <div className={styles.constructionBar} data-construction-controls aria-label="Construction controls" role="group">
+        <div className={styles.constructionBarInner}>
+          <span className={styles.constructionStatus}>
+            <span className={styles.constructionDot} aria-hidden="true" />
+            {phase === 'building' ? 'Scroll to build the portfolio' : phase === 'complete' ? 'Portfolio assembled' : 'Full portfolio'}
+          </span>
+          <div className={styles.constructionActions}>
+            <button type="button" onClick={phase === 'building' ? skip : replay}>
+              {phase === 'building' ? 'Show full portfolio' : <><RotateCcw size={14} aria-hidden="true" /> Replay construction</>}
+            </button>
+            {phase === 'complete' && <button type="button" onClick={toggleCursors}>{cursorsHidden ? 'Show cursors' : 'Hide cursors'}</button>}
+          </div>
+        </div>
+      </div>}
       <header className={styles.header}>
-        <span className={styles.handle}>{mode === 'example' ? 'Sample portfolio' : `@${portfolio.username || 'your-name'}`}</span>
-        {showNavigation && <nav className={styles.navigation} aria-label="Portfolio sections">
-          {showWork && <a href={`#${sectionId('projects')}`}>Work</a>}
+        <span className={styles.handle} data-construction-piece="type">{mode === 'example' ? 'Sample portfolio' : `@${portfolio.username || 'your-name'}`}</span>
+        {showNavigation && <nav className={styles.navigation} aria-label="Portfolio sections" data-construction-piece="layout">
           {showAbout && <a href={`#${sectionId('about')}`}>About</a>}
+          {showSkills && <a href={`#${sectionId('skills')}`}>Skills</a>}
+          {showWork && <a href={`#${sectionId('projects')}`}>Work</a>}
           {showExperience && <a href={`#${sectionId('experience')}`}>Experience</a>}
           {showContact && <a href={`#${sectionId('contact')}`}>Contact</a>}
         </nav>}
-        {published && <button type="button" className={styles.utility} onClick={share}>
+        {published && <button type="button" className={styles.utility} data-construction-piece="draw" onClick={share}>
           <Share2 size={15} aria-hidden="true" /> Share
         </button>}
       </header>
 
-      <section className={styles.hero} data-assembly-scene="identity" data-has-feature={Boolean(heroFeature)}>
+      <section className={styles.hero} aria-labelledby={sectionId('portfolio-name')}>
         <div className={styles.heroInner}>
+          <div className={styles.heroSheet} data-construction-piece="draw" aria-hidden="true" />
           <div className={styles.identity}>
             <div className={styles.name}>
-              <Heading id={sectionId('portfolio-name')} data-assembly-piece="type">{name}</Heading>
-              {runs.identity > 0 && <AssemblyCursor key={runs.identity} role="Type" />}
+              <Heading id={sectionId('portfolio-name')} data-construction-piece="type">{name}</Heading>
             </div>
-            <div className={styles.identityDetails} data-assembly-piece>
-              {portrait && <span className={styles.portrait}>
+            <div className={styles.identityDetails}>
+              {portrait && <span className={styles.portrait} data-construction-piece="drag">
                 <PortfolioImage src={portrait} alt={`Portrait of ${name}`} eager sizes="80px" />
               </span>}
               <div>
-                {portfolio.job_title && <p className={styles.role}>{portfolio.job_title}</p>}
-                {portfolio.tagline && <p className={styles.tagline}>{portfolio.tagline}</p>}
-                {(portfolio.location || portfolio.open_to_work) && <p className={styles.meta}>
+                {portfolio.job_title && <p className={styles.role} data-construction-piece="type">{portfolio.job_title}</p>}
+                {portfolio.tagline && <p className={styles.tagline} data-construction-piece="type">{portfolio.tagline}</p>}
+                {(portfolio.location || portfolio.open_to_work) && <p className={styles.meta} data-construction-piece="layout">
                   {portfolio.location && <span>{portfolio.location}</span>}
                   {portfolio.open_to_work && <span className={styles.availability}>{availability}</span>}
                 </p>}
               </div>
-              {runs.identity > 0 && (portfolio.job_title || portfolio.tagline || portfolio.location || portfolio.open_to_work || portrait) && (
-                <AssemblyCursor key={runs.identity} role="Layout" />
-              )}
             </div>
             <div className={styles.heroActions}>
-              {showWork && <a className={styles.action} href={`#${sectionId('projects')}`}>View work <ArrowDown size={17} aria-hidden="true" /></a>}
-              {resume && <a href={resume}>Résumé <ArrowUpRight size={15} aria-hidden="true" /></a>}
-              {showContact && !showWork && <a href={`#${sectionId('contact')}`}>Get in touch <ArrowDown size={15} aria-hidden="true" /></a>}
+              {showWork && <a className={styles.action} href={`#${sectionId('projects')}`} data-construction-piece="draw">View work <ArrowDown size={17} aria-hidden="true" /></a>}
+              {resume && <a href={resume} data-construction-piece="type">Résumé <ArrowUpRight size={15} aria-hidden="true" /></a>}
+              {showContact && !showWork && <a href={`#${sectionId('contact')}`} data-construction-piece="draw">Get in touch <ArrowDown size={15} aria-hidden="true" /></a>}
             </div>
           </div>
-
-          {heroFeature && <div className={styles.heroFeature} data-assembly-piece>
-            <a href={`#${sectionId('projects')}`} aria-label={`View work, including ${heroFeature.name}`}>
-              <ProjectCover project={heroFeature} eager />
-              <span className={styles.heroCaption}>
-                <span>{heroFeature.name}</span><ArrowDown size={16} aria-hidden="true" />
-              </span>
-            </a>
-            {runs.identity > 0 && <AssemblyCursor key={runs.identity} role="Images" />}
-          </div>}
         </div>
-        {!preview && <button type="button" className={styles.replay} disabled={runs.identity === 0} onClick={replay}>
-          <RotateCcw size={14} aria-hidden="true" /> Replay assembly
-        </button>}
       </section>
 
-      {showWork && <section className={styles.work} id={sectionId('projects')} data-assembly-scene="work">
+      {(showAbout || showSkills) && <div className={styles.inner}>
+        {showAbout && <section className={styles.textSection} id={sectionId('about')}>
+          <SectionHeading data-construction-piece="type">About</SectionHeading>
+          <p className={styles.prose} data-construction-piece="type">{portfolio.bio}</p>
+        </section>}
+        {showSkills && <section className={styles.textSection} id={sectionId('skills')}>
+          <SectionHeading data-construction-piece="type">Skills</SectionHeading>
+          <ul className={styles.tags}>
+            {portfolio.skills.map((skill, index) => <li key={index} data-construction-piece="draw">{skill.name}</li>)}
+          </ul>
+        </section>}
+      </div>}
+
+      {showWork && <section className={styles.work} id={sectionId('projects')}>
         <div className={styles.inner}>
           <div className={styles.sectionTitle}>
-            <SectionHeading>Selected work</SectionHeading>
-            {ordered.length > 0 && <span>{ordered.length} {ordered.length === 1 ? 'project' : 'projects'}</span>}
+            <SectionHeading data-construction-piece="type">Selected work</SectionHeading>
+            {ordered.length > 0 && <span data-construction-piece="type">{ordered.length} {ordered.length === 1 ? 'project' : 'projects'}</span>}
           </div>
-          {labels.length > 0 && <div className={styles.filters} aria-label="Filter projects" role="group">
+          {labels.length > 0 && <div className={styles.filters} aria-label="Filter projects" role="group" data-construction-piece="layout">
             <button type="button" onClick={() => setLabel(null)} aria-pressed={selectedLabel === null}>All</button>
             {labels.map((item) => <button type="button" key={item} onClick={() => setLabel(item)} aria-pressed={item === selectedLabel}>{item}</button>)}
           </div>}
-          {ordered.length > 0 ? <div className={styles.projects} data-project-count={ordered.length} data-assembly-trigger>
+          {ordered.length > 0 ? <div className={styles.projects} data-project-count={ordered.length}>
             {ordered.map((project, index) => <ProjectEntry
               key={project.id || `${project.order_index}-${index}`}
               project={project}
-              cursor={index === 0 ? 'Images' : index === 1 ? 'Layout' : undefined}
-              run={runs.work}
             />)}
-          </div> : <p className={styles.empty}>Your projects will appear here as you add them.</p>}
+          </div> : <p className={styles.empty} data-construction-piece="type">Your projects will appear here as you add them.</p>}
         </div>
       </section>}
 
-      {(showAbout || showSkills || showExperience) && <div className={styles.inner}>
-        {showAbout && <section className={styles.textSection} id={sectionId('about')}>
-          <SectionHeading>About</SectionHeading>
-          <p className={styles.prose}>{portfolio.bio}</p>
-        </section>}
-        {showSkills && <section className={styles.textSection} id={sectionId('skills')}>
-          <SectionHeading>Skills</SectionHeading>
-          <ul className={styles.tags}>
-            {portfolio.skills.map((skill, index) => <li key={index}>{skill.name}</li>)}
-          </ul>
-        </section>}
-        {showExperience && <section className={styles.textSection} id={sectionId('experience')}>
-          <SectionHeading>Experience</SectionHeading>
+      {showExperience && <div className={styles.inner}>
+        <section className={styles.textSection} id={sectionId('experience')}>
+          <SectionHeading data-construction-piece="type">Experience</SectionHeading>
           <ol className={styles.experience}>
             {experiences.map((experience, index) => {
               const dates = [experience.start_date, experience.is_current ? 'Present' : experience.end_date].filter(Boolean).join(' to ');
-              return <li key={experience.id || index}>
+              return <li key={experience.id || index} data-construction-piece="layout">
                 <p className={styles.dates}>{[dates, experience.location].filter(Boolean).join(' · ')}</p>
                 <p className={styles.position}>{[experience.role, experience.company].filter(Boolean).join(' at ')}</p>
                 {experience.description && <p className={styles.prose}>{experience.description}</p>}
               </li>;
             })}
           </ol>
-        </section>}
+        </section>
       </div>}
 
       {showContact && <section className={styles.contact} id={sectionId('contact')}>
         <div className={styles.inner}>
-          <SectionHeading>Get in touch</SectionHeading>
-          <div className={styles.links}>
+          <SectionHeading data-construction-piece="type">Get in touch</SectionHeading>
+          <div className={styles.links} data-construction-piece="layout">
             {email && <a href={`mailto:${email}`}>{email} <ArrowUpRight size={17} aria-hidden="true" /></a>}
             {published && email && <CopyEmailButton email={email} variant="minimal" className={styles.utility} />}
             {linkedin && <a href={linkedin}>LinkedIn <ArrowUpRight size={17} aria-hidden="true" /></a>}
@@ -276,11 +280,12 @@ export function EditorialPortfolio({ portfolio, mode = 'published' }: {
         </div>
       </section>}
 
-      {published && <footer className={styles.footer}>
+      {published && <footer className={styles.footer} data-construction-piece="layout">
         <Link href="/">Built with Portlyfolio</Link>
         <ViewCounter username={portfolio.username} initialCount={portfolio.view_count || 0} className={styles.views} />
         {canEditPortfolio(portfolio.email) && <Link href={`/?edit=${encodeURIComponent(portfolio.username)}`}>Edit portfolio</Link>}
       </footer>}
-    </article>
+      </article>
+    </>
   );
 }
