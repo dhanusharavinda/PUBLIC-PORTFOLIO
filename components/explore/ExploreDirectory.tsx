@@ -1,5 +1,6 @@
 'use client';
 
+import { CREATE_PORTFOLIO_HREF } from '@/lib/portfolio-routes';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Search, Sparkles, ExternalLink, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -222,7 +223,7 @@ export function ExploreDirectory({ projects, allSkills }: ExploreDirectoryProps)
           <p className="mb-6" style={{ color: 'var(--m-text-secondary)' }}>
             Be the first to create and share your project.
           </p>
-          <Link href="/" className="m-btn-accent inline-flex items-center gap-2 px-6 py-3" style={{ borderRadius: 'var(--m-radius)' }}>
+          <Link href={CREATE_PORTFOLIO_HREF} className="m-btn-accent inline-flex items-center gap-2 px-6 py-3" style={{ borderRadius: 'var(--m-radius)' }}>
             <Sparkles className="w-4 h-4" />
             Create Project
           </Link>

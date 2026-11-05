@@ -1,22 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { CREATE_PORTFOLIO_HREF } from '@/lib/portfolio-routes';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { useMode } from '@/lib/mode-context';
-import { Button } from '@/components/ui/button';
 import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowLeft, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const rawReturnTo = searchParams.get('returnTo') || '/';
-  const returnTo = rawReturnTo.startsWith('/') ? rawReturnTo : '/';
+  const rawReturnTo = searchParams.get('returnTo');
+  const returnTo = rawReturnTo?.startsWith('/') && !rawReturnTo.startsWith('//') && !rawReturnTo.includes('\\')
+    ? rawReturnTo
+    : CREATE_PORTFOLIO_HREF;
   const { isLoggedIn, userEmail, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, logout } = useAuth();
-  const { isAesthetic } = useMode();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -108,7 +115,7 @@ export default function LoginPage() {
             </Link>
             <nav className="flex items-center gap-2 sm:gap-4">
               <Link
-                href="/"
+                href={CREATE_PORTFOLIO_HREF}
                 className="text-sm font-semibold transition-colors"
                 style={{ color: 'var(--m-text-secondary)' }}
                 onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}
@@ -168,7 +175,7 @@ export default function LoginPage() {
                 <button onClick={logout} className="m-btn-outline flex-1 py-2.5" style={{ borderRadius: 'var(--m-radius)' }}>
                   Logout
                 </button>
-                <Link href="/" className="m-btn-accent flex-1 py-2.5 text-center" style={{ borderRadius: 'var(--m-radius)' }}>
+                <Link href={CREATE_PORTFOLIO_HREF} className="m-btn-accent flex-1 py-2.5 text-center" style={{ borderRadius: 'var(--m-radius)' }}>
                   Go to Create
                 </Link>
               </div>

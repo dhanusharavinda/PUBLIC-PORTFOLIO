@@ -1,5 +1,6 @@
 'use client';
 
+import { CREATE_PORTFOLIO_HREF } from '@/lib/portfolio-routes';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
@@ -40,7 +41,7 @@ export function ExploreShell({ children }: { children: ReactNode }) {
                 Explore
               </span>
               <Link
-                href="/"
+                href={CREATE_PORTFOLIO_HREF}
                 className="px-3 py-1.5 rounded-full text-xs font-bold transition-colors"
                 style={{ color: 'var(--m-text-secondary)' }}
                 onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}
@@ -85,7 +86,7 @@ export function ExploreShell({ children }: { children: ReactNode }) {
             </span>
           </div>
           <Link
-            href="/"
+            href={CREATE_PORTFOLIO_HREF}
             className="text-sm font-medium transition-colors"
             style={{ color: 'var(--m-text-secondary)' }}
             onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}

@@ -1,5 +1,6 @@
 'use client';
 
+import { CREATE_PORTFOLIO_HREF } from '@/lib/portfolio-routes';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
@@ -24,7 +25,8 @@ interface MyPortfolioItem {
   updated_at: string;
 }
 
-export function AuthHeaderActions() {
+export function AuthHeaderActions({ appearance = 'default' }: { appearance?: 'default' | 'landing' } = {}) {
+  const onLanding = appearance === 'landing';
   const { isLoggedIn, userEmail, logout } = useAuth();
   const [portfolio, setPortfolio] = useState<MyPortfolioItem | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +70,7 @@ export function AuthHeaderActions() {
     return (
       <div className="flex items-center gap-2">
         <span
-          className="hidden md:inline text-xs max-w-[140px] truncate"
+          className={onLanding ? 'hidden' : "hidden md:inline text-xs max-w-[140px] truncate"}
           style={{ color: 'var(--m-text-muted)' }}
         >
           {userEmail}
@@ -77,6 +79,7 @@ export function AuthHeaderActions() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
+              aria-label="My portfolio"
               className="h-8 px-3 text-xs font-semibold flex items-center gap-1 border transition-colors"
               style={{
                 backgroundColor: 'var(--m-bg-card)',
@@ -122,7 +125,7 @@ export function AuthHeaderActions() {
               </>
             ) : (
               <DropdownMenuItem asChild>
-                <Link href="/" className="w-full">
+                <Link href={CREATE_PORTFOLIO_HREF} className="w-full">
                   Create Your Portfolio
                 </Link>
               </DropdownMenuItem>
@@ -139,10 +142,10 @@ export function AuthHeaderActions() {
   return (
     <Link
       href="/login"
-      className="m-btn-accent h-8 px-4 text-xs flex items-center justify-center"
-      style={{ borderRadius: 'var(--m-radius)' }}
+      className={onLanding ? undefined : "m-btn-accent h-8 px-4 text-xs flex items-center justify-center"}
+      style={onLanding ? undefined : { borderRadius: 'var(--m-radius)' }}
     >
-      Login
+      {onLanding ? 'Log in' : 'Login'}
     </Link>
   );
 }

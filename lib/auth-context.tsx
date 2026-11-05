@@ -1,11 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, ReactNode, useMemo, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
 interface AuthContextType {
+  isAuthReady: boolean;
   isLoggedIn: boolean;
   user: User | null;
   userEmail: string | null;
@@ -166,24 +167,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return portfolioEmail.toLowerCase() === userEmail.toLowerCase();
   };
 
-  const contextValue = useMemo<AuthContextType>(
-    () => ({
-      isLoggedIn,
-      user,
-      userEmail,
-      signInWithGoogle,
-      signInWithEmail,
-      signUpWithEmail,
-      resetPassword,
-      logout,
-      canEditPortfolio,
-    }),
-    [isLoggedIn, user, userEmail]
-  );
-
-  if (!isLoaded) {
-    return null;
-  }
+  const contextValue: AuthContextType = {
+    isAuthReady: isLoaded,
+    isLoggedIn,
+    user,
+    userEmail,
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+    resetPassword,
+    logout,
+    canEditPortfolio,
+  };
 
   return (
     <AuthContext.Provider value={contextValue}>

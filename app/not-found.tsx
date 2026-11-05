@@ -1,5 +1,6 @@
 'use client';
 
+import { CREATE_PORTFOLIO_HREF } from '@/lib/portfolio-routes';
 import Link from 'next/link';
 import { Database, ArrowRight, Sparkles } from 'lucide-react';
 
@@ -40,7 +41,7 @@ export default function NotFound() {
               Explore
             </Link>
             <Link
-              href="/"
+              href={CREATE_PORTFOLIO_HREF}
               className="font-semibold transition-colors"
               style={{ color: 'var(--m-text-heading)' }}
               onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}
@@ -153,7 +154,7 @@ export default function NotFound() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              href="/"
+              href={CREATE_PORTFOLIO_HREF}
               className="m-btn-accent inline-flex items-center justify-center gap-2 px-8 py-3.5 font-bold text-base"
               style={{ borderRadius: 'var(--m-radius)' }}
             >
@@ -194,7 +195,7 @@ export default function NotFound() {
           </div>
           <div className="flex gap-6 text-sm font-medium">
             <Link
-              href="/"
+              href={CREATE_PORTFOLIO_HREF}
               className="transition-colors"
               style={{ color: 'var(--m-text-muted)' }}
               onMouseEnter={(e) => e.currentTarget.style.color = 'var(--m-accent)'}

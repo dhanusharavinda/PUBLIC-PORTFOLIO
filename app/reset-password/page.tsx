@@ -1,5 +1,6 @@
 'use client';
 
+import { CREATE_PORTFOLIO_HREF } from '@/lib/portfolio-routes';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -76,7 +77,7 @@ export default function ResetPasswordPage() {
               <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-stone-800">portlyfolio.site</h2>
             </div>
             <nav className="flex items-center gap-3 sm:gap-8">
-              <Link href="/" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
+              <Link href={CREATE_PORTFOLIO_HREF} className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
                 Create
               </Link>
               <Link href="/explore" className="text-sm font-semibold text-stone-500 hover:text-orange-500 transition-colors">
