@@ -35,6 +35,7 @@ type Options = {
   onFrame: (frame: ConstructionFrame) => void;
   onPhase?: (phase: ConstructionPhase) => void;
   scrollRoot?: HTMLElement | Window;
+  startStatic?: boolean;
 };
 
 type Line = { x: number; y: number; width: number; height: number; steps: number };
@@ -53,6 +54,8 @@ type Piece = {
 
 const selector = '[data-construction-piece]';
 const properties = ['visibility', 'opacity', 'translate', 'clip-path', 'pointer-events'];
+const openingRate = .68;
+const scrollingRate = 1.65;
 const clamp = (value: number, min = 0, max = 1) => Math.max(min, Math.min(max, value));
 const ease = (value: number) => 1 - (1 - value) ** 3;
 
@@ -163,7 +166,11 @@ function paintPiece(piece: Piece, bounds: ConstructionRect): ConstructionTask {
     if (kind === 'type') {
       const reveal = typeReveal(piece, moving, bounds);
       node.style.clipPath = reveal.clip;
-      typeCaret = reveal.caret;
+      if (node.hasAttribute('data-construction-title')) {
+        offsetY = 18 * (1 - ease(moving));
+        node.style.translate = `0 ${offsetY / piece.scale}px`;
+      }
+      typeCaret = { ...reveal.caret, y: reveal.caret.y + offsetY };
     } else if (kind === 'draw') {
       const remaining = (1 - ease(moving)) * 100;
       node.style.clipPath = `inset(0 ${remaining}% ${remaining * .32}% 0)`;
@@ -189,7 +196,9 @@ export function createPortfolioConstruction(root: HTMLElement, options: Options)
   let rootLayout = rect(0, 0, 0, 0);
   let animation = 0;
   let needsLayout = true;
-  let releasedByScroll = false;
+  let hasScrolled = false;
+  let timeline = 0;
+  let lastFrame: number | null = null;
   let destroyed = false;
 
   function viewport() {
@@ -273,14 +282,18 @@ export function createPortfolioConstruction(root: HTMLElement, options: Options)
   function tick(now: number) {
     animation = 0;
     if (destroyed) return;
+    // Advance the same timeline at either speed so scrolling never restarts an active piece.
+    if (lastFrame !== null) {
+      const elapsed = Math.min(64, Math.max(0, now - lastFrame));
+      timeline += elapsed * (hasScrolled ? scrollingRate : openingRate);
+    }
     const view = viewport();
     if (needsLayout) {
       layout(view);
       needsLayout = false;
     }
     const bounds = intersection(withinView(rootLayout, view), view.visible);
-    const release = releasedByScroll && bounds.width > 0 && bounds.height > 0;
-    releasedByScroll = false;
+    const inViewport = bounds.width > 0 && bounds.height > 0;
     const tasks: ConstructionTask[] = [];
     let active = false;
     let built = 0;
@@ -293,13 +306,13 @@ export function createPortfolioConstruction(root: HTMLElement, options: Options)
       if (phase === 'building' && piece.progress < 1) {
         const above = screen.y + screen.height < view.visible.y - 10;
         const visible = screen.y < view.visible.y + view.visible.height - (atBottom ? 0 : 20);
-        if (release && above) settle(piece);
-        else if (release && visible && piece.start === null) {
-          piece.start = now + Math.min(batchIndex++, 8) * 88;
+        if (inViewport && above) settle(piece);
+        else if (inViewport && visible && piece.start === null) {
+          piece.start = timeline + Math.min(batchIndex++, 8) * 72;
         }
 
         if (piece.start !== null) {
-          piece.progress = clamp((now - piece.start) / piece.duration);
+          piece.progress = Math.max(piece.progress, clamp((timeline - piece.start) / piece.duration));
           if (piece.progress >= 1) settle(piece);
           else {
             active = true;
@@ -323,6 +336,7 @@ export function createPortfolioConstruction(root: HTMLElement, options: Options)
       progress: pieces.size ? aggregate / pieces.size : 1,
       scrollProgress: clamp((deepestScroll - rootLayout.y) / scrollDistance),
     });
+    lastFrame = active ? now : null;
     if (active) schedule();
   }
 
@@ -340,7 +354,7 @@ export function createPortfolioConstruction(root: HTMLElement, options: Options)
     if (Math.abs(current - previousScroll) > .25) {
       previousScroll = current;
       deepestScroll = Math.max(deepestScroll, current);
-      releasedByScroll = phase === 'building';
+      if (phase === 'building') hasScrolled = true;
     }
     schedule();
   }
@@ -359,7 +373,9 @@ export function createPortfolioConstruction(root: HTMLElement, options: Options)
     scrollRoot.scrollTo({ top, behavior: 'instant' });
     previousScroll = viewport().scrollY;
     deepestScroll = previousScroll;
-    releasedByScroll = false;
+    hasScrolled = false;
+    timeline = 0;
+    lastFrame = null;
     for (const piece of pieces.values()) restore(piece);
     pieces.clear();
     setPhase('building');
@@ -393,8 +409,8 @@ export function createPortfolioConstruction(root: HTMLElement, options: Options)
   window.addEventListener('keydown', keyboard, true);
   root.addEventListener('focusin', focus);
   reduce.addEventListener('change', preferenceChanged);
-  setPhase(reduce.matches ? 'static' : 'building');
-  refresh();
+  setPhase(reduce.matches || options.startStatic ? 'static' : 'building');
+  tick(performance.now());
 
   return {
     finish,

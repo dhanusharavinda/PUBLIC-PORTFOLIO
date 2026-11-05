@@ -80,8 +80,13 @@ export function usePortfolioAssembly(
         return;
       }
 
+      const title = article.querySelector('[data-construction-title]');
+      const missedFirstPaint = article.dataset.portfolioMode === 'published' &&
+        window.matchMedia('(scripting: enabled)').matches && title !== null &&
+        window.getComputedStyle(title).visibility !== 'hidden';
       construction = createPortfolioConstruction(article, {
         scrollRoot,
+        startStatic: missedFirstPaint,
         onFrame(frame) {
           snapshot = frame;
           queueRender();

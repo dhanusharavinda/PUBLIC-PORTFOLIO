@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowDown, ArrowUpRight, Plus, RotateCcw, Share2 } from 'lucide-react';
 import { useRef, useState } from 'react';
-import type { RefObject } from 'react';
+import type { MouseEvent, RefObject } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth-context';
 import { normalizeSectionVisibility } from '@/types/portfolio';
@@ -148,6 +148,16 @@ export function EditorialPortfolio({ portfolio, mode = 'published', previewScrol
   const portrait = imageUrl(portfolio.profile_photo_url);
   const name = portfolio.full_name || 'Your name';
   const availability = portfolio.availability_status === 'freelance' ? 'Open for freelance work' : 'Open to work';
+  const nextSection = showAbout ? 'about' : showSkills ? 'skills' : showWork ? 'projects' :
+    showExperience ? 'experience' : showContact ? 'contact' : null;
+
+  function nudgeScroll(event: MouseEvent<HTMLAnchorElement>) {
+    if (phase !== 'building' || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const viewport = previewScroll?.current;
+    const step = Math.min(180, (viewport?.clientHeight ?? window.innerHeight) * .22);
+    (viewport ?? window).scrollBy({ top: step, behavior: 'smooth' });
+  }
 
   async function share() {
     try {
@@ -163,20 +173,29 @@ export function EditorialPortfolio({ portfolio, mode = 'published', previewScrol
     <>
       {mode !== 'preview' && <canvas ref={localCanvas} className={styles.swarmCanvas} data-swarm-canvas aria-hidden="true" />}
       <article ref={root} className={styles.portfolio} data-portfolio-theme={dark ? 'ink' : 'paper'} data-portfolio-mode={mode} aria-labelledby={sectionId('portfolio-name')}>
-      {phase !== 'unavailable' && <div className={styles.constructionBar} data-construction-controls aria-label="Construction controls" role="group">
+      <div className={styles.constructionBar} data-construction-controls aria-label="Portfolio controls" role="group">
         <div className={styles.constructionBarInner}>
-          <span className={styles.constructionStatus}>
-            <span className={styles.constructionDot} aria-hidden="true" />
-            {phase === 'building' ? 'Scroll to build the portfolio' : phase === 'complete' ? 'Portfolio assembled' : 'Full portfolio'}
-          </span>
+          {phase === 'complete' ? (
+            <span className={styles.constructionStatus}>
+              <span className={styles.constructionDot} aria-hidden="true" />
+              <span className={styles.constructionDetail}>Portfolio assembled</span>
+              <span className={styles.constructionCompact}>Built</span>
+            </span>
+          ) : (nextSection || phase === 'building') ? (
+            <a className={styles.constructionPrompt} href={`#${sectionId(nextSection ?? 'portfolio-name')}`} onClick={nudgeScroll}>
+              <ArrowDown size={17} aria-hidden="true" />
+              <strong>Scroll down</strong>
+              {phase === 'building' && <span className={styles.constructionDetail}>to speed up the build</span>}
+            </a>
+          ) : <span />}
           <div className={styles.constructionActions}>
-            <button type="button" onClick={phase === 'building' ? skip : replay}>
+            {phase !== 'unavailable' && <button type="button" onClick={phase === 'building' ? skip : replay}>
               {phase === 'building' ? 'Show full portfolio' : <><RotateCcw size={14} aria-hidden="true" /> Replay construction</>}
-            </button>
+            </button>}
             {phase === 'complete' && <button type="button" onClick={toggleCursors}>{cursorsHidden ? 'Show cursors' : 'Hide cursors'}</button>}
           </div>
         </div>
-      </div>}
+      </div>
       <header className={styles.header}>
         <span className={styles.handle} data-construction-piece="type">{mode === 'example' ? 'Sample portfolio' : `@${portfolio.username || 'your-name'}`}</span>
         {showNavigation && <nav className={styles.navigation} aria-label="Portfolio sections" data-construction-piece="layout">
@@ -196,7 +215,7 @@ export function EditorialPortfolio({ portfolio, mode = 'published', previewScrol
           <div className={styles.heroSheet} data-construction-piece="draw" aria-hidden="true" />
           <div className={styles.identity}>
             <div className={styles.name}>
-              <Heading id={sectionId('portfolio-name')} data-construction-piece="type">{name}</Heading>
+              <Heading id={sectionId('portfolio-name')} data-construction-piece="type" data-construction-title>{name}</Heading>
             </div>
             <div className={styles.identityDetails}>
               {portrait && <span className={styles.portrait} data-construction-piece="drag">

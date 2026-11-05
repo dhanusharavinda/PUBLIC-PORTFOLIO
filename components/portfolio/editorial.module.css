@@ -45,9 +45,8 @@
 
 .portfolio ::selection { background: var(--field); color: var(--field-text); }
 .portfolio :focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
-.portfolio :where(section[id]) { scroll-margin-block-start: 1rem; }
-.portfolio[data-construction] :where(section[id]) { scroll-margin-block-start: 3.75rem; }
-.portfolio[data-portfolio-mode='published'][data-construction] { min-block-size: calc(100svh + 4rem); }
+.portfolio :where(section[id]) { scroll-margin-block-start: 3.75rem; }
+.portfolio[data-portfolio-mode='published'] { min-block-size: calc(100svh + 4rem); }
 
 .swarmCanvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 24; }
 
@@ -60,10 +59,9 @@
 }
 
 .constructionBarInner {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 0 .75rem;
   max-width: var(--measure);
   margin-inline: auto;
@@ -71,10 +69,14 @@
   min-block-size: 3.15rem;
 }
 
-.constructionStatus, .constructionActions, .constructionActions button { display: inline-flex; align-items: center; gap: .45rem; }
+.constructionStatus, .constructionPrompt, .constructionActions, .constructionActions button { display: inline-flex; align-items: center; gap: .45rem; }
 .constructionStatus { color: var(--muted); font-size: .85rem; font-weight: 560; }
+.constructionPrompt { color: var(--text); font-size: .85rem; min-block-size: 2.75rem; }
+.constructionPrompt svg, .constructionActions svg { flex: none; }
+.constructionPrompt:hover strong { text-decoration: underline; text-underline-offset: .22em; }
+.constructionCompact { display: none; }
 .constructionDot { width: .4rem; height: .4rem; border-radius: 50%; background: #5b8650; flex: none; }
-.constructionActions { flex-wrap: wrap; gap: 0 1rem; }
+.constructionActions { gap: 0 1rem; }
 .constructionActions button { min-block-size: 2.75rem; cursor: pointer; font-size: .85rem; font-weight: 600; }
 .constructionActions button:hover { text-decoration: underline; text-underline-offset: .22em; }
 
@@ -301,6 +303,22 @@
   .header { min-height: 3.4rem; }
   .name :is(h1, h2) { font-size: clamp(2.65rem, 11cqi, 3.6rem); }
   .constructionBarInner { padding-block: .2rem; }
+  .constructionDetail { display: none; }
+  .constructionCompact { display: inline; }
+  .constructionActions { gap: 0 .65rem; }
+  .constructionActions button, .constructionPrompt { font-size: .78rem; }
+}
+
+/* Keep the first paint consistent with construction, then reveal the page if hydration never arrives. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .portfolio[data-portfolio-mode='published']:not([data-construction]) [data-construction-piece] {
+    animation: waitForConstruction 1.8s step-end;
+  }
+}
+
+@keyframes waitForConstruction {
+  from { visibility: hidden; }
+  to { visibility: visible; }
 }
 
 @media (prefers-reduced-motion: reduce) {
