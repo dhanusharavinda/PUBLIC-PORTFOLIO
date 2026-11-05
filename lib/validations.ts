@@ -31,7 +31,9 @@ export const sectionVisibilitySchema = z.object({
 export const projectSchema = z.object({
   name: z.string().max(100, 'Project name too long').optional().or(z.literal('')),
   label: z.string().max(50, 'Label too long').optional().or(z.literal('')),
+  impact_stat: z.string().optional(),
   cover_image_url: z.string().optional().or(z.literal('')),
+  carousel_images: z.array(z.string()).optional(),
   description: z.string().max(800, 'Description must be under 800 characters').optional().or(z.literal('')),
   tech_stack: z.array(z.string()).optional().default([]),
   github_url: z.string().url('Invalid GitHub URL').optional().or(z.literal('')),

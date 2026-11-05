@@ -4,7 +4,7 @@ import { useFormContext } from './FormContext';
 import { TemplateType, SectionKey } from '@/types/portfolio';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
-import { Check, Sparkles, Briefcase, Globe, Link2, AlertCircle, Loader2, Eye, EyeOff, User, Wrench, FolderGit2, Mail } from 'lucide-react';
+import { Check, Briefcase, Globe, Link2, AlertCircle, Loader2, Eye, EyeOff, User, Wrench, FolderGit2, Mail } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { fetchJson } from '@/lib/fetch-json';
 
@@ -20,25 +20,19 @@ const templates: {
   id: TemplateType;
   name: string;
   description: string;
-  features: string[];
   colors: string[];
-  icon: React.ReactNode;
 }[] = [
   {
     id: 'minimal',
-    name: 'Minimal',
-    description: 'Clean, elegant, and timeless.',
-    features: ['Soft neutral palette', 'Compact layout', 'Clear typography', 'Portfolio-first'],
-    colors: ['#fdf0d5', '#fff8e8', '#d4a373'],
-    icon: <Sparkles className="w-6 h-6" />,
+    name: 'Paper',
+    description: 'Warm paper, ink lettering, and a dark gallery for your work.',
+    colors: ['#f7f5ed', '#e7eadc', '#242720'],
   },
   {
     id: 'professional',
-    name: 'Professional',
-    description: 'Dark, modern, and confident.',
-    features: ['Primary color #001514', 'High contrast readability', 'Clean cards', 'Business-ready'],
-    colors: ['#001514', '#0d2b2a', '#38b2ac'],
-    icon: <Briefcase className="w-6 h-6" />,
+    name: 'Ink',
+    description: 'Deep olive and warm white lettering, with the same assembly effect.',
+    colors: ['#262920', '#f6f3e9', '#dce6bc'],
   },
 ];
 
@@ -188,9 +182,9 @@ export function StepTemplate() {
       </div>
 
       <div className="text-center mb-8">
-        <h3 className="text-2xl font-bold text-[var(--m-text-heading)] mb-2">Choose Your Template</h3>
+        <h3 className="text-2xl font-bold text-[var(--m-text-heading)] mb-2">Choose your theme</h3>
         <p className="text-[var(--m-text-secondary)]">
-          Select a design that matches your personal style.
+          Both themes assemble your name and projects when visitors open your portfolio.
         </p>
       </div>
 
@@ -198,6 +192,8 @@ export function StepTemplate() {
         {templates.map((template) => (
           <button
             key={template.id}
+            type="button"
+            aria-pressed={formData.template === template.id}
             onClick={() => updateFormData({ template: template.id })}
             className={cn(
               'relative rounded-2xl border-2 p-6 text-left transition-all duration-300',
@@ -212,19 +208,6 @@ export function StepTemplate() {
               </div>
             )}
 
-            <div className="mb-4">
-              <div
-                className={cn(
-                  'w-12 h-12 rounded-xl flex items-center justify-center',
-                  formData.template === template.id
-                    ? 'bg-[var(--m-accent)] text-white'
-                    : 'bg-[var(--m-bg-secondary)] text-[var(--m-text-secondary)]'
-                )}
-              >
-                {template.icon}
-              </div>
-            </div>
-
             <h4 className="text-lg font-bold text-[var(--m-text-heading)] mb-1">{template.name}</h4>
             <p className="text-sm text-[var(--m-text-secondary)] mb-4">{template.description}</p>
 
@@ -238,14 +221,6 @@ export function StepTemplate() {
               ))}
             </div>
 
-            <ul className="space-y-1">
-              {template.features.map((feature) => (
-                <li key={feature} className="text-xs text-[var(--m-text-secondary)] flex items-center gap-1">
-                  <span className="w-1 h-1 rounded-full bg-[var(--m-text-muted)]" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
           </button>
         ))}
       </div>

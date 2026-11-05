@@ -1,198 +1,118 @@
 'use client';
 
+import { EditorialPortfolio } from '@/components/portfolio/EditorialPortfolio';
+import type { PortfolioWithProjects } from '@/types/portfolio';
+import { Laptop, RotateCcw, Smartphone, Tablet } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from './FormContext';
-import { MinimalTemplate } from '@/components/templates/MinimalTemplate';
-import { PastelTemplate } from '@/components/templates/PastelTemplate';
-import { PortfolioWithProjects } from '@/types/portfolio';
-import { Laptop, Tablet, Smartphone } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import styles from './live-preview.module.css';
 
-type DeviceType = 'desktop' | 'tablet' | 'mobile';
+const devices = [
+  { name: 'Desktop', width: 1120, Icon: Laptop },
+  { name: 'Tablet', width: 768, Icon: Tablet },
+  { name: 'Phone', width: 390, Icon: Smartphone },
+] as const;
 
-export function LivePreview() {
+export function LivePreview({ publishedUsername }: { publishedUsername: string | null }) {
   const { formData } = useFormContext();
-  const [device, setDevice] = useState<DeviceType>('desktop');
-  const objectUrlsRef = useRef<string[]>([]);
+  const [device, setDevice] = useState(0);
+  const [viewportWidth, setViewportWidth] = useState(0);
+  const [previewRun, setPreviewRun] = useState(0);
+  const [fileUrls, setFileUrls] = useState(new Map<File, string>());
+  const viewport = useRef<HTMLDivElement>(null);
+  const objectUrls = useRef(new Map<File, string>());
+  const { profile_photo, projects, resume } = formData;
 
   useEffect(() => {
+    const element = viewport.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => setViewportWidth(entry.contentRect.width));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const files = [profile_photo, resume, ...projects.flatMap((project) => [project.cover_image, ...project.carousel_images])];
+    const activeFiles = new Set(files.filter((file): file is File => Boolean(file)));
+    const urls = objectUrls.current;
+    for (const [file, url] of urls) {
+      if (activeFiles.has(file)) continue;
+      URL.revokeObjectURL(url);
+      urls.delete(file);
+    }
+    for (const file of activeFiles) {
+      if (!urls.has(file)) urls.set(file, URL.createObjectURL(file));
+    }
+    const frame = requestAnimationFrame(() => setFileUrls(new Map(urls)));
+    return () => cancelAnimationFrame(frame);
+  }, [profile_photo, projects, resume]);
+
+  useEffect(() => {
+    const urls = objectUrls.current;
     return () => {
-      objectUrlsRef.current.forEach((url) => {
-        try {
-          URL.revokeObjectURL(url);
-        } catch {
-          // Ignore errors
-        }
-      });
-      objectUrlsRef.current = [];
+      for (const url of urls.values()) URL.revokeObjectURL(url);
+      urls.clear();
     };
   }, []);
 
-  const createObjectUrl = (file: File): string => {
-    const url = URL.createObjectURL(file);
-    objectUrlsRef.current.push(url);
-    return url;
-  };
+  function previewUrl(file: File | null | undefined, savedUrl = '') {
+    return (file && fileUrls.get(file)) || savedUrl;
+  }
 
   const previewData: PortfolioWithProjects = {
-    id: 'preview',
-    username: 'preview',
-    full_name: formData.full_name || 'Your Name',
-    tagline: formData.tagline || 'Your tagline goes here...',
-    job_title: formData.job_title || 'Job Title',
-    location: formData.location || 'Location',
-    bio: formData.bio || 'Your bio will appear here. Describe your expertise and passion...',
-    email: formData.email || 'email@example.com',
-    profile_photo_url: formData.profile_photo
-      ? createObjectUrl(formData.profile_photo)
-      : formData.profile_photo_url || '',
-    linkedin_url: formData.linkedin_url,
-    github_username: formData.github_username,
-    resume_url: '',
-    availability_status: formData.availability_status,
-    open_to_work: formData.open_to_work,
-    skills: formData.skills.length > 0 ? formData.skills : [
-      { name: 'Python', category: 'Languages' },
-      { name: 'SQL', category: 'Languages' },
-      { name: 'Tableau', category: 'Tools' },
-    ],
-    template: formData.template,
-    is_public: formData.is_public ?? true,
-    section_visibility: formData.section_visibility,
+    ...formData,
+    username: publishedUsername || formData.username || 'your-name',
+    profile_photo_url: previewUrl(formData.profile_photo, formData.profile_photo_url),
+    resume_url: previewUrl(formData.resume, formData.resume_url),
     view_count: 0,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    experiences: formData.experiences.length > 0
-      ? formData.experiences.map((exp, i) => ({
-          id: exp.id,
-          portfolio_id: 'preview',
-          company: exp.company || 'Company Name',
-          role: exp.role || 'Job Title',
-          location: exp.location || '',
-          start_date: exp.start_date || '2020-01',
-          end_date: exp.end_date || '',
-          is_current: exp.is_current,
-          description: exp.description || 'Experience description...',
-          order_index: i,
-          created_at: new Date().toISOString(),
-        }))
-      : [],
-    projects: formData.projects.length > 0
-      ? formData.projects.map((p, i) => ({
-          id: p.id,
-          portfolio_id: 'preview',
-          name: p.name || `Project ${i + 1}`,
-          label: p.label || '',
-          cover_image_url: p.cover_image
-            ? createObjectUrl(p.cover_image)
-            : p.cover_image_url || '',
-          carousel_images: [],
-          description: p.description || 'Project description...',
-          tech_stack: p.tech_stack.length > 0 ? p.tech_stack : ['Python', 'SQL'],
-          github_url: p.github_url,
-          demo_url: p.demo_url,
-          is_featured: p.is_featured,
-          order_index: i,
-          created_at: new Date().toISOString(),
-        }))
-      : [
-          {
-            id: '1',
-            portfolio_id: 'preview',
-            name: 'Sample Project',
-            cover_image_url: '',
-            carousel_images: [],
-            description: 'Your projects will appear here like this...',
-            tech_stack: ['React', 'TypeScript'],
-            github_url: '',
-            demo_url: '',
-            is_featured: true,
-            order_index: 0,
-            created_at: new Date().toISOString(),
-          },
-        ],
+    experiences: formData.experiences
+      .filter((experience) => experience.company.trim() || experience.role.trim() || experience.description.trim())
+      .map((experience, index) => ({ ...experience, order_index: index })),
+    projects: formData.projects
+      .filter((project) => project.name.trim() || project.description.trim() || project.cover_image || project.cover_image_url)
+      .map((project, index) => ({
+        ...project,
+        name: project.name || 'Untitled project',
+        cover_image_url: previewUrl(project.cover_image, project.cover_image_url),
+        carousel_images: Array.from(
+          { length: Math.max(project.carousel_images.length, project.carousel_image_urls.length) },
+          (_, slot) => previewUrl(project.carousel_images[slot], project.carousel_image_urls[slot]),
+        ).filter(Boolean),
+        order_index: index,
+      })),
   };
 
-  const deviceSettings: Record<DeviceType, { frameWidth: string; scale: number }> = {
-    desktop: { frameWidth: '100%', scale: 0.5 },
-    tablet: { frameWidth: '768px', scale: 0.56 },
-    mobile: { frameWidth: '375px', scale: 0.68 },
-  };
+  const frameWidth = devices[device].width;
+  const zoom = viewportWidth ? Math.min(1, viewportWidth / frameWidth) : 0.25;
 
-  const renderTemplate = () => {
-    switch (formData.template) {
-      case 'minimal':
-        return <MinimalTemplate portfolio={previewData} isPreview />;
-      case 'professional':
-        return <PastelTemplate portfolio={previewData} isPreview />;
-      default:
-        return <MinimalTemplate portfolio={previewData} isPreview />;
-    }
-  };
+  function replay() {
+    viewport.current?.scrollTo({ top: 0 });
+    setPreviewRun((run) => run + 1);
+  }
 
   return (
-    <div className="sticky top-28">
-      <div className="flex items-center justify-between mb-3 px-2">
-        <span
-          className="font-bold text-xs uppercase tracking-widest"
-          style={{ color: 'var(--m-text-muted)' }}
-        >
-          Live Preview
-        </span>
-        <div
-          className="flex gap-1 p-1 border"
-          style={{
-            backgroundColor: 'var(--m-bg-card)',
-            borderColor: 'var(--m-border)',
-            borderRadius: 'var(--m-radius)',
-          }}
-        >
-          {([
-            { key: 'desktop', Icon: Laptop },
-            { key: 'tablet', Icon: Tablet },
-            { key: 'mobile', Icon: Smartphone },
-          ] as const).map(({ key, Icon }) => (
-            <button
-              key={key}
-              onClick={() => setDevice(key)}
-              className="size-7 flex items-center justify-center rounded transition-colors"
-              style={{
-                backgroundColor: device === key ? 'var(--m-accent-light)' : 'transparent',
-                color: device === key ? 'var(--m-accent)' : 'var(--m-text-muted)',
-              }}
-            >
-              <Icon className="w-3.5 h-3.5" />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div
-        className="p-4"
-        style={{
-          backgroundColor: 'var(--m-bg-secondary)',
-          borderRadius: 'var(--m-radius-lg)',
-        }}
-      >
-        <div
-          className="mx-auto bg-[var(--m-bg-card)] rounded-xl shadow-xl transition-all duration-300 max-h-[80vh] overflow-auto"
-          style={{ width: deviceSettings[device].frameWidth, maxWidth: '100%' }}
-        >
-          <div
-            className="origin-top-left"
-            style={{
-              transform: `scale(${deviceSettings[device].scale})`,
-              width: `${100 / deviceSettings[device].scale}%`,
-            }}
-          >
-            {renderTemplate()}
+    <aside id="live-portfolio-preview" className={styles.preview} aria-label="Live portfolio preview">
+      <div className={styles.toolbar}>
+        <span>Live preview</span>
+        <div className={styles.tools}>
+          <button type="button" className={styles.replay} onClick={replay}>
+            <RotateCcw size={15} aria-hidden="true" /> Replay
+          </button>
+          <div className={styles.devices} role="group" aria-label="Preview size">
+            {devices.map(({ name, Icon }, index) => (
+              <button key={name} type="button" aria-label={name} title={name} aria-pressed={index === device} onClick={() => setDevice(index)}>
+                <Icon size={16} aria-hidden="true" />
+              </button>
+            ))}
           </div>
         </div>
       </div>
-
-      <p className="text-xs text-center mt-2" style={{ color: 'var(--m-text-muted)' }}>
-        Preview updates as you type
-      </p>
-    </div>
+      <div ref={viewport} className={styles.viewport} tabIndex={0} role="region" aria-label="Scrollable portfolio preview">
+        <div className={styles.frame} style={{ width: frameWidth, zoom }}>
+          <EditorialPortfolio key={previewRun} portfolio={previewData} mode="preview" />
+        </div>
+      </div>
+      <p className={styles.caption}>This is how your published page will look.</p>
+    </aside>
   );
 }

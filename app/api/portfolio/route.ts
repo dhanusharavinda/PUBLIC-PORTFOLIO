@@ -194,7 +194,11 @@ export async function POST(request: NextRequest) {
           const projectWithDefaults = {
             name: project.name || '',
             label: project.label || '',
+            impact_stat: typeof project.impact_stat === 'string' ? project.impact_stat : undefined,
             cover_image_url: project.cover_image_url || '',
+            carousel_images: Array.isArray(project.carousel_images)
+              ? project.carousel_images.filter((url) => typeof url === 'string')
+              : undefined,
             description: project.description || '',
             tech_stack: project.tech_stack || [],
             github_url: project.github_url || '',

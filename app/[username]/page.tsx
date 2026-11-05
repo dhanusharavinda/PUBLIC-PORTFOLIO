@@ -1,7 +1,6 @@
 import { getSupabaseAdmin } from '@/lib/supabase-server';
 import { PortfolioWithProjects } from '@/types/portfolio';
-import { MinimalTemplate } from '@/components/templates/MinimalTemplate';
-import { PastelTemplate } from '@/components/templates/PastelTemplate';
+import { EditorialPortfolio } from '@/components/portfolio/EditorialPortfolio';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -84,18 +83,5 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
     notFound();
   }
 
-  // Backward compatibility: old "pastel" values are now treated as "professional"
-  const template = (portfolio as { template?: string }).template === 'pastel'
-    ? 'professional'
-    : portfolio.template;
-
-  // Render the appropriate template
-  switch (template) {
-    case 'minimal':
-      return <MinimalTemplate portfolio={portfolio} />;
-    case 'professional':
-      return <PastelTemplate portfolio={portfolio} />;
-    default:
-      return <MinimalTemplate portfolio={portfolio} />;
-  }
+  return <main><EditorialPortfolio key={username} portfolio={portfolio} /></main>;
 }

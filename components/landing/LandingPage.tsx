@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { ArrowDown, ArrowRight, ArrowUpRight, Plus } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
+import { EditorialPortfolio } from '@/components/portfolio/EditorialPortfolio';
 import { CREATE_PORTFOLIO_HREF } from '@/lib/portfolio-routes';
 import { BuildScene } from './BuildScene';
-import { ProjectCover } from './ProjectCover';
-import { sampleCreator, sampleProjects } from './sample';
+import { samplePortfolio } from './sample';
 import styles from './landing.module.css';
 
 function Wordmark() {
@@ -68,37 +68,14 @@ export function LandingPage() {
             </section>
             <section id="publish" className={styles.chapter}>
               <h2>Make it yours.</h2>
-              <p>Choose a template, preview your page, and publish it under your own URL. Come back whenever your work changes.</p>
+              <p>Choose Paper or Ink, preview your page, and publish it under your own URL. The cursors assemble your real work on your published page.</p>
               <a href="#sample" className={styles.textLink}>Open the finished example <ArrowDown size={16} aria-hidden="true" /></a>
             </section>
           </div>
         </section>
 
-        <section className={styles.sample} id="sample" aria-labelledby="sample-title">
-          <div className={styles.sampleInner}>
-            <div className={styles.sampleIntro}>
-              <h2 id="sample-title">{sampleCreator.name}</h2>
-              <p>A sample portfolio in visual identity and editorial design, with three studies on how places shape a visual language.</p>
-            </div>
-
-            <div className={styles.gallery}>
-              {sampleProjects.map((project) => (
-                <article key={project.id} className={styles.project}>
-                  <ProjectCover project={project} />
-                  <details className={styles.details}>
-                    <summary>
-                      <span className={styles.projectTitle}>{project.name}</span>
-                      <Plus size={19} className={styles.detailsIcon} aria-hidden="true" />
-                    </summary>
-                    <p>
-                      <strong>{project.kind}.</strong> {project.description}{' '}
-                      <a href={project.source} className={styles.photoCredit}>Photo by {project.credit} <ArrowUpRight size={12} aria-hidden="true" /></a>
-                    </p>
-                  </details>
-                </article>
-              ))}
-            </div>
-          </div>
+        <section id="sample" aria-label="Example portfolio">
+          <EditorialPortfolio portfolio={samplePortfolio} mode="example" />
         </section>
 
         <section className={styles.close} aria-labelledby="close-title">

@@ -1,0 +1,14 @@
+.preview { position: sticky; top: 5.25rem; min-width: 0; scroll-margin-block-start: 5rem; }
+.toolbar, .tools, .devices { display: flex; align-items: center; gap: .4rem; }
+.toolbar { justify-content: space-between; flex-wrap: wrap; gap: .35rem .7rem; margin-bottom: .55rem; color: var(--m-text-heading); font-size: .88rem; font-weight: 600; }
+.tools button { min-width: 2.25rem; min-height: 2.25rem; cursor: pointer; color: var(--m-text); }
+.tools button:focus-visible, .viewport:focus-visible { outline: 2px solid var(--m-accent); outline-offset: 2px; }
+.devices { gap: .1rem; border: 1px solid var(--m-border); border-radius: .25rem; padding: .12rem; }
+.devices button, .replay { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; border-radius: .15rem; }
+.devices button[aria-pressed='true'], .tools button:hover { background: var(--m-bg-secondary); color: var(--m-text-heading); }
+.replay { padding-inline: .4rem; font-size: .82rem; }
+.viewport { background: var(--m-bg-secondary); border: 1px solid var(--m-border); max-height: 68vh; overflow: auto; }
+.frame { margin-inline: auto; }
+.caption { color: var(--m-text-secondary); font-size: .78rem; margin-top: .55rem; }
+@media (max-width: 63.999rem) { .preview { position: static; } }
+@media (prefers-reduced-motion: reduce) { .replay { display: none; } }

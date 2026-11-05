@@ -1,3 +1,6 @@
+import type { PortfolioWithProjects } from '@/types/portfolio';
+import type { EditorialProject } from '@/components/portfolio/EditorialPortfolio';
+
 export const sampleCreator = {
   name: 'Nora Chen',
   role: 'Visual identity & editorial design',
@@ -35,3 +38,37 @@ export const sampleProjects = [
     source: 'https://unsplash.com/photos/a-black-and-white-photo-of-the-ocean-waves-HJrBa4MaQO4',
   },
 ] as const;
+
+
+export const samplePortfolio: PortfolioWithProjects & { projects: EditorialProject[] } = {
+  username: 'nora-chen',
+  full_name: sampleCreator.name,
+  job_title: sampleCreator.role,
+  tagline: 'Visual studies shaped by the places they depict.',
+  location: '',
+  bio: '',
+  email: '',
+  profile_photo_url: '',
+  availability_status: 'not_looking',
+  open_to_work: false,
+  skills: [],
+  template: 'minimal',
+  is_public: true,
+  view_count: 0,
+  experiences: [],
+  projects: sampleProjects.map((project, index) => ({
+    id: project.id,
+    name: project.name,
+    label: project.kind,
+    cover_image_url: project.image,
+    coverAlt: project.alt,
+    coverTitle: project.id === 'high-water' ? 'HIGH WATER' : project.name,
+    photoCredit: { name: project.credit, href: project.source },
+    carousel_images: [],
+    description: project.description,
+    tech_stack: [],
+    github_url: '',
+    is_featured: index === 0,
+    order_index: index,
+  })),
+};

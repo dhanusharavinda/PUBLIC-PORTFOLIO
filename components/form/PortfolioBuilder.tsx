@@ -91,6 +91,7 @@ function FormContent({ editUsername }: { editUsername: string | null }) {
             id: project.id || crypto.randomUUID(),
             name: project.name || '',
             label: project.label || '',
+            impact_stat: project.impact_stat || undefined,
             cover_image: null,
             cover_image_url: project.cover_image_url || '',
             carousel_images: [null, null, null],
@@ -269,16 +270,17 @@ function FormContent({ editUsername }: { editUsername: string | null }) {
             coverImageUrl = await uploadFile(project.cover_image, 'project-images');
           }
 
-          for (const img of project.carousel_images) {
-            if (img) {
-              const imageUrl = await uploadFile(img, 'project-images');
-              carouselUrls.push(imageUrl);
-            }
+          const slots = Math.max(project.carousel_images.length, project.carousel_image_urls.length);
+          for (let slot = 0; slot < slots; slot++) {
+            const image = project.carousel_images[slot];
+            const url = image ? await uploadFile(image, 'project-images') : project.carousel_image_urls[slot];
+            if (url) carouselUrls.push(url);
           }
 
           return {
             name: project.name,
             label: project.label || '',
+            impact_stat: project.impact_stat,
             cover_image_url: coverImageUrl,
             carousel_images: carouselUrls,
             description: project.description,
@@ -442,12 +444,8 @@ function FormContent({ editUsername }: { editUsername: string | null }) {
         </div>
       </div>
 
-      {/* Live Preview Section */}
-      <div className="hidden lg:block lg:col-span-5">
-        <LivePreview />
-      </div>
-      <div className="lg:hidden">
-        <LivePreview />
+      <div className="min-w-0 lg:col-span-5">
+        <LivePreview publishedUsername={activeEditUsername} />
       </div>
     </div>
   );
@@ -557,87 +555,20 @@ export default function PortfolioBuilder({ editUsername }: { editUsername: strin
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="w-full px-4 sm:px-6 lg:px-10 py-12 lg:py-16 relative overflow-hidden">
-        {/* Aesthetic mode colored accent blocks */}
-        <div className="absolute top-8 left-6 w-20 h-20 bg-[#FFD60A] rounded-sm opacity-10 rotate-12" />
-        <div className="absolute top-32 right-10 w-16 h-16 bg-[#FF6B6B] rounded-sm opacity-10 -rotate-6" />
-        <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-[#00E676] rounded-sm opacity-8 rotate-45" />
-        <div className="max-w-4xl mx-auto text-center mb-12 animate-fade-in-up relative z-10">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wider mx-auto mb-6 border"
-            style={{
-              backgroundColor: 'var(--m-bg-badge)',
-              borderColor: 'var(--m-border)',
-              color: 'var(--m-accent)',
-              borderRadius: '0.25rem',
-            }}
-          >
-            <span className="relative flex h-2 w-2">
-              <span
-                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                style={{ backgroundColor: 'var(--m-accent)' }}
-              />
-              <span
-                className="relative inline-flex rounded-full h-2 w-2"
-                style={{ backgroundColor: 'var(--m-accent)' }}
-              />
-            </span>
-            Free Portfolio Generator
+      <main className="w-full px-4 sm:px-6 lg:px-10 py-6 lg:py-9">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--m-text-heading)' }}>
+              {editUsername || hasPortfolio ? 'Edit your portfolio' : 'Create your portfolio'}
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--m-text-secondary)' }}>
+              Add your work and preview how your published page comes together.
+            </p>
           </div>
-          <h1
-            className="text-4xl sm:text-5xl lg:text-7xl font-black leading-none tracking-tight mb-4"
-            style={{ color: 'var(--m-text-heading)', fontFamily: 'var(--m-font-heading)' }}
-          >
-            YOUR PORTFOLIO.{' '}
-            <span className="m-gradient-text">YOUR STORY.</span>
-          </h1>
-          <p
-            className="text-lg max-w-2xl mx-auto font-medium leading-relaxed mb-8"
-            style={{ color: 'var(--m-text-secondary)' }}
-          >
-            Fill in your details. Pick a theme. Share your link. The professional way to showcase your projects.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            {hasPortfolio ? (
-              <>
-                <Link
-                  href={`/${myPortfolioUsername}`}
-                  className="m-btn-accent px-8 py-3.5 font-bold text-base text-center"
-                  style={{ borderRadius: 'var(--m-radius)' }}
-                >
-                  View Portfolio
-                </Link>
-                <Link
-                  href={`/?edit=${myPortfolioUsername}`}
-                  className="m-btn-outline px-8 py-3.5 font-bold text-base text-center"
-                  style={{ borderRadius: 'var(--m-radius)' }}
-                >
-                  Edit Portfolio
-                </Link>
-              </>
-            ) : (
-              <>
-                <a
-                  href="#form"
-                  className="m-btn-accent px-8 py-3.5 font-bold text-base text-center"
-                  style={{ borderRadius: 'var(--m-radius)' }}
-                >
-                  Create Now
-                </a>
-                <Link
-                  href="/explore"
-                  className="m-btn-outline px-8 py-3.5 font-bold text-base text-center"
-                  style={{ borderRadius: 'var(--m-radius)' }}
-                >
-                  See What Others Are Building
-                </Link>
-              </>
-            )}
-          </div>
+          {isLoggedIn && <a href="#live-portfolio-preview" className="text-sm underline underline-offset-4 lg:hidden" style={{ color: 'var(--m-text-heading)' }}>
+            Jump to preview
+          </a>}
         </div>
-
-        {/* Form Section */}
         <div id="form">
           {!isAuthReady ? (
             <p role="status" className="text-center py-8" style={{ color: 'var(--m-text-secondary)' }}>Loading your workspace...</p>
@@ -674,7 +605,7 @@ export default function PortfolioBuilder({ editUsername }: { editUsername: strin
             </div>
           )}
         </div>
-      </section>
+      </main>
 
       {/* Footer */}
       <footer
