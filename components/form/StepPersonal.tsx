@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useAuth } from '@/lib/auth-context';
 import { useFormContext } from './FormContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,7 @@ import { toast } from 'sonner';
 
 export function StepPersonal() {
   const { formData, updateFormData } = useFormContext();
+  const { userEmail } = useAuth();
   const bioWordCount = useMemo(() => {
     return formData.bio.trim().split(/\s+/).filter(Boolean).length;
   }, [formData.bio]);
@@ -126,8 +128,8 @@ export function StepPersonal() {
           <Input
             id="email"
             type="email"
-            value={formData.email}
-            onChange={(e) => updateFormData({ email: e.target.value })}
+            value={userEmail ?? formData.email}
+            readOnly
             placeholder="alex@example.com"
             className="bg-[var(--m-bg-input)] border-[var(--m-border)] text-[var(--m-text)] placeholder:text-[var(--m-text-muted)] focus:border-[var(--m-accent)] focus:ring-4 focus:ring-[var(--m-accent-light)]"
           />

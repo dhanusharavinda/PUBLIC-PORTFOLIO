@@ -5,6 +5,7 @@ import type { PortfolioWithProjects } from '@/types/portfolio';
 import { Laptop, RotateCcw, Smartphone, Tablet } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from './FormContext';
+import { useAuth } from '@/lib/auth-context';
 import styles from './live-preview.module.css';
 
 const devices = [
@@ -15,6 +16,7 @@ const devices = [
 
 export function LivePreview({ publishedUsername }: { publishedUsername: string | null }) {
   const { formData } = useFormContext();
+  const { userEmail } = useAuth();
   const [device, setDevice] = useState(0);
   const [viewportWidth, setViewportWidth] = useState(0);
   const [previewRun, setPreviewRun] = useState(0);
@@ -62,6 +64,7 @@ export function LivePreview({ publishedUsername }: { publishedUsername: string |
 
   const previewData: PortfolioWithProjects = {
     ...formData,
+    email: userEmail ?? formData.email,
     username: publishedUsername || formData.username || 'your-name',
     profile_photo_url: previewUrl(formData.profile_photo, formData.profile_photo_url),
     resume_url: previewUrl(formData.resume, formData.resume_url),

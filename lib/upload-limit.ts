@@ -1,0 +1,1 @@
+export const MAX_PORTFOLIO_UPLOAD_BYTES = 4 * 1024 * 1024;

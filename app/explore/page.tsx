@@ -2,6 +2,8 @@ import { getSupabasePublicServerClient } from '@/lib/supabase-server';
 import { ExploreDirectory } from '@/components/explore/ExploreDirectory';
 import { ExploreShell } from '@/components/explore/ExploreShell';
 
+export const revalidate = 60;
+
 interface ProjectWithPortfolio {
   id: string;
   name: string;
@@ -48,7 +50,7 @@ async function getPublicProjects(): Promise<ProjectWithPortfolio[]> {
       return [];
     }
 
-    return (data || []).map((item: any) => ({
+    return (data || []).filter((item: { portfolios?: unknown }) => Boolean(item.portfolios)).map((item: any) => ({
       id: item.id,
       name: item.name,
       description: item.description,

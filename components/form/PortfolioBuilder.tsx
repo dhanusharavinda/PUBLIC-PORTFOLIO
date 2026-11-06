@@ -19,6 +19,7 @@ import { PortfolioWithProjects, normalizeSectionVisibility } from '@/types/portf
 import { useAuth } from '@/lib/auth-context';
 import { AuthHeaderActions } from '@/components/auth/AuthHeaderActions';
 import { supabase } from '@/lib/supabase';
+import { MAX_PORTFOLIO_UPLOAD_BYTES } from '@/lib/upload-limit';
 
 function FormContent({ editUsername }: { editUsername: string | null }) {
   const { currentStep, setCurrentStep, formData, updateFormData, updateSkills, updateProjects, updateExperiences } = useFormContext();
@@ -155,8 +156,7 @@ function FormContent({ editUsername }: { editUsername: string | null }) {
       if (!formData.full_name.trim()) return 'Full name is required';
       if (!formData.job_title.trim()) return 'Job title is required';
       if (!formData.bio.trim()) return 'Bio is required';
-      if (!formData.email.trim()) return 'Email is required';
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Invalid email format';
+      if (!userEmail) return 'Sign in to continue';
       return null;
     }},
     { component: StepSkills, validate: () => null },
@@ -196,40 +196,32 @@ function FormContent({ editUsername }: { editUsername: string | null }) {
     const isEditMode = Boolean(activeEditUsername);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token || !session.user.email) {
+        throw new Error('Your session expired. Sign in to save your portfolio.');
+      }
+      const authHeaders = { Authorization: 'Bearer ' + session.access_token };
       const bioWordCount = formData.bio.trim().split(/\s+/).filter(Boolean).length;
       if (bioWordCount > 400) {
         throw new Error('Bio must be 400 words or less.');
       }
 
       const uploadFile = async (file: File, bucket: 'profile-photos' | 'project-images' | 'resumes') => {
-    if (!file || !(file instanceof File)) {
-      throw new Error('Invalid file object provided for upload.');
-    }
-    if (file.size === 0) {
-      throw new Error('Cannot upload empty file.');
-    }
-
-    const uploadFormData = new FormData();
-    uploadFormData.append('file', file);
-    uploadFormData.append('bucket', bucket);
-    uploadFormData.append('path', `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`);
-
-    try {
-      const data = await fetchJson<{ success: boolean; url?: string }>('/api/upload', {
-        method: 'POST',
-        body: uploadFormData,
-      });
-
-      if (!data.url) {
-        throw new Error('Upload succeeded but file URL was not returned.');
-      }
-
-      return data.url;
-    } catch (err) {
-      console.error('Upload error details:', err);
-      throw err;
-    }
-  };
+        if (!file.size) throw new Error('Cannot upload an empty file.');
+        if (file.size > MAX_PORTFOLIO_UPLOAD_BYTES) {
+          throw new Error(file.name + ' is too large. Choose a file under 4 MB.');
+        }
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
+        uploadFormData.append('bucket', bucket);
+        const data = await fetchJson<{ success: boolean; url?: string }>('/api/upload', {
+          method: 'POST',
+          headers: authHeaders,
+          body: uploadFormData,
+        });
+        if (!data.url) throw new Error('Could not get the uploaded file link.');
+        return data.url;
+      };
 
       let profilePhotoUrl = formData.profile_photo_url;
       let resumeUrl = formData.resume_url;
@@ -329,7 +321,7 @@ function FormContent({ editUsername }: { editUsername: string | null }) {
         job_title: formData.job_title,
         location: formData.location,
         bio: formData.bio,
-        email: formData.email,
+        email: session.user.email,
         profile_photo_url: profilePhotoUrl,
         linkedin_url: formData.linkedin_url,
         github_username: formData.github_username,
@@ -347,12 +339,12 @@ function FormContent({ editUsername }: { editUsername: string | null }) {
       const data = activeEditUsername
         ? await fetchJson<{ success: boolean; portfolio?: { username?: string } }>(`/api/portfolio/${activeEditUsername}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...authHeaders, 'Content-Type': 'application/json' },
             body: JSON.stringify(portfolioData),
           })
         : await fetchJson<{ success: boolean; username: string }>('/api/portfolio', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...authHeaders, 'Content-Type': 'application/json' },
             body: JSON.stringify(portfolioData),
           });
 

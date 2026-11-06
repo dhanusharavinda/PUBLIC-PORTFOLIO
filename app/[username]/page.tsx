@@ -3,55 +3,38 @@ import { PortfolioWithProjects } from '@/types/portfolio';
 import { EditorialPortfolio } from '@/components/portfolio/EditorialPortfolio';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { cache } from 'react';
+import { isMissingExperiencesSchema } from '@/lib/portfolio-write';
 
 interface PortfolioPageProps {
   params: Promise<{ username: string }>;
 }
 
-async function getPortfolio(username: string): Promise<PortfolioWithProjects | null> {
-  try {
-    const supabase = getSupabaseAdmin();
-    const { data: portfolio, error: portfolioError } = await supabase
-      .from('portfolios')
-      .select('*')
-      .eq('username', username)
-      .single();
+const getPortfolio = cache(async (username: string) => {
+  const { data, error } = await getSupabaseAdmin().from('portfolios')
+    .select('*')
+    .eq('username', username)
+    .maybeSingle();
 
-    if (portfolioError || !portfolio) {
-      return null;
-    }
-
-    const portfolioId = (portfolio as { id: string }).id;
-
-    const { data: experiences, error: experiencesError } = await supabase
-      .from('experiences')
-      .select('*')
-      .eq('portfolio_id', portfolioId)
-      .order('order_index', { ascending: true });
-
-    if (experiencesError) {
-      console.error('Error fetching experiences:', experiencesError);
-    }
-
-    const { data: projects, error: projectsError } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('portfolio_id', portfolioId)
-      .order('order_index', { ascending: true });
-
-    if (projectsError) {
-      console.error('Error fetching projects:', projectsError);
-    }
-
-    return {
-      ...(portfolio as PortfolioWithProjects),
-      experiences: experiences || [],
-      projects: projects || [],
-    };
-  } catch (error) {
+  if (error) {
     console.error('Portfolio fetch failed:', error);
-    return null;
+    throw new Error('Could not load portfolio');
   }
+  return data as (Omit<PortfolioWithProjects, 'experiences' | 'projects'> & { id: string }) | null;
+});
+
+async function getPortfolioSections(portfolioId: string) {
+  const supabase = getSupabaseAdmin();
+  const [experiences, projects] = await Promise.all([
+    supabase.from('experiences').select('*').eq('portfolio_id', portfolioId).order('order_index'),
+    supabase.from('projects').select('*').eq('portfolio_id', portfolioId).order('order_index'),
+  ]);
+
+  if (projects.error || (experiences.error && !isMissingExperiencesSchema(experiences.error))) {
+    console.error('Portfolio sections fetch failed:', projects.error || experiences.error);
+    throw new Error('Could not load portfolio sections');
+  }
+  return { experiences: experiences.data || [], projects: projects.data || [] };
 }
 
 export async function generateMetadata({ params }: PortfolioPageProps): Promise<Metadata> {
@@ -83,5 +66,6 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
     notFound();
   }
 
-  return <main><EditorialPortfolio key={username} portfolio={portfolio} /></main>;
+  const sections = await getPortfolioSections(portfolio.id);
+  return <main><EditorialPortfolio key={username} portfolio={{ ...portfolio, ...sections }} /></main>;
 }

@@ -41,8 +41,8 @@ function loadFallbackEnv() {
 
   const loaded: Record<string, string> = {};
   for (const filePath of candidates) {
-    if (!existsSync(filePath)) continue;
-    const content = readFileSync(filePath, 'utf8');
+    if (!existsSync(/* turbopackIgnore: true */ filePath)) continue;
+    const content = readFileSync(/* turbopackIgnore: true */ filePath, 'utf8');
     Object.assign(loaded, parseDotEnv(content));
   }
 
@@ -51,6 +51,7 @@ function loadFallbackEnv() {
 }
 
 function readEnv(key: string) {
+  if (process.env.NODE_ENV === 'production') return process.env[key];
   return process.env[key] || loadFallbackEnv()[key];
 }
 
